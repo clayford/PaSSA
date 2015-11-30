@@ -1,0 +1,197 @@
+---
+title: "Power and Sample Size Analysis"
+author: "Clay Ford"
+date: Spring 2016
+output: beamer_presentation
+---
+
+## Topics
+
+- Power and sample size for statistical tests
+- Sample size for parameter estimation within a given margin of error
+- Estimating power via simulation
+
+
+## What is power?
+
+Power is the probability a statistical test will detect a hypothesized effect (_if it really exists_). 
+
+We like power to be high, say 80%.
+
+A toy example: I suspect a coin is biased to land heads more often than tails. I create an experiment to test this hunch. I want my experiment to have a high probability (power) of verifying this hunch _if it's true_.
+
+Let's play with this toy example...
+
+## Calculating power
+
+To calculate power for my coin experiment, I have to determine certain values in advance:
+
+- the number of times I flip the coin
+- the number of heads that convince me the coin is biased
+- the probability of heads if the coin is indeed biased
+
+I also have to assume a known distribution for coin flips. In this case, a binomial distribution.
+
+We see that "calculating power" is really just a thought experiment. 
+
+## One possible experiment
+
+Conclude coin is biased if I observe $X \ge 15$ heads in 20 flips. Assume coin is biased to show heads 60% of the time.
+
+Power is $P(X \ge 15 | n = 20, p = 0.60)$ or $1 - P(X \le 14 | n = 20, p = 0.60)$
+
+To calculate in R:
+```{r}
+1 - pbinom(q = 14, size = 20, prob = 0.6)
+```
+
+Not very powerful assuming my estimate of 60% heads is correct.
+
+## Another possible experiment
+
+Conclude coin is biased if I observe $X \ge 60$ heads in 100 flips. Assume coin is biased to show heads 60% of the time.
+
+Power is $1 - P(X \le 59 | n = 100, p = 0.60)$.
+
+```{r}
+1 - pbinom(q = 59, size = 100, prob = 0.6)
+```
+
+Better, but still not close to 0.80. We see increasing sample size increased power.
+
+## Yet another possible experiment
+
+Conclude coin is biased if I observe $X \ge 60$ heads in 100 flips. Assume coin is biased to show heads 65% of the time.
+
+Power is $1 - P(X \le 59 | n = 100, p = 0.65)$.
+
+```{r}
+1 - pbinom(q = 59, size = 100, prob = 0.65)
+```
+
+We achieved a high power, assuming we're correct about the probability of heads being 65%. We see intensifying the bias (or increasing the effect size) increased power.
+
+## Does high power ensure "success"?
+
+No. I could conclude my coin is not biased even if it truly is biased to be 65% heads. Statisticians call this a _Type II error_, or $\beta$.
+
+Type II error is $P(X \le 59 | n = 100, p = 0.60)$.
+
+```{r}
+pbinom(q = 59, size = 100, prob = 0.65)
+```
+
+Type II error is just 1 $-$ Power. Likewise, Power is $1 - \beta$.
+
+## Type I error
+
+What if I conclude the coin is biased when it actually isn't? I have made what is called a _Type I error_, or $\alpha$. (Also called the _significance level_.)
+
+Type I error is $P(X \ge 60 | n = 100, p = 0.5)$ or $1 - P(X \le 59 | n = 100, p = 0.5)$.
+
+```{r}
+1 - pbinom(q = 59, size = 100, prob = 0.5)
+```
+
+We typically want Type I error to be less than 0.05.
+
+## Determining sample size
+
+We usually want to determine a sample size that gives us a desired power. 
+
+How many flips do I need to make to detect that my coin is biased as 65% heads with 80% power?
+
+More is better, but "more" can mean unnecessary time and money. Why flip a coin 100 times if 80 will do? Or for a more realistic example, why survey 2000 people if 1000 is sufficient?
+
+## Estimating sample size 
+
+Assume coin is biased to 65% heads and we reject the notion that it's fair if we witness 60% or more heads at the end of our experiment.
+
+Let's see how four different sample sizes affect power:
+
+```{r}
+n <- c(70, 80, 90, 100)
+1 - pbinom(q = 0.60*n, size = n, prob = 0.65) 
+```
+
+It appears flipping coin 80 times provides sufficient power (about 80%).
+
+## Should we flip 80 instead of 100?
+
+What happens to Type I error?
+
+Recall: Type I error is $P(X \ge 48 | n = 80, p = 0.5)$ or $1 - P(X \le 47 | n = 80, p = 0.5)$. (Note: 48 is 60% of 80.)
+
+```{r}
+1 - pbinom(q = 47, size = 80, prob = 0.5)
+```
+
+We now have a little higher chance of incorrectly determining our coin fair given that it truly is biased heads.
+
+## calculating power and sample size in practice
+
+In the preceding toy example we "manually" calculated power while tweaking sample size and effect size.
+
+In practice we use software to do this for us. Today we'll use R and the `pwr` package.
+
+The `pwr` package implements power and sample size analyses as described in _Statistical power analysis for the behavioral sciences (2nd ed.)_, Cohen (1988).
+
+
+## pwr.p.test: test for one proportion (ES=h) 
+
+## pwr.2p.test: test for two proportions (ES=h) 
+
+## pwr.2p2n.test: test for two proportions (ES=h, unequal sample sizes) 
+
+## pwr.t.test: one sample and two samples (equal sizes) t tests for means (ES=d) 
+
+## pwr.t2n.test: two samples (different sizes) t test for means (ES=d) 
+
+## pwr.anova.test: test for one-way balanced anova (ES=f) 
+
+## pwr.r.test: correlation test (ES=r) 
+
+## pwr.chisq.test: chi-squared test (ES=w) 
+
+## pwr.f2.test: test for the general linear model (ES=f2) 
+
+
+
+## The t Test for Means
+
+
+
+
+## Estimating a population parameter
+
+- Some populations are too big or too difficult to completely measure.
+- This means we have to estimate population parameters such as a mean ($\mu$) or a proportion ($p$).
+- We estimate a parameter by randomly sampling a subset of the population and calculating a statistic, such as $\bar{x}$ or $\hat{p}$.
+- The precision of our estimate is determined by our sample size, $n$, and the variability of the population, $\sigma$. (Notice that $\sigma$ is also a population parameter!)
+
+## The confidence interval
+
+- When estimating a parameter, it is good practice to provide a confidence interval that gives an indication of the uncertainty in our estimtate.
+- The usual form of a confidence interval is
+$$estimate \pm margin \ of \ error$$
+where the margin of error formula depends on the parameter we're estimating.
+
+## The margin of error
+
+- The margin of error is usually just some multiple of a _standard error_.
+- Standard error is determined in part by your sample size, $n$.
+- For example, if our population is normally distributed with standard deviation $\sigma$, our estimate of the population mean, $\bar{x}$, has standard error $\sigma / \sqrt{n}$ 
+ 
+## Sample size for precision
+
+- If we're willing to estimate the population standard deviation, we can solve for $n$ given a desired margin of error, $\epsilon$.
+- Doing this for a mean:
+$$\epsilon = z \frac{\sigma}{\sqrt{n}}$$
+$$\sqrt{n} = \frac{z \sigma}{\epsilon}$$
+$$n = \left(\frac{z \sigma}{\epsilon}\right)^{2}$$
+where $z$ is a quantile of a standard normal distribution, such as $1.96$.
+
+## Example
+
+
+
