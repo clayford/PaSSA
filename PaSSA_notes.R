@@ -74,6 +74,11 @@ pwr.t.test(n = 500, d = 0.2, sig.level = 0.05)
 
 # pwr.p.test: test for one proportion (ES=h) 
 # pwr.2p.test: test for two proportions (ES=h) 
+
+pwr.2p.test(h=ES.h(0.67,0.5),n=80,sig.level=0.05,alternative="greater")
+pwr.2p.test(h=0.3,n=80,sig.level=0.05,alternative="greater")
+
+
 # pwr.2p2n.test: test for two proportions (ES=h, unequal sample sizes) 
 # pwr.t.test: one sample and two samples (equal sizes) t tests for means (ES=d) 
 # pwr.t2n.test: two samples (different sizes) t test for means (ES=d) 

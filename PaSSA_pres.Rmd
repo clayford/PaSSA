@@ -24,10 +24,10 @@ Let's play with this toy example...
 
 ## Calculating power
 
-To calculate power for my coin experiment, I have to determine certain values in advance:
+To calculate power for my coin experiment, I have to set certain values in advance:
 
 - the number of times I flip the coin
-- the number of heads that convince me the coin is biased
+- the number or proportion of heads that convince me the coin is biased
 - the probability of heads if the coin is indeed biased
 
 I also have to assume a known distribution for coin flips. In this case, a binomial distribution.
@@ -69,13 +69,13 @@ Power is $1 - P(X \le 59 | n = 100, p = 0.65)$.
 1 - pbinom(q = 59, size = 100, prob = 0.65)
 ```
 
-We achieved a high power, assuming we're correct about the probability of heads being 65%. We see intensifying the bias (or increasing the effect size) increased power.
+We achieved a high power, assuming we're correct about the probability of heads being 65%. We see intensifying the bias (or increasing the _effect size_) increased power.
 
 ## Does high power ensure "success"?
 
 No. I could conclude my coin is not biased even if it truly is biased to be 65% heads. Statisticians call this a _Type II error_, or $\beta$.
 
-Type II error is $P(X \le 59 | n = 100, p = 0.60)$.
+Type II error is $P(X \le 59 | n = 100, p = 0.65)$.
 
 ```{r}
 pbinom(q = 59, size = 100, prob = 0.65)
@@ -85,7 +85,7 @@ Type II error is just 1 $-$ Power. Likewise, Power is $1 - \beta$.
 
 ## Type I error
 
-What if I conclude the coin is biased when it actually isn't? I have made what is called a _Type I error_, or $\alpha$. (Also called the _significance level_.)
+What if I conclude the coin is biased when it actually isn't? I have made what is called a _Type I error_. 
 
 Type I error is $P(X \ge 60 | n = 100, p = 0.5)$ or $1 - P(X \le 59 | n = 100, p = 0.5)$.
 
@@ -93,7 +93,7 @@ Type I error is $P(X \ge 60 | n = 100, p = 0.5)$ or $1 - P(X \le 59 | n = 100, p
 1 - pbinom(q = 59, size = 100, prob = 0.5)
 ```
 
-We typically want Type I error to be less than 0.05.
+We usually want Type I error, $\alpha$, to be less than 0.05. In practice it is set to a  fixed value, called the _significance level_, and used in formulas to calculate power.   
 
 ## Determining sample size
 
@@ -128,37 +128,93 @@ Recall: Type I error is $P(X \ge 48 | n = 80, p = 0.5)$ or $1 - P(X \le 47 | n =
 
 We now have a little higher chance of incorrectly determining our coin fair given that it truly is biased heads.
 
-## calculating power and sample size in practice
+## Visualizing a hypothesis test
 
-In the preceding toy example we "manually" calculated power while tweaking sample size and effect size.
-
-In practice we use software to do this for us. Today we'll use R and the `pwr` package.
-
-The `pwr` package implements power and sample size analyses as described in _Statistical power analysis for the behavioral sciences (2nd ed.)_, Cohen (1988).
-
-
-## pwr.p.test: test for one proportion (ES=h) 
-
-## pwr.2p.test: test for two proportions (ES=h) 
-
-## pwr.2p2n.test: test for two proportions (ES=h, unequal sample sizes) 
-
-## pwr.t.test: one sample and two samples (equal sizes) t tests for means (ES=d) 
-
-## pwr.t2n.test: two samples (different sizes) t test for means (ES=d) 
-
-## pwr.anova.test: test for one-way balanced anova (ES=f) 
-
-## pwr.r.test: correlation test (ES=r) 
-
-## pwr.chisq.test: chi-squared test (ES=w) 
-
-## pwr.f2.test: test for the general linear model (ES=f2) 
+```{r echo=FALSE}
+p1 <- dbinom(x = 0:100, size = 100, prob = 0.65)
+p2 <- dbinom(x = 0:100, size = 100, prob = 0.5)
+op <- par(mfrow=c(2,1))
+plot(0:100,p2, type="h", main="Null: Fair Coin (50% heads), n = 100", ylab="P", xlab="Number of Heads")
+abline(v = 60, col="red")
+text(80,0.05, "Incorrect Decision (Type I error)")
+text(35,0.05, "Correct Decision")
+plot(0:100,p1, type="h", main="Alt: Biased Coin (65% heads), n = 100", ylab="P", xlab="Number of Heads")
+abline(v = 60, col="red")
+text(85,0.05, "Correct Decision (Power)")
+text(40,0.05, "Incorrect Decision (Type II error)")
+par(op)
+```
 
 
+## Calculating power and sample size in practice
 
-## The t Test for Means
+In the preceding toy example we "manually" calculated power while tweaking sample size and effect size. In practice we use software to do this for us. 
 
+Power and sample size formulas have been derived for many statistical tests that allows us to...
+
+- calculate **sample size** given power, effect size and significance level
+- calculate **power** given sample size, effect size and significance level
+
+They are related such that one is determined by the other three. 
+
+## The `pwr` package
+
+Today we'll use R and the `pwr` package.
+
+`install.packages("pwr")`   
+`library(pwr)`
+
+The `pwr` package implements power and sample size analyses as described in _Statistical Power Analysis for the Behavioral Sciences (2nd ed.)_, Cohen (1988).
+
+One of the tricks to using the `pwr` package is understanding how it defines _effect size_.
+
+## Effect size
+
+Cohen defines "effect size" as "the degree to which the null hypothesis false."
+
+Example: If our null mean is 100m, and the alternative is 120m, the effect size is 20m.
+
+But the functions in the `pwr` package require the effect size to be metric-free (unitless). 
+
+**This means you need to calculate effect size before using `pwr` functions. Entering the wrong effect size leads to incorrect power and sample size estimates!**
+
+Fortunately the `pwr` package provides functions for this.
+
+## The `pwr` functions
+
+- `pwr.p.test`: test for one proportion (ES=h)    
+- `pwr.2p.test`: test for two proportions (ES=h)     
+- `pwr.2p2n.test`: test for two proportions (ES=h, unequal sample sizes)    
+- `pwr.t.test`: one sample and two samples (equal sizes) t tests for means (ES=d)     
+- `pwr.t2n.test`: two samples (different sizes) t test for means (ES=d)    
+- `pwr.anova.test`: test for one-way balanced anova (ES=f)    
+- `pwr.r.test`: correlation test (ES=r)     
+- `pwr.chisq.test`: chi-squared test (ES=w)    
+- `pwr.f2.test`: test for the general linear model (ES=f2)     
+
+Notice the various effect sizes: h, d, f, r, w, f2. These are based on formulas.
+
+## The `ES` functions
+
+- `ES.h`: computing effect size h for proportions tests 
+- `cohen.ES`: computing conventional effect size (small, medium, large) for all tests available in `pwr`
+- `ES.w1`: computing effect size w for the goodness of fit chi-squared test 
+- `ES.w2`: computing effect size w for the association chi-squared test 
+
+We will use the first two functions as needed in the examples that follow. This workshop will not cover chi-squared tests.
+
+## Conventional effect size
+
+Sometimes we don't know the precise effect size we expect or hope to find. In this case we can resort to conventional effect sizes of "small", "medium", or "large".
+
+The `cohen.ES` function generates these for us according to the statistical test of interest.
+
+For example, a "medium" effect size for a proportion test:
+`cohen.ES(test="p", size="medium")`
+
+This returns 0.5.
+
+Let's go to R!
 
 
 
