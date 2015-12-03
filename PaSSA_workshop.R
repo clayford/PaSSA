@@ -33,7 +33,7 @@ ES.h(p1 = 0.16, p2 = 0.01)
 
 # The effect size is an arcsine transformation:
 ES.h(p1 = 0.65, p2 = 0.50)
-2*asin(sqrt(0.65))-2*asin(sqrt(0.50))
+2*asin(sqrt(0.65)) - 2*asin(sqrt(0.50))
 
 # Say we think our coin is biased to show heads 60% percent of the time instead 
 # of 50%. What is the power of our test if we flip the coin 125 times provided
@@ -167,7 +167,7 @@ pwr.t.test(n = seq(100,300,25), d = 0.2, sig.level = 0.05)
 n <- seq(100,900,10)
 pout <- pwr.t.test(n = n, d = 0.2, sig.level = 0.05)
 plot(x = n, y = pout$power, type = "l")
-abline(h = 0.8, col="red")
+abline(h = 0.8, col = "red")
 
 
 
@@ -176,22 +176,236 @@ abline(h = 0.8, col="red")
 
 # two samples (different sizes) t test for means (ES=d) 
 
+# Find power. (sig.level defaults to 0.05.)
+pwr.t2n.test(n1 = 28, n2 = 35, d = 0.5)
 
+# Find n1 sample size for 0.80 power
+pwr.t2n.test(n2 = 35, d = 0.5, power = 0.8)
+
+
+# pwr.r.test --------------------------------------------------------------
+
+# correlation test (ES=r) 
+
+# The correlation test allows us to test whether there is any linear 
+# relationship between two continuous variables. In other words, can we reject
+# the null hypothesis of the correlation coefficient being 0. 
+
+# Here's an example of a linear relationship
+x <- iris$Sepal.Length
+y <- iris$Petal.Length
+plot(x,y)
+
+# The correlation is high. Recall correlation ranges from -1 to 1.
+cor(x,y)
+
+# We can fit a straight line to the data
+lm(y ~ x)
+
+# and draw the fitted line
+abline(lm(y ~ x))
+
+# the slope of the line is related to the correlation coefficient:
+coef(lm(y ~ x))[2] # slope
+cor(x, y) * sd(y)/sd(x)
+
+# So testing if the correlation is 0 is the same as testing if the slope is 0.
+
+# The nice thing about correlation is that it's already unitless, so we don't
+# require a formula to calculate effect size.
+
+# For what it's worth, here are suggested small, medium and large effect sizes:
+cohen.ES(test = "r", size = "small")
+cohen.ES(test = "r", size = "medium")
+cohen.ES(test = "r", size = "large")
+
+# Let's say I'm a web developer and I want to conduct an experiment with one of 
+# my sites. I want to randomly select a group of people, ranging in age from 18 
+# - 65, and time them how long it takes them to complete a task, say locate some
+# piece of information. I suspect there may be a "small" positive linear
+# relationship between time it takes to complete the task and age. How many
+# subjects do I need to detect this relationship with 80% power and the usual
+# 0.05 significance level?
+
+pwr.r.test(r = 0.1, sig.level = 0.05, power = 0.8)
+
+# The arctangh transformation approximates the normal distribution, which is
+# used in the power and sample size calculations.
 
 # pwr.anova.test ----------------------------------------------------------
 
 
 # test for one-way balanced anova (ES=f) 
 
+# ANOVA, or Analysis of Variance, tests whether or not means differ between k >
+# 2 groups. One-way means one explanatory variable. Balanced means we equal 
+# sample size in each group. The null hypothesis is that the means are all 
+# equal.
 
-# pwr.r.test --------------------------------------------------------------
+# The effect size, f, is calculated as follows:
 
+# f = sd_means / sd_populations
 
-# correlation test (ES=r) 
+# Translation: standard deviation of the k means divided the common standard 
+# deviation of the populations involved.
+
+# we can think of f as the standard deviation of the k standarized means.
+
+# pwr does not provide a function to calculate this for us, however we can use
+# cohen.ES to generate small, medium and large effects:
+cohen.ES(test = "anov", size = "small")
+cohen.ES(test = "anov", size = "medium")
+cohen.ES(test = "anov", size = "large")
+
+# Let's say I'm a web developer and I'm interested in 3 web site designs for a 
+# client. I'd like to know which design(s) help users find information fastest, 
+# or which design requires the most time. I design an experiment where I have 3 
+# groups of randomly selected people use one of the designs to find some piece 
+# of information. (All groups look for the same information.) How many people do
+# I need in each group if I believe two of the designs will take 30 seconds and
+# one will take 35 seconds? (desired power and sig level of 0.8 and 0.05)
+
+# First we need our effect size.
+
+# Cohen says to divide by k instead k - 1 when calculating the standard 
+# deviation of the means. The R sd() function divides by k - 1. So to calculate
+# the effect size his way, we can do the following:
+gm <- c(30, 30, 35)
+f1 <- sqrt((sum((gm - mean(gm))^2)/3))/10 # 0.24
+
+# If we do it this way, we get a bigger effect size
+f2 <- sd(gm)/10 # 0.29
+
+# Both can be classified as "medium" effects.
+
+# How do they change our sample size estimates?
+pwr.anova.test(k = 3, f = f1, power = 0.80)
+pwr.anova.test(k = 3, f = f2, power = 0.80)
+
+# Quite a bit!
+
+# what's the power of the experiment if we're able to recruit 50 people in each
+# group?
+pwr.anova.test(k = 3, f = f1, n = 50)
+pwr.anova.test(k = 3, f = f2, n = 50)
+pwr.anova.test(k = 3, f = 0.25, n = 50) # so-called "medium" effect
+
+# Don't feel like messing with f? Try the power.anova.test function that comes 
+# with base R. It allows you to specify hypothesized between group variance and 
+# within group variance. Notice we have to use variance, not standard deviation!
+
+power.anova.test(groups = 3, between.var = var(gm), within.var = 10^2, power = 0.8)
+
+# This gives the same result as pwr.anova.test(k = 3, f = f1, power = 0.80). The
+# base R power.anova.test function doesn't require you to calculate variance
+# using a divisor of k instead of k - 1.
+
+# Again we can calculate multiple powers for various sample sizes to see
+# dimishing returns for increasing sample size past a certain point.
+n <- seq(30,150,10)
+pout <- pwr.anova.test(k = 3, f = f1, n = n)
+plot(n, pout$power, type="l")
+abline(h = 0.8, col="red")
+
+# How does the number of groups affect power and sample size given same "medium" effect?
+
+plot(n, pwr.anova.test(k = 3, f = 0.25, n = n)$power, type="l", ylab="power")
+abline(h = 0.8, col="red")
+lines(n, pwr.anova.test(k = 4, f = 0.25, n = n)$power, type="l", col=2)
+lines(n, pwr.anova.test(k = 5, f = 0.25, n = n)$power, type="l", col=3)
+lines(n, pwr.anova.test(k = 6, f = 0.25, n = n)$power, type="l", col=4)
+legend("bottomright", legend = 3:6, col = 1:4, lty = 1)
 
 
 # pwr.f2.test -------------------------------------------------------------
 
-
 # test for the general linear model (ES=f2) 
+
+# By "general linear model" we basically mean multiple regression. This is a 
+# little tricky to use because not only do we have to supply an "effect size" 
+# (f2), we also have to supply numerator (u) and denominator (v) degrees of
+# freedom instead of sample size. These last two refer to the F test that tests
+# whether all the model coefficients (except the intercept) are 0.
+
+# Example of F test. Regress stack loss on all variables in stackloss. Results
+# of F test are last line in summary
+summary(lm(stack.loss ~ ., data=stackloss))
+
+# u is simply the number of coefficients you'll have in your model (again, minus
+# the intercept).
+
+# v is the number of error degrees of freedom. It equals n - u - 1. So if we
+# want to determine sample size for a given power and effect size, we actually
+# find v, which we then use to solve n = v + u + 1.
+
+# The effect size is determined as follows:
+
+# f2 = PV_s / PV_e
+
+# where PV_s = proportion of variance explained by the predictors (signal) and
+# PV_e = proportion of variance unexplained (error or noise)
+
+# Another way to express this is 
+
+# f2 = R-squared / (1 - R-squared)
+
+# Where R-squared is the coefficient of determination, R^2. This is what we'll
+# use in the examples below.
+
+# To determine your effect size you hypothesize the r-squared of your model. For
+# example, 0.45. This leads to an effect size of
+0.45/(1 - 0.45) # 0.81
+
+# It should be noted we can reverse this. Given an effect size, we can determine
+# R-squared as ES / (1 + ES)
+0.81/(1 + 0.81) # 0.45
+
+# Again we have suggested small, medium and large effect sizes:
+
+cohen.ES(test = "f2", size = "small") # 0.02
+# R-squared:
+0.02/(1 + 0.02) # 0.019
+
+cohen.ES(test = "f2", size = "medium") # 0.15
+# R-squared:
+0.15/(1 + 0.15) # 0.130
+
+cohen.ES(test = "f2", size = "large") # 0.35
+# R-squared:
+0.35/(1 + 0.35) # 0.259
+
+# Obviously these are debatable!
+
+# Let's say I'm a web developer and I want to conduct an experiment with one of 
+# my sites. I want to randomly select a group of people, ranging in age from 18 
+# - 65, and time them how long it takes them to complete a task, say locate some
+# piece of information. I know there will be variability in the observed times. 
+# I think age, gender and years of education may explain this variability. How
+# many subjects do I need to detect an R-squared of at least 0.3 with 80% power
+# and the usual 0.05 significance level?
+
+nout <- pwr.f2.test(u = 3, f2 = 0.3/(1 - 0.3), sig.level = 0.05, power = 0.8)
+# find n = v + u + 1
+ceiling(nout$v) + nout$u + 1
+
+# It's important to note that the alternative hypothesis here is that at least 
+# one of the coefficients in my model is not 0. This doesn't mean we need at 
+# least 30 subjects to have all coefficients significant. It just means 30 
+# subjects gives us 80% chance of correctly detecting the effect of at least one
+# of our predictors, provided one or more truly affect our response.
+
+# To find power we have to supply u and v. What's the power of our test if we
+# recruit 50 people and we hypothesis an R-squared of 0.25?
+
+pwr.f2.test(u = 3, v = 50 - 3 - 1, f2 = 0.25/(1 - 0.25), sig.level = 0.05)
+
+# Back to presentation
+
+# Sample size for estimates -----------------------------------------------
+
+
+
+
+# Simulation --------------------------------------------------------------
+
 
