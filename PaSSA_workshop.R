@@ -399,13 +399,21 @@ ceiling(nout$v) + nout$u + 1
 
 pwr.f2.test(u = 3, v = 50 - 3 - 1, f2 = 0.25/(1 - 0.25), sig.level = 0.05)
 
+# Worth noting ANOVA is just special cases of a linear model. Observe:
+
+# One way ANOVA power calculation for 3 groups of 50:
+pwr.anova.test(k = 3, f = 0.24, n = 50)
+
+# linear model power calculation for one categorical predictor with 3 levels:
+pwr.f2.test(u = 2, v = 147, f2 = 0.24^2, sig.level = 0.05)
+
+# u = 2 because a linear model with a 3-level categorical predictor will only
+# have 2 coefficients. v = 148 because 148 = 3*50 - 2 - 1.
+
 # Back to presentation
 
 # Sample size for estimates -----------------------------------------------
 
 
-
-
-# Simulation --------------------------------------------------------------
 
 

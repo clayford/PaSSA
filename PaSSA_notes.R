@@ -87,3 +87,17 @@ pwr.2p.test(h=0.3,n=80,sig.level=0.05,alternative="greater")
 # pwr.chisq.test: chi-squared test (ES=w) 
 # pwr.f2.test: test for the general linear model (ES=f2) 
 
+
+# Simulation --------------------------------------------------------------
+
+# generate logit model
+x1 <- runif(500)
+x2 <- runif(500)
+xb <- 2 + 0.75*x1 - 1.25*x2 # linear model
+exb <- 1/(1 + exp(-xb)) # logit transformation of linear model (ie, range = (0,1))
+by <- rbinom(500, size = 1, prob = exb) # generate response
+dat <- data.frame(by, x1, x2)
+glm1 <- glm(by ~ x1 + x2, data=dat, family = binomial)
+summary(glm1)
+
+

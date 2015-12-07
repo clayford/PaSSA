@@ -7,9 +7,9 @@ output: beamer_presentation
 
 ## Topics
 
+- Quick intro to power and sample size concepts
 - Power and sample size for statistical tests
 - Sample size for parameter estimation within a given margin of error
-- Estimating power via simulation
 
 
 ## What is power?
@@ -170,7 +170,7 @@ One of the tricks to using the `pwr` package is understanding how it defines _ef
 
 ## Effect size
 
-Cohen defines "effect size" as "the degree to which the null hypothesis false."
+Cohen defines "effect size" as "the degree to which the null hypothesis is false."
 
 Example: If our null mean is 100m, and the alternative is 120m, the effect size is 20m.
 
@@ -246,5 +246,44 @@ where $z$ is a quantile of a standard normal distribution, such as $1.96$.
 
 ## Example
 
+I want to estimate the mean amount of time someone takes a drink from the water fountains in Clark Hall within 0.5 seconds with 95% confidence ($z = 1.96$). I assume the population of drinking times has a standard deviation of 2 seconds.
 
+$$n = \left(\frac{1.96 \times 2}{0.5}\right)^{2}$$
 
+$$n = 62$$
+
+Always round the answer up. Obviously this is approximate. I might treat this as a lower bound. 
+
+## Other sample size estimates
+
+The same kinds of estimates can be made for proportions, difference of proportions, and difference of means, as well as other statistics which have a tractable standard error estimate.
+
+These estimates are implemented in the R package _nandc_. 
+
+Using the previous example:
+```{r}
+# install.packages("nandc")
+library(nandc)
+meanSampleSize(moe = 0.5, sd = 2, conf = 0.95)
+```
+
+Let's go to R!
+
+## Other R packages of potential interest
+
+- TrialSize. Functions and examples from the book _Sample Size Calculation in Clinical Research_
+
+## References
+
+Cohen, J. (1988). _Statistical Power Analysis for the Behavioral Sciences (2nd ed.)_. LEA.
+
+Hogg, R and Tanis, E. (2006). _Probability and Statistical Inference (7th ed.)_. Pearson.
+
+## Thanks for coming today!
+
+For help and advice with your data analysis, contact us to set up an appointment: statlab@virginia.edu
+
+Sign up for more workshops or see past workshops:
+http://data.library.virginia.edu/statlab/
+
+Register for the Research Data Services newsletter to stay up-to-date on StatLab events and resources: http://data.library.virginia.edu/newsletters/
