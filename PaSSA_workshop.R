@@ -13,14 +13,12 @@ library(pwr)
 # test for one proportion (ES=h) 
 
 # When we want to test if a proportion is equal to some value. Notice the effect
-# size is h. We can use ES.h to calculate effect size.
+# size is h. We can use the ES.h function to calculate effect size.
 
-# This applies to our coin example. Say we think our coin is biased to show 
-# heads 65% percent of the time instead of 50%. What sample size do we need to 
-# show this assuming a significance level (Type I error) of 0.05 and a desired
-# power of 0.80?
-
-pwr.p.test(h = ES.h(p1 = 0.65, p2 = 0.50), sig.level = 0.05, power = 0.80)
+# This applies to our name tag example. Say we think people place name tags on 
+# the left side of their chest 65% percent of the time instead of 50%. What
+# sample size do we need to show this assuming a significance level (Type I
+# error) of 0.05 and a desired power of 0.80?
 
 # Our effect size is 65 - 50 = 15. But 85 - 70 = 15 as does 16 - 1. These are 
 # equal differences but they result in different power and sample size results.
@@ -31,12 +29,16 @@ ES.h(p1 = 0.65, p2 = 0.50)
 ES.h(p1 = 0.85, p2 = 0.70)
 ES.h(p1 = 0.16, p2 = 0.01)
 
-# The effect size is an arcsine transformation:
+# In case you're interested, the effect size is an arcsine transformation:
 ES.h(p1 = 0.65, p2 = 0.50)
 2*asin(sqrt(0.65)) - 2*asin(sqrt(0.50))
 
-# Say we think our coin is biased to show heads 60% percent of the time instead 
-# of 50%. What is the power of our test if we flip the coin 125 times provided
+# Now let's find the sample size. Notice we can use the ES.h function in the
+# pwr.p.test function:
+pwr.p.test(h = ES.h(p1 = 0.65, p2 = 0.50), sig.level = 0.05, power = 0.80)
+
+# Say we think people place name tags on the left 60% percent of the time instead 
+# of 50%. What is the power of our test if we survey 125 people provided
 # we accept a significance level (Type I error) of 0.05?
 
 pwr.p.test(h = ES.h(p1 = 0.60, p2 = 0.50), n = 125, sig.level = 0.05)
@@ -48,11 +50,11 @@ pwr.p.test(h = ES.h(p1 = 0.60, p2 = 0.50), n = 125, sig.level = 0.05)
 pwr.p.test(h = ES.h(p1 = 0.60, p2 = 0.50), n = 125, sig.level = 0.05, 
            alternative = "greater")
 
-# Say we think our coin is biased to show heads 55% percent of the time instead
+# Say we think people place name tags on the left 75% percent of the time instead
 # of 50%. What sample size do we need to show this assuming a significance level
 # (Type I error) of 0.05 and a desired power of 0.80?
-pwr.p.test(h = ES.h(p1 = 0.55, p2 = 0.50), sig.level = 0.05, power = 0.80)
-
+pwr.p.test(h = ES.h(p1 = 0.75, p2 = 0.50), sig.level = 0.05, power = 0.80)
+pwr.2p.test(h = ES.h(p1 = 0.75, p2 = 0.50), sig.level = 0.05, power = 0.80)
 
 
 # pwr.2p.test -------------------------------------------------------------
@@ -135,21 +137,57 @@ cohen.ES(test = "t", size = "large")
 # their total purchase price. How powerful is this experiment if I want to
 # detect a "small" effect?
 
-pwr.t.test(n = 30, d = 0.2, sig.level = 0.05)
+pwr.t.test(n = 30, d = 0.2, sig.level = 0.05) # n is per group
 
 # Not very powerful. How many do I need to observe for a test with 80% power?
 
 pwr.t.test(d = 0.2, power = 0.80, sig.level = 0.05)
 
+# The default alternative is "two.sided". That is, we're looking for an effect 
+# in either direction. We can specify the alternative as "greater" than 0 or
+# "less" than 0. 
+
+# alternative: greater than 0
+pwr.t.test(d = 0.2, power = 0.80, sig.level = 0.05, alternative = "greater")
+# alternative: less than 0
+pwr.t.test(d = -0.2, power = 0.80, sig.level = 0.05, alternative = "less")
+
+# same sample size in either case.
+
 # Let's say we want to be able to detect a difference of at least 75 cents in 
 # the mean purchase price. How can we convert that to an effect size? First we 
 # need to make a guess at the population standard deviation. If we have 
 # absolutely no idea, one rule of thumb is to take the difference between the 
-# maximum and minimum values and divide by 4. Let's max is 10 and min is 1. So
-# our guess at a standard deviation is 9/4 = 2.25. Therefore d is 
+# maximum and minimum values and divide by 4. Let's say max is 10 and min is 1.
+# So our guess at a standard deviation is 9/4 = 2.25. Therefore d is
 
-d <- 0.75/2.25
+d <- 0.75/2.25 # 0.333
 pwr.t.test(d = d, power = 0.80, sig.level = 0.05)
+
+# An effect size of 0.333 requires 143 per group 
+# An effect size of 0.2 requires 394 per group.
+
+# Let's see how effect size affects sample size. The results of the pwr
+# functions can be saved:
+pout <- pwr.t.test(d = d, power = 0.80, sig.level = 0.05)
+# Then various parts can be extracted:
+str(pout)
+pout$n
+
+# We can also do this directly:
+pwr.t.test(d = d, power = 0.80, sig.level = 0.05)$n
+
+# Let's take advantage to create a plot of effect size versus required sample
+# size for 80% power and 0.05 significance level:
+d <- seq(0.2,2,0.1)
+n <- sapply(d, function(x) pwr.t.test(d = x, power = 0.80, sig.level = 0.05)$n)
+plot(d,n,type="l")
+points(x = c(0.2,0.5,0.8), y = n[c(1,4,7)], pch=19, cex=1, col=c("black","red","blue"))
+legend("topright", legend = c("0.2 - small","0.5 - medium","0.8 - large"), 
+       col = c("black","red","blue"), 
+       pch = 19, title = "effect size")
+
+# We can see how crucial anticipated effect size is to determining sample size.
 
 # If you don't like working with d, you can use the power.t.test function that 
 # comes with base R. It allows you to specify "delta" (true difference in means)
@@ -159,7 +197,7 @@ power.t.test(delta = 0.75, sd = 2.25, sig.level = 0.05, power = 0.8)
 
 # For any of the pwr functions we can provide multiple sample size values to get
 # multiple power estimates. For example, let's see how power changes as we let n
-# go from 100 to 300 by 25.
+# go from 100 to 300 by 25 using a "small" effect size of 0.2.
 
 pwr.t.test(n = seq(100,300,25), d = 0.2, sig.level = 0.05)
 
@@ -170,16 +208,17 @@ plot(x = n, y = pout$power, type = "l")
 abline(h = 0.8, col = "red")
 
 
-
 # pwr.t2n.test ------------------------------------------------------------
 
 
 # two samples (different sizes) t test for means (ES=d) 
 
-# Find power. (sig.level defaults to 0.05.)
+# Find power for a t test with 28 in one group and 35 in the other group and a
+# medium effect size. (sig.level defaults to 0.05.)
 pwr.t2n.test(n1 = 28, n2 = 35, d = 0.5)
 
-# Find n1 sample size for 0.80 power
+# Find n1 sample size when other group has 35, desired power is 0.80, effect 
+# size is 0.5 and siginificance level is 0.05:
 pwr.t2n.test(n2 = 35, d = 0.5, power = 0.8)
 
 
@@ -227,10 +266,30 @@ cohen.ES(test = "r", size = "large")
 # subjects do I need to detect this relationship with 80% power and the usual
 # 0.05 significance level?
 
-pwr.r.test(r = 0.1, sig.level = 0.05, power = 0.8)
+pwr.r.test(r = 0.1, sig.level = 0.05, power = 0.8, alternative = "greater")
 
-# The arctangh transformation approximates the normal distribution, which is
+# The "arctangh transformation" approximates the normal distribution, which is 
 # used in the power and sample size calculations.
+
+# The default is a two-sided test. We specify alternative = "greater" since we 
+# believe there is small positive effect. That is, our null is correlation <= 0
+# vs the alternative that correlation is > 0. 
+
+# What if I just want to detect a small effect in either direction (positive or
+# negative correlation)? Use the default settings of "two.sided"
+pwr.r.test(r = 0.1, sig.level = 0.05, power = 0.8, alternative = "two.sided")
+
+# And what if I hypothesize a negative effect (decreased time as age increases)?
+# We need to make the effect size negative and specify alternative = "less"
+pwr.r.test(r = -0.1, sig.level = 0.05, power = 0.8, alternative = "less")
+
+# Of course the number of subjects is the same as alternative = "greater".
+
+# What's the power of my test if I recruit 50 people and I hypothesize a medium
+# positive effect?
+pwr.r.test(n = 50, r = 0.3, sig.level = 0.05, alternative = "greater")
+
+
 
 # pwr.anova.test ----------------------------------------------------------
 

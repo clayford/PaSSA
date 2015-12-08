@@ -18,25 +18,25 @@ Power is the probability a statistical test will detect a hypothesized effect (_
 
 We like power to be high, say 80%.
 
-A toy example: I suspect a coin is biased to land heads more often than tails. I create an experiment to test this hunch. I want my experiment to have a high probability (power) of verifying this hunch _if it's true_.
+Example: I suspect most people place name tags on the left side of their chest (probably because most people are right handed). I create an experiment to test this hunch. I want my experiment to have a high probability (power) of verifying this hunch _if it's true_.
 
-Let's play with this toy example...
+Let's play with this example...
 
 ## Calculating power
 
-To calculate power for my coin experiment, I have to set certain values in advance:
+To calculate power for my name tag experiment, I have to set certain values in advance:
 
-- the number of times I flip the coin
-- the number or proportion of heads that convince me the coin is biased
-- the probability of heads if the coin is indeed biased
+- the number of randomly selected people in my experiment
+- the number or proportion of tags on left that convince me the hypothesis is true
+- the probability of placing tag on left if my hypothesis is correct
 
-I also have to assume a known distribution for coin flips. In this case, a binomial distribution.
+I also have to assume a known distribution for total number of name tags placed on left. In this case, a binomial distribution.
 
 We see that "calculating power" is really just a thought experiment. 
 
 ## One possible experiment
 
-Conclude coin is biased if I observe $X \ge 15$ heads in 20 flips. Assume coin is biased to show heads 60% of the time.
+Conclude people prefer left if I observe $X \ge 15$ "lefts" in 20 trials. Assume people prefer left 60% of the time.
 
 Power is $P(X \ge 15 | n = 20, p = 0.60)$ or $1 - P(X \le 14 | n = 20, p = 0.60)$
 
@@ -45,11 +45,11 @@ To calculate in R:
 1 - pbinom(q = 14, size = 20, prob = 0.6)
 ```
 
-Not very powerful assuming my estimate of 60% heads is correct.
+Not very powerful assuming my estimate of 60% left preference is correct.
 
 ## Another possible experiment
 
-Conclude coin is biased if I observe $X \ge 60$ heads in 100 flips. Assume coin is biased to show heads 60% of the time.
+Conclude people prefer left if I observe $X \ge 60$ "lefts" in 100 trials. Assume people prefer left 60% of the time.
 
 Power is $1 - P(X \le 59 | n = 100, p = 0.60)$.
 
@@ -61,7 +61,7 @@ Better, but still not close to 0.80. We see increasing sample size increased pow
 
 ## Yet another possible experiment
 
-Conclude coin is biased if I observe $X \ge 60$ heads in 100 flips. Assume coin is biased to show heads 65% of the time.
+Conclude people prefer left if I observe $X \ge 60$ "lefts" in 100 trials. Assume people prefer left 65% of the time.
 
 Power is $1 - P(X \le 59 | n = 100, p = 0.65)$.
 
@@ -69,11 +69,11 @@ Power is $1 - P(X \le 59 | n = 100, p = 0.65)$.
 1 - pbinom(q = 59, size = 100, prob = 0.65)
 ```
 
-We achieved a high power, assuming we're correct about the probability of heads being 65%. We see intensifying the bias (or increasing the _effect size_) increased power.
+We achieved a high power, assuming we're correct about the probability of left-placement being 65%. We see simply increasing the assumed likelihood of "left" (or increasing the _effect size_) increased power.
 
 ## Does high power ensure "success"?
 
-No. I could conclude my coin is not biased even if it truly is biased to be 65% heads. Statisticians call this a _Type II error_, or $\beta$.
+No. I could conclude people have no preference even if they truly prefer left 65% of the time. Statisticians call this a _Type II error_, or $\beta$.
 
 Type II error is $P(X \le 59 | n = 100, p = 0.65)$.
 
@@ -85,7 +85,7 @@ Type II error is just 1 $-$ Power. Likewise, Power is $1 - \beta$.
 
 ## Type I error
 
-What if I conclude the coin is biased when it actually isn't? I have made what is called a _Type I error_. 
+What if I conclude people prefer left when they actually do not? I have made what is called a _Type I error_. 
 
 Type I error is $P(X \ge 60 | n = 100, p = 0.5)$ or $1 - P(X \le 59 | n = 100, p = 0.5)$.
 
@@ -99,13 +99,13 @@ We usually want Type I error, $\alpha$, to be less than 0.05. In practice it is 
 
 We usually want to determine a sample size that gives us a desired power. 
 
-How many flips do I need to make to detect that my coin is biased as 65% heads with 80% power?
+How many people do I need in my experiment to verify people prefer left 65% of the time with 80% power?
 
-More is better, but "more" can mean unnecessary time and money. Why flip a coin 100 times if 80 will do? Or for a more realistic example, why survey 2000 people if 1000 is sufficient?
+More is better, but "more" can mean unnecessary time and money. Why recruit 100 people if 80 will do? 
 
 ## Estimating sample size 
 
-Assume coin is biased to 65% heads and we reject the notion that it's fair if we witness 60% or more heads at the end of our experiment.
+Assume people prefer left 65% of the time and we reject the notion that there is no preference if we witness 60% or more "lefts" at the end of our experiment.
 
 Let's see how four different sample sizes affect power:
 
@@ -114,9 +114,9 @@ n <- c(70, 80, 90, 100)
 1 - pbinom(q = 0.60*n, size = n, prob = 0.65) 
 ```
 
-It appears flipping coin 80 times provides sufficient power (about 80%).
+It appears 80 people provide sufficient power (about 80%).
 
-## Should we flip 80 instead of 100?
+## Should we recruit 80 people instead of 100?
 
 What happens to Type I error?
 
@@ -126,7 +126,7 @@ Recall: Type I error is $P(X \ge 48 | n = 80, p = 0.5)$ or $1 - P(X \le 47 | n =
 1 - pbinom(q = 47, size = 80, prob = 0.5)
 ```
 
-We now have a little higher chance of incorrectly determining our coin fair given that it truly is biased heads.
+We now have a little higher chance of incorrectly concluding people have no preference given they truly do have a preference.
 
 ## Visualizing a hypothesis test
 
@@ -134,11 +134,11 @@ We now have a little higher chance of incorrectly determining our coin fair give
 p1 <- dbinom(x = 0:100, size = 100, prob = 0.65)
 p2 <- dbinom(x = 0:100, size = 100, prob = 0.5)
 op <- par(mfrow=c(2,1))
-plot(0:100,p2, type="h", main="Null: Fair Coin (50% heads), n = 100", ylab="P", xlab="Number of Heads")
+plot(0:100,p2, type="h", main="Null: No preference (50% chance), n = 100", ylab="P", xlab="Number of name tags on left")
 abline(v = 60, col="red")
 text(80,0.05, "Incorrect Decision (Type I error)")
 text(35,0.05, "Correct Decision")
-plot(0:100,p1, type="h", main="Alt: Biased Coin (65% heads), n = 100", ylab="P", xlab="Number of Heads")
+plot(0:100,p1, type="h", main="Alt: Prefer left (65% chance), n = 100", ylab="P", xlab="Number of name tags on left")
 abline(v = 60, col="red")
 text(85,0.05, "Correct Decision (Power)")
 text(40,0.05, "Incorrect Decision (Type II error)")
@@ -155,7 +155,7 @@ Power and sample size formulas have been derived for many statistical tests that
 - calculate **sample size** given power, effect size and significance level
 - calculate **power** given sample size, effect size and significance level
 
-They are related such that one is determined by the other three. 
+The parameters in the formulas are related such that one is determined by the other three. 
 
 ## The `pwr` package
 
@@ -187,8 +187,8 @@ Fortunately the `pwr` package provides functions for this.
 - `pwr.2p2n.test`: test for two proportions (ES=h, unequal sample sizes)    
 - `pwr.t.test`: one sample and two samples (equal sizes) t tests for means (ES=d)     
 - `pwr.t2n.test`: two samples (different sizes) t test for means (ES=d)    
-- `pwr.anova.test`: test for one-way balanced anova (ES=f)    
 - `pwr.r.test`: correlation test (ES=r)     
+- `pwr.anova.test`: test for one-way balanced anova (ES=f)    
 - `pwr.f2.test`: test for the general linear model (ES=f2)     
 
 Notice the various effect sizes: h, d, f, r, f2. These are based on formulas.
