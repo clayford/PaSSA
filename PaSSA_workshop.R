@@ -50,11 +50,17 @@ pwr.p.test(h = ES.h(p1 = 0.60, p2 = 0.50), n = 125, sig.level = 0.05)
 pwr.p.test(h = ES.h(p1 = 0.60, p2 = 0.50), n = 125, sig.level = 0.05, 
            alternative = "greater")
 
+# Equivalently we can think of one proportion being "less" than some value. In 
+# this case we swap the order of proportions in the ES.h() function. Notice the 
+# effect is negative and resulting power is the same:
+pwr.p.test(h = ES.h(p1 = 0.50, p2 = 0.60), n = 125, sig.level = 0.05, 
+           alternative = "less")
+
+
 # Say we think people place name tags on the left 75% percent of the time instead
 # of 50%. What sample size do we need to show this assuming a significance level
 # (Type I error) of 0.05 and a desired power of 0.80?
 pwr.p.test(h = ES.h(p1 = 0.75, p2 = 0.50), sig.level = 0.05, power = 0.80)
-pwr.2p.test(h = ES.h(p1 = 0.75, p2 = 0.50), sig.level = 0.05, power = 0.80)
 
 
 # pwr.2p.test -------------------------------------------------------------
@@ -82,7 +88,6 @@ pwr.2p.test(h = ES.h(p1 = 0.35, 0.30), sig.level = 0.05, power = .80)
 # proportions in the function.
 power.prop.test(p1 = 0.55, p2 = 0.50, sig.level = 0.05, power = .80)
 power.prop.test(p1 = 0.35, p2 = 0.30, sig.level = 0.05, power = .80)
-
 
 
 # pwr.2p2n.test -----------------------------------------------------------
@@ -116,12 +121,12 @@ pwr.2p2n.test(h = 0.2, n1 = 763, power = 0.8, sig.level = 0.05)
 
 # pwr.t.test --------------------------------------------------------------
 
-# one sample and two samples (equal sizes) t tests for means (ES=d) 
+# one sample and two samples (equal sizes) t-tests for means (ES=d) 
 
-# There is no function for effect size d. We have to calculate this ourselves. 
-# It is simply the difference in population means divided by the standard 
-# deviation of either population (since they are assumed equal). This is
-# sometimes called "Cohen's d".
+# The effect size d is simply the difference in population means divided by the 
+# standard deviation of either population (since they are assumed equal). This 
+# is sometimes called "Cohen's d". There is no function for effect size d. We
+# have to calculate this ourselves.
 
 # d = mean_1 - mean_2 / sd
 
@@ -174,11 +179,11 @@ pout <- pwr.t.test(d = d, power = 0.80, sig.level = 0.05)
 str(pout)
 pout$n
 
-# We can also do this directly:
+# We can also do this directly as follows:
 pwr.t.test(d = d, power = 0.80, sig.level = 0.05)$n
 
-# Let's take advantage to create a plot of effect size versus required sample
-# size for 80% power and 0.05 significance level:
+# Let's take advantage of that to create a plot of effect size versus required
+# sample size for 80% power and 0.05 significance level:
 d <- seq(0.2,2,0.1)
 n <- sapply(d, function(x) pwr.t.test(d = x, power = 0.80, sig.level = 0.05)$n)
 plot(d,n,type="l")
@@ -220,6 +225,115 @@ pwr.t2n.test(n1 = 28, n2 = 35, d = 0.5)
 # Find n1 sample size when other group has 35, desired power is 0.80, effect 
 # size is 0.5 and siginificance level is 0.05:
 pwr.t2n.test(n2 = 35, d = 0.5, power = 0.8)
+
+
+
+# pwr.chisq.test ----------------------------------------------------------
+
+# chi-squared test (ES=w)
+
+# There are two chi-square tests this function addresses:
+
+# 1. goodness of fit test
+# 2. contingency test, or test for association
+
+# In a goodness of fit test, a single dimension of proportions is tested against
+# a prespecified set of proportions which constitutes the null hypothesis. 
+# Rejecting the null means we have sufficient evidence to conclude the data
+# don't appear to "fit" the prespecified set of proportions.
+
+# In a contingency test, or test of association, frequencies classified 
+# simultaneously by two variables (ie, a two-way table) are tested against the 
+# expected cross-classified frequences given the two variables are independent.
+# Rejecting the null means the data appear to be associated in some way.
+
+# The effect size w differs depending on the test. The pwr package provides two
+# functions to calculate both versions:
+
+# ES.w1	- goodness of fit
+# ES.w2	- test for association
+
+# In essence, the effect size w measures the discrepancy between null and 
+# alternative proportions over the cells in a table. These formulas are provided
+# in Chapter 7 of Cohen (1988).
+
+# ES.w1(P0, P1)
+# P0 - First set of k probabilities (null hypothesis)
+# P1 - Second set of k probabilities (alternative hypothesis)
+
+# ES.w2(P)
+# P	- A two-way probability table (alternative hypothesis)
+
+# As we can see calculating an effect size takes a bit of work. If you like, you
+# can go with small, medium or large: 0.10, 0.30, 0.50
+
+# Finally, the pwr.chisq.test requires specifying degrees of freedom (df).
+
+# goodness of fit: df = number of cells - 1
+# ES.w2: (Var1 number of categories - 1) * (Var2 number of categories - 1)
+
+# Let's work some examples!
+
+# (From Cohen, example 7.1) A market researcher is seeking to determine 
+# preference among 4 package designs. He arranges to have a panel of 100 
+# consumers. He wants to perform a chi-square goodness of fit test against the 
+# null of equal preference (25% for each design) with a significance level of 
+# 0.05. What's the power of the test if 3/8 of the population actually prefers
+# design 1 and the remaining 5/8 are split over the other 3 designs?
+
+# We need to create vectors of null and alternative proportions:
+P0 <- rep(1/4, 4)
+P1 <- c(3/8, rep((1 - 3/8)/3, 3))
+# Now use them in the effect size function
+ES.w1(P0,P1)
+# And calculate power
+pwr.chisq.test(w=ES.w1(P0,P1), N=100, df=(4-1), sig.level=0.05)
+
+# How many subjects do we need to achieve 80% power?
+pwr.chisq.test(w=ES.w1(P0,P1), df=(4-1), power=0.8, sig.level = 0.05)
+
+# If our alternative is correct - people prefer design 1 - then we need to
+# survey at least 131 people to detect this with 80% power.
+
+
+# Another example: I want to see if there's an association between gender and 
+# flossing teeth among UVa students. I randomly sample 100 students (male and 
+# female) and ask whether or not they floss daily. I want to carry out a 
+# chi-square test of association to determine if there's an association between 
+# these two variables. As usual I set my significance level to 0.05. To 
+# determine effect size I need to propose an alternative hypothesis, which in
+# this case is a table of proportions. 
+
+prob <- matrix(c(0.10,0.20,0.40,0.30), ncol=2, 
+               dimnames = list(c("M","F"),c("Floss","No Floss")))
+prob
+
+# Even proportion of male and female, but I want to detect if at least 10% more
+# females floss.
+
+# Now use the matrix to calculate effect size:
+ES.w2(prob)
+
+# DF = (2 - 1) * (2 - 1) = 1
+
+# And calculate power:
+pwr.chisq.test(w = ES.w2(prob), N = 100, df = 1, sig.level = 0.05)
+
+# How many students should I survey if I wish to achieve 90% power?
+pwr.chisq.test(w = ES.w2(prob), power = 0.9, df = 1, sig.level = 0.05)
+
+# Even though I constructed the matrix to show females flossing more often, the 
+# results apply regardless of the direction of the association we might find. 
+# With 221 people sampled and an effect of 0.218 truly present in the 
+# population, we have 90% power to reject the null of no association between
+# gender and flossing.
+
+# If you don't suspect association in either direction, or you don't feel like
+# building a matrix in R, you can go with a conventional effect size.
+
+cohen.ES(test = "chisq", size = "small")
+pwr.chisq.test(w = 0.1, N = 100, df = 1, sig.level = 0.05)
+pwr.chisq.test(w = 0.1, power = 0.9, df = 1, sig.level = 0.05)
 
 
 # pwr.r.test --------------------------------------------------------------
@@ -296,12 +410,12 @@ pwr.r.test(n = 50, r = 0.3, sig.level = 0.05, alternative = "greater")
 
 # test for one-way balanced anova (ES=f) 
 
-# ANOVA, or Analysis of Variance, tests whether or not means differ between k >
-# 2 groups. One-way means one explanatory variable. Balanced means we equal 
-# sample size in each group. The null hypothesis is that the means are all 
+# ANOVA, or Analysis of Variance, tests whether or not means differ between more
+# than 2 groups. One-way means one explanatory variable. Balanced means we have
+# equal sample size in each group. The null hypothesis is that the means are all
 # equal.
 
-# The effect size, f, is calculated as follows:
+# The effect size, f, for k groups is calculated as follows:
 
 # f = sd_means / sd_populations
 
@@ -321,8 +435,9 @@ cohen.ES(test = "anov", size = "large")
 # or which design requires the most time. I design an experiment where I have 3 
 # groups of randomly selected people use one of the designs to find some piece 
 # of information. (All groups look for the same information.) How many people do
-# I need in each group if I believe two of the designs will take 30 seconds and
-# one will take 35 seconds? (desired power and sig level of 0.8 and 0.05)
+# I need in each group if I believe two of the designs will take 30 seconds and 
+# one will take 35 seconds? Assume population standard deviation is 10 and that
+# I desire power and significance levels of 0.8 and 0.05.
 
 # First we need our effect size.
 
@@ -352,6 +467,7 @@ pwr.anova.test(k = 3, f = 0.25, n = 50) # so-called "medium" effect
 # Don't feel like messing with f? Try the power.anova.test function that comes 
 # with base R. It allows you to specify hypothesized between group variance and 
 # within group variance. Notice we have to use variance, not standard deviation!
+# Again we assume the variance within groups is the same for all groups.
 
 power.anova.test(groups = 3, between.var = var(gm), within.var = 10^2, power = 0.8)
 
@@ -382,13 +498,21 @@ legend("bottomright", legend = 3:6, col = 1:4, lty = 1)
 
 # By "general linear model" we basically mean multiple regression. This is a 
 # little tricky to use because not only do we have to supply an "effect size" 
-# (f2), we also have to supply numerator (u) and denominator (v) degrees of
-# freedom instead of sample size. These last two refer to the F test that tests
-# whether all the model coefficients (except the intercept) are 0.
+# (f2), we also have to supply numerator (u) and denominator (v) degrees of 
+# freedom instead of sample size. These last two refer to the F test that tests 
+# whether all the model coefficients (except the intercept) are 0. We can also 
+# think of this as a test that the proportion of variance explained by the model
+# predictors is 0. 
 
 # Example of F test. Regress stack loss on all variables in stackloss. Results
 # of F test are last line in summary
 summary(lm(stack.loss ~ ., data=stackloss))
+
+# Multiple R-squared:  0.9136
+# F-statistic:  59.9 on 3 and 17 DF,  p-value: 3.016e-09
+
+# u = 3 (numerator DF)
+# v = 17 (denominator DF)
 
 # u is simply the number of coefficients you'll have in your model (again, minus
 # the intercept).
@@ -396,6 +520,7 @@ summary(lm(stack.loss ~ ., data=stackloss))
 # v is the number of error degrees of freedom. It equals n - u - 1. So if we
 # want to determine sample size for a given power and effect size, we actually
 # find v, which we then use to solve n = v + u + 1.
+
 
 # The effect size is determined as follows:
 
@@ -408,11 +533,11 @@ summary(lm(stack.loss ~ ., data=stackloss))
 
 # f2 = R-squared / (1 - R-squared)
 
-# Where R-squared is the coefficient of determination, R^2. This is what we'll
-# use in the examples below.
+# Where R-squared is the coefficient of determination, R^2. Also described as
+# the "proportion of variance explained".
 
-# To determine your effect size you hypothesize the r-squared of your model. For
-# example, 0.45. This leads to an effect size of
+# To determine your effect size you hypothesize the proportion of variance your
+# model explains, or the R-squared. For example, 0.45. This leads to an effect size of
 0.45/(1 - 0.45) # 0.81
 
 # It should be noted we can reverse this. Given an effect size, we can determine
@@ -439,11 +564,21 @@ cohen.ES(test = "f2", size = "large") # 0.35
 # my sites. I want to randomly select a group of people, ranging in age from 18 
 # - 65, and time them how long it takes them to complete a task, say locate some
 # piece of information. I know there will be variability in the observed times. 
-# I think age, gender and years of education may explain this variability. How
-# many subjects do I need to detect an R-squared of at least 0.3 with 80% power
-# and the usual 0.05 significance level?
+# I think age, gender and years of education may explain this variability. How 
+# powerful is my experiment if I recruit 40 subjects and I want to be able to 
+# detect at least 30% explained variance (R^ = .30) with a 0.05 significance 
+# level?
+
+pwr.f2.test(u = 3, v = 40 - 3 - 1, f2 = 0.3/(1 - 0.3), sig.level = 0.05)
+
+# How many subjects do I need if I want to be able to detect at least 30%
+# explained variance (R^ = .30) with 80% power and the usual 0.05 significance
+# level? We have to find v and than derive n.
 
 nout <- pwr.f2.test(u = 3, f2 = 0.3/(1 - 0.3), sig.level = 0.05, power = 0.8)
+nout
+# Just see v
+nout$v
 # find n = v + u + 1
 ceiling(nout$v) + nout$u + 1
 
@@ -453,21 +588,17 @@ ceiling(nout$v) + nout$u + 1
 # subjects gives us 80% chance of correctly detecting the effect of at least one
 # of our predictors, provided one or more truly affect our response.
 
-# To find power we have to supply u and v. What's the power of our test if we
-# recruit 50 people and we hypothesis an R-squared of 0.25?
 
-pwr.f2.test(u = 3, v = 50 - 3 - 1, f2 = 0.25/(1 - 0.25), sig.level = 0.05)
-
-# Worth noting ANOVA is just special cases of a linear model. Observe:
+# It's worth noting ANOVA is just special cases of a linear model. Observe:
 
 # One way ANOVA power calculation for 3 groups of 50:
 pwr.anova.test(k = 3, f = 0.24, n = 50)
 
 # linear model power calculation for one categorical predictor with 3 levels:
-pwr.f2.test(u = 2, v = 147, f2 = 0.24^2, sig.level = 0.05)
+pwr.f2.test(u = 2, v = 3*50 - 2 - 1, f2 = 0.24^2, sig.level = 0.05)
 
 # u = 2 because a linear model with a 3-level categorical predictor will only
-# have 2 coefficients. v = 148 because 148 = 3*50 - 2 - 1.
+# have 2 coefficients. v = 147 because 147 = 3*50 - 2 - 1.
 
 # Back to presentation
 

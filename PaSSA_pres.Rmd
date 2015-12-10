@@ -180,25 +180,31 @@ But the functions in the `pwr` package require the effect size to be metric-free
 
 Fortunately the `pwr` package provides functions for this.
 
-## Selected `pwr` functions
+## The `pwr` functions
 
 - `pwr.p.test`: test for one proportion (ES=h)    
 - `pwr.2p.test`: test for two proportions (ES=h)     
 - `pwr.2p2n.test`: test for two proportions (ES=h, unequal sample sizes)    
 - `pwr.t.test`: one sample and two samples (equal sizes) t tests for means (ES=d)     
 - `pwr.t2n.test`: two samples (different sizes) t test for means (ES=d)    
+- `pwr.chisq.test`: chi-squared test (ES=w)
 - `pwr.r.test`: correlation test (ES=r)     
 - `pwr.anova.test`: test for one-way balanced anova (ES=f)    
 - `pwr.f2.test`: test for the general linear model (ES=f2)     
 
-Notice the various effect sizes: h, d, f, r, f2. These are based on formulas.
+Notice the various effect sizes: h, d, w, r, f and f2. These are based on formulas.
 
-## Selected `ES` functions
+## The `ES` functions
 
-- `ES.h`: computing effect size h for proportions tests 
-- `cohen.ES`: computing conventional effect size (small, medium, large) for all tests available in `pwr`
+- `ES.h`: compute effect size h for proportions tests
+- `ES.w1`: compute effect size w1 for chi-squared test for goodness of fit
+- `ES.w2`: compute effect size w2 for chi-squared test for association
+- `cohen.ES`: return conventional effect size (small, medium, large) for all tests available in `pwr`
 
-We will use these functions as needed in the examples that follow. 
+We will use these functions as needed in the examples that follow.
+
+Other effect sizes - d, r, f, and f2 - must be calculated by hand.
+ 
 
 ## Conventional effect size
 
