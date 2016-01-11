@@ -223,7 +223,7 @@ abline(h = 0.8, col = "red")
 pwr.t2n.test(n1 = 28, n2 = 35, d = 0.5)
 
 # Find n1 sample size when other group has 35, desired power is 0.80, effect 
-# size is 0.5 and siginificance level is 0.05:
+# size is 0.5 and significance level is 0.05:
 pwr.t2n.test(n2 = 35, d = 0.5, power = 0.8)
 
 
@@ -566,7 +566,7 @@ cohen.ES(test = "f2", size = "large") # 0.35
 # piece of information. I know there will be variability in the observed times. 
 # I think age, gender and years of education may explain this variability. How 
 # powerful is my experiment if I recruit 40 subjects and I want to be able to 
-# detect at least 30% explained variance (R^ = .30) with a 0.05 significance 
+# detect at least 30% explained variance (R^2 = .30) with a 0.05 significance 
 # level?
 
 pwr.f2.test(u = 3, v = 40 - 3 - 1, f2 = 0.3/(1 - 0.3), sig.level = 0.05)

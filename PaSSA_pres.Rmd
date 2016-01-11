@@ -14,68 +14,76 @@ output: beamer_presentation
 
 ## What is power?
 
-Power is the probability a statistical test will detect a hypothesized effect (_if it really exists_). 
+Power is the probability a statistical test will detect a hypothesized effect.
 
-We like power to be high, say 80%.
+In a hypothesis test, one of two things true:
 
-Example: I suspect most people place name tags on the left side of their chest (probably because most people are right handed). I create an experiment to test this hunch. I want my experiment to have a high probability (power) of verifying this hunch _if it's true_.
+1. Null Hypothesis: No effect
+2. Alternative Hypothesis: _some_ effect
 
-Let's play with this example...
+We would like to design an experiment such we have a high probability (or high power) of rejecting #1 if #2 is true. The usual desired power is 0.80, or 80%.
+
+## Working Toy Example
+
+I suspect most people place name tags on the left side of their chest (probably because most people are right handed). I create an experiment to test this hunch. I randomly sample $n$ people and count the number of people, $X$, who place a name tag on the left. I want my experiment to have a high probability (power) of verifying this hunch if it's true.
 
 ## Calculating power
 
 To calculate power for my name tag experiment, I have to set certain values in advance:
 
-- the number of randomly selected people in my experiment
-- the number or proportion of tags on left that convince me the hypothesis is true
-- the probability of placing tag on left if my hypothesis is correct
+- the number of randomly selected people (_sample size_)
+- the probability of placing tag on left assuming my hypothesis is correct (_effect size_)
+- the number of tags on left that convince me the hypothesis is true (_critical region_), or a p-value cutoff that convinces me my hypothesis true (_significance level_)
 
 I also have to assume a known distribution for total number of name tags placed on left. In this case, a binomial distribution.
 
 We see that "calculating power" is really just a thought experiment. 
 
+
 ## One possible experiment
 
-Conclude people prefer left if I observe $X \ge 15$ "lefts" in 20 trials. Assume people prefer left 60% of the time.
+Let $X$ equal number of tags placed on left. Conclude people prefer left if I observe $X > 14$ "lefts" in 20 trials. Assume people prefer left 60% of the time and that $X$ has binomial distribution.
 
-Power is $P(X \ge 15 | n = 20, p = 0.60)$ or $1 - P(X \le 14 | n = 20, p = 0.60)$
+Power is $P(X > 14 | n = 20, p = 0.60)$
 
 To calculate in R:
 ```{r}
-1 - pbinom(q = 14, size = 20, prob = 0.6)
+pbinom(q = 14, size = 20, prob = 0.6, lower.tail = F)
 ```
 
 Not very powerful assuming my estimate of 60% left preference is correct.
 
 ## Another possible experiment
 
-Conclude people prefer left if I observe $X \ge 60$ "lefts" in 100 trials. Assume people prefer left 60% of the time.
+Let's increase sample size.
 
-Power is $1 - P(X \le 59 | n = 100, p = 0.60)$.
+Conclude people prefer left if I observe $X > 59$ "lefts" in 100 trials. Assume people prefer left 60% of the time.
+
+Power is $P(X > 59 | n = 100, p = 0.60)$.
 
 ```{r}
-1 - pbinom(q = 59, size = 100, prob = 0.6)
+pbinom(q = 59, size = 100, prob = 0.6, lower.tail = F)
 ```
 
 Better, but still not close to 0.80. We see increasing sample size increased power.
 
 ## Yet another possible experiment
 
-Conclude people prefer left if I observe $X \ge 60$ "lefts" in 100 trials. Assume people prefer left 65% of the time.
+Conclude people prefer left if I observe $X > 59$ "lefts" in 100 trials. Assume people prefer left 65% of the time.
 
-Power is $1 - P(X \le 59 | n = 100, p = 0.65)$.
+Power is $P(X > 59 | n = 100, p = 0.65)$.
 
 ```{r}
-1 - pbinom(q = 59, size = 100, prob = 0.65)
+pbinom(q = 59, size = 100, prob = 0.65, lower.tail = F)
 ```
 
 We achieved a high power, assuming we're correct about the probability of left-placement being 65%. We see simply increasing the assumed likelihood of "left" (or increasing the _effect size_) increased power.
 
-## Does high power ensure "success"?
+## Type II error
 
-No. I could conclude people have no preference even if they truly prefer left 65% of the time. Statisticians call this a _Type II error_, or $\beta$.
+What if conclude people have no preference even if they truly prefer left 65% of the time? I have made a _Type II error_.
 
-Type II error is $P(X \le 59 | n = 100, p = 0.65)$.
+Type II error, or $\beta$,  is $P(X \le 59 | n = 100, p = 0.65)$.
 
 ```{r}
 pbinom(q = 59, size = 100, prob = 0.65)
@@ -85,12 +93,12 @@ Type II error is just 1 $-$ Power. Likewise, Power is $1 - \beta$.
 
 ## Type I error
 
-What if I conclude people prefer left when they actually do not? I have made what is called a _Type I error_. 
+What if I conclude people prefer left when they actually do not? I have made a _Type I error_. 
 
-Type I error is $P(X \ge 60 | n = 100, p = 0.5)$ or $1 - P(X \le 59 | n = 100, p = 0.5)$.
+Type I error, or $\alpha$, is $P(X > 59 | n = 100, p = 0.5)$.
 
 ```{r}
-1 - pbinom(q = 59, size = 100, prob = 0.5)
+pbinom(q = 59, size = 100, prob = 0.5, lower.tail = F)
 ```
 
 We usually want Type I error, $\alpha$, to be less than 0.05. In practice it is set to a  fixed value, called the _significance level_, and used in formulas to calculate power.   
@@ -111,19 +119,19 @@ Let's see how four different sample sizes affect power:
 
 ```{r}
 n <- c(70, 80, 90, 100)
-1 - pbinom(q = 0.60*n, size = n, prob = 0.65) 
+pbinom(q = 0.60*n, size = n, prob = 0.65, lower.tail = F) 
 ```
 
 It appears 80 people provide sufficient power (about 80%).
 
 ## Should we recruit 80 people instead of 100?
 
-What happens to Type I error?
+What happens to Type I error? 60% of 80 = 48. We reject null if we see 48 or more people with tags on left.
 
-Recall: Type I error is $P(X \ge 48 | n = 80, p = 0.5)$ or $1 - P(X \le 47 | n = 80, p = 0.5)$. (Note: 48 is 60% of 80.)
+Type I error is $P(X > 47 | n = 80, p = 0.5)$.
 
 ```{r}
-1 - pbinom(q = 47, size = 80, prob = 0.5)
+pbinom(q = 47, size = 80, prob = 0.5, lower.tail = F)
 ```
 
 We now have a little higher chance of incorrectly concluding people have no preference given they truly do have a preference.
