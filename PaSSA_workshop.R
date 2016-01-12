@@ -12,55 +12,63 @@ library(pwr)
 
 # test for one proportion (ES=h) 
 
-# When we want to test if a proportion is equal to some value. Notice the effect
-# size is h. We can use the ES.h function to calculate effect size.
+# When we want to test if a proportion is equal to some hypothesized value 
+# versus a null (usually random chance, or 0.5.) Notice the effect size is h. We
+# need to calculate h. Use the ES.h() function for this.
 
 # This applies to our name tag example. Say we think people place name tags on 
-# the left side of their chest 65% percent of the time instead of 50%. What
-# sample size do we need to show this assuming a significance level (Type I
-# error) of 0.05 and a desired power of 0.80?
+# the left side of their chest 65% percent of the time versus random chance
+# (50%). What sample size do we need to show this assuming a significance level
+# (Type I error) of 0.05 and a desired power of 0.80?
 
-# Our effect size is 65 - 50 = 15. But 85 - 70 = 15 as does 16 - 1. These are 
-# equal differences but they result in different power and sample size results.
-# Hence the need to calculate an effect size.
+# The effect size is .65 - .50 = .15. But notice that .16 - .01 = .15 as well.
+# These are equal differences but they result in different power and sample size
+# results.
 
-# Notice the different effect sizes:
+# Notice their ratios:
+0.65/0.50
+0.16/0.01
+
+# A difference of 0.16 and 0.01 is more dramatic than 0.65 and 0.50. Hence the
+# need to calculate an effect size that reflects this.
+
 ES.h(p1 = 0.65, p2 = 0.50)
-ES.h(p1 = 0.85, p2 = 0.70)
-ES.h(p1 = 0.16, p2 = 0.01)
+ES.h(p1 = 0.16, p2 = 0.01) # larger effect size
 
-# In case you're interested, the effect size is an arcsine transformation:
-ES.h(p1 = 0.65, p2 = 0.50)
-2*asin(sqrt(0.65)) - 2*asin(sqrt(0.50))
+# NOTE: the effect size is calculated using an arcsine transformation.
 
 # Now let's find the sample size. Notice we can use the ES.h function in the
-# pwr.p.test function:
+# pwr.p.test function.
+
+# How many people do I need to sample to reject the null of random chance (0.50)
+# if the true proportion is 0.65, with 80% power and 0.05 significance?
 pwr.p.test(h = ES.h(p1 = 0.65, p2 = 0.50), sig.level = 0.05, power = 0.80)
+
+# We need 85 people to reject null with 80% probability and have only a 5%
+# chance of Type I error.
 
 # Say we think people place name tags on the left 60% percent of the time instead 
 # of 50%. What is the power of our test if we survey 125 people provided
 # we accept a significance level (Type I error) of 0.05?
-
 pwr.p.test(h = ES.h(p1 = 0.60, p2 = 0.50), n = 125, sig.level = 0.05)
 
 # Notice the default is a "two.sided" test. Our test is more powerful if we're 
 # willing to believe the alternative is "greater" than .50 rather than "not
 # equal" to .50
-
 pwr.p.test(h = ES.h(p1 = 0.60, p2 = 0.50), n = 125, sig.level = 0.05, 
            alternative = "greater")
 
-# Equivalently we can think of one proportion being "less" than some value. In 
-# this case we swap the order of proportions in the ES.h() function. Notice the 
-# effect is negative and resulting power is the same:
-pwr.p.test(h = ES.h(p1 = 0.50, p2 = 0.60), n = 125, sig.level = 0.05, 
+# Equivalently we can think of one proportion being "less" than some value, say
+# 0.4 versus random chance. Notice the effect is negative and resulting power is
+# the same:
+pwr.p.test(h = ES.h(p1 = 0.40, p2 = 0.50), n = 125, sig.level = 0.05, 
            alternative = "less")
 
 
 # Say we think people place name tags on the left 75% percent of the time instead
 # of 50%. What sample size do we need to show this assuming a significance level
-# (Type I error) of 0.05 and a desired power of 0.80?
-pwr.p.test(h = ES.h(p1 = 0.75, p2 = 0.50), sig.level = 0.05, power = 0.80)
+# (Type I error) of 0.05 and a desired power of 0.90?
+pwr.p.test(h = ES.h(p1 = 0.75, p2 = 0.50), sig.level = 0.05, power = 0.90)
 
 
 # pwr.2p.test -------------------------------------------------------------
@@ -75,7 +83,7 @@ pwr.p.test(h = ES.h(p1 = 0.75, p2 = 0.50), sig.level = 0.05, power = 0.80)
 # difference in the proportion that answer yes. My alternative hypothesis is 
 # that there is a difference. I'd like to detect a difference as small as 5%. 
 # How many students do I need to sample in each group if we want 80% power and
-# 5% Type 1 error?
+# 5% chance of Type 1 error?
 
 # 55% vs. 50%
 pwr.2p.test(h = ES.h(p1 = 0.55, 0.50), sig.level = 0.05, power = .80)
@@ -89,6 +97,8 @@ pwr.2p.test(h = ES.h(p1 = 0.35, 0.30), sig.level = 0.05, power = .80)
 power.prop.test(p1 = 0.55, p2 = 0.50, sig.level = 0.05, power = .80)
 power.prop.test(p1 = 0.35, p2 = 0.30, sig.level = 0.05, power = .80)
 
+# Notice the results are slightly different as it employs a different formula
+# than the pwr function.
 
 # pwr.2p2n.test -----------------------------------------------------------
 

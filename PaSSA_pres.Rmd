@@ -8,8 +8,7 @@ output: beamer_presentation
 ## Topics
 
 - Quick intro to power and sample size concepts
-- Power and sample size for statistical tests
-- Sample size for parameter estimation within a given margin of error
+- Calculate power and sample size for various statistical tests using the `pwr` package in R
 
 
 ## What is power?
@@ -25,7 +24,7 @@ We would like to design an experiment such we have a high probability (or high p
 
 ## Working Toy Example
 
-I suspect most people place name tags on the left side of their chest (probably because most people are right handed). I create an experiment to test this hunch. I randomly sample $n$ people and count the number of people, $X$, who place a name tag on the left. I want my experiment to have a high probability (power) of verifying this hunch if it's true.
+I suspect most people place name tags on the left side of their chest (probably because most people are right handed). I create an experiment to test this hunch. I randomly sample $n$ people and count the number of people, $X$, who place a name tag on the left. If $X$ exceeds some number, I'll conclude I'm correct. I want my experiment to have a high probability (power) of verifying this hunch if it's true.
 
 ## Calculating power
 
@@ -77,7 +76,20 @@ Power is $P(X > 59 | n = 100, p = 0.65)$.
 pbinom(q = 59, size = 100, prob = 0.65, lower.tail = F)
 ```
 
-We achieved a high power, assuming we're correct about the probability of left-placement being 65%. We see simply increasing the assumed likelihood of "left" (or increasing the _effect size_) increased power.
+We achieved a high power, assuming we're correct about the probability of left-placement being 65%. We see simply increasing the assumed probability of "left" (or increasing the _effect size_) increased power.
+
+
+## Type I error
+
+What if I conclude people prefer left when they actually do not? I have made a _Type I error_. 
+
+Type I error, or $\alpha$, is $P(X > 59 | n = 100, p = 0.5)$.
+
+```{r}
+pbinom(q = 59, size = 100, prob = 0.5, lower.tail = F)
+```
+
+We usually want Type I error, $\alpha$, to be less than 0.05. In practice it is set to a  fixed value, called the _significance level_, and used in formulas to calculate power.   
 
 ## Type II error
 
@@ -91,17 +103,6 @@ pbinom(q = 59, size = 100, prob = 0.65)
 
 Type II error is just 1 $-$ Power. Likewise, Power is $1 - \beta$.
 
-## Type I error
-
-What if I conclude people prefer left when they actually do not? I have made a _Type I error_. 
-
-Type I error, or $\alpha$, is $P(X > 59 | n = 100, p = 0.5)$.
-
-```{r}
-pbinom(q = 59, size = 100, prob = 0.5, lower.tail = F)
-```
-
-We usually want Type I error, $\alpha$, to be less than 0.05. In practice it is set to a  fixed value, called the _significance level_, and used in formulas to calculate power.   
 
 ## Determining sample size
 
@@ -228,60 +229,6 @@ This returns 0.5.
 Let's go to R!
 
 
-
-## Estimating a population parameter
-
-- Some populations are too big or too difficult to completely measure.
-- This means we have to estimate population parameters such as a mean ($\mu$) or a proportion ($p$).
-- We estimate a parameter by randomly sampling a subset of the population and calculating a statistic, such as $\bar{x}$ or $\hat{p}$.
-- The precision of our estimate is determined by our sample size, $n$, and the variability of the population, $\sigma$. (Notice that $\sigma$ is also a population parameter!)
-
-## The confidence interval
-
-- When estimating a parameter, it is good practice to provide a confidence interval that gives an indication of the uncertainty in our estimtate.
-- The usual form of a confidence interval is
-$$estimate \pm margin \ of \ error$$
-where the margin of error formula depends on the parameter we're estimating.
-
-## The margin of error
-
-- The margin of error is usually just some multiple of a _standard error_.
-- Standard error is determined in part by your sample size, $n$.
-- For example, if our population is normally distributed with standard deviation $\sigma$, our estimate of the population mean, $\bar{x}$, has standard error $\sigma / \sqrt{n}$ 
- 
-## Sample size for precision
-
-- If we're willing to estimate the population standard deviation, we can solve for $n$ given a desired margin of error, $\epsilon$.
-- Doing this for a mean:
-$$\epsilon = z \frac{\sigma}{\sqrt{n}}$$
-$$\sqrt{n} = \frac{z \sigma}{\epsilon}$$
-$$n = \left(\frac{z \sigma}{\epsilon}\right)^{2}$$
-where $z$ is a quantile of a standard normal distribution, such as $1.96$.
-
-## Example
-
-I want to estimate the mean amount of time someone takes a drink from the water fountains in Clark Hall within 0.5 seconds with 95% confidence ($z = 1.96$). I assume the population of drinking times has a standard deviation of 2 seconds.
-
-$$n = \left(\frac{1.96 \times 2}{0.5}\right)^{2}$$
-
-$$n = 62$$
-
-Always round the answer up. Obviously this is approximate. I might treat this as a lower bound. 
-
-## Other sample size estimates
-
-The same kinds of estimates can be made for proportions, difference of proportions, and difference of means, as well as other statistics which have a tractable standard error estimate.
-
-These estimates are implemented in the R package _nandc_. 
-
-Using the previous example:
-```{r}
-# install.packages("nandc")
-library(nandc)
-meanSampleSize(moe = 0.5, sd = 2, conf = 0.95)
-```
-
-Let's go to R!
 
 ## Other R packages of potential interest
 
