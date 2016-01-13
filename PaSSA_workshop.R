@@ -3,34 +3,36 @@
 # Spring 2016
 # UVa StatLab
 
+# Power and sample size calculations for various statistical tests using the
+# "pwr" package a few built-in R functions
+
+
 # install.packages("pwr")
 library(pwr)
 
 
-
 # pwr.p.test --------------------------------------------------------------
 
-# test for one proportion (ES=h) 
+# one-sample test for proportions  (ES=h) 
 
 # When we want to test if a proportion is equal to some hypothesized value 
-# versus a null (usually random chance, or 0.5.) Notice the effect size is h. We
-# need to calculate h. Use the ES.h() function for this.
+# versus a null values, such as random chance, or 0.5. Notice it requires an
+# effect size expressed as "h". Use the ES.h() function for this.
 
 # This applies to our name tag example. Say we think people place name tags on 
 # the left side of their chest 65% percent of the time versus random chance
 # (50%). What sample size do we need to show this assuming a significance level
 # (Type I error) of 0.05 and a desired power of 0.80?
 
-# The effect size is .65 - .50 = .15. But notice that .16 - .01 = .15 as well.
-# These are equal differences but they result in different power and sample size
-# results.
+# The effect size is .65 - .50 = .15. But notice that .16 - .01 = .15 as well. 
+# The are absolute differences are equal but notice their ratios:
 
-# Notice their ratios:
 0.65/0.50
 0.16/0.01
 
-# A difference of 0.16 and 0.01 is more dramatic than 0.65 and 0.50. Hence the
-# need to calculate an effect size that reflects this.
+# A difference of 0.16 and 0.01 is more dramatic than 0.65 and 0.50. Because of 
+# this the latter difference requires a larger sample size than the former. 
+# Hence the need to calculate an effect size that reflects this.
 
 ES.h(p1 = 0.65, p2 = 0.50)
 ES.h(p1 = 0.16, p2 = 0.01) # larger effect size
@@ -40,6 +42,9 @@ ES.h(p1 = 0.16, p2 = 0.01) # larger effect size
 # Now let's find the sample size. Notice we can use the ES.h function in the
 # pwr.p.test function.
 
+# In this particular statistical test, we want the p1 = alternative and p2 =
+# Null: ES.h(p1 = 0.65, p2 = 0.50)
+
 # How many people do I need to sample to reject the null of random chance (0.50)
 # if the true proportion is 0.65, with 80% power and 0.05 significance?
 pwr.p.test(h = ES.h(p1 = 0.65, p2 = 0.50), sig.level = 0.05, power = 0.80)
@@ -47,48 +52,53 @@ pwr.p.test(h = ES.h(p1 = 0.65, p2 = 0.50), sig.level = 0.05, power = 0.80)
 # We need 85 people to reject null with 80% probability and have only a 5%
 # chance of Type I error.
 
-# Say we think people place name tags on the left 60% percent of the time instead 
-# of 50%. What is the power of our test if we survey 125 people provided
-# we accept a significance level (Type I error) of 0.05?
-pwr.p.test(h = ES.h(p1 = 0.60, p2 = 0.50), n = 125, sig.level = 0.05)
+# Say we think people place name tags on the left 75% percent of the time instead 
+# of 50%. What is the power of our test if we survey 30 people provided
+# we accept a significance level (Type I error) of 0.05? 
+pwr.p.test(h = ES.h(p1 = 0.75, p2 = 0.50), n = 30, sig.level = 0.05)
 
-# Notice the default is a "two.sided" test. Our test is more powerful if we're 
-# willing to believe the alternative is "greater" than .50 rather than "not
-# equal" to .50
-pwr.p.test(h = ES.h(p1 = 0.60, p2 = 0.50), n = 125, sig.level = 0.05, 
+# Notice the default is a "two.sided" test. This means we're simply testing that
+# the alternative proportion is not 0.5. It could be lower or higher. Our test
+# is more powerful if we're willing to believe the alternative is "greater" than
+# .50 rather than "not equal" to .50. Set alternative = "greater"
+pwr.p.test(h = ES.h(p1 = 0.75, p2 = 0.50), n = 30, sig.level = 0.05, 
            alternative = "greater")
 
 # Equivalently we can think of one proportion being "less" than some value, say
 # 0.4 versus random chance. Notice the effect is negative and resulting power is
 # the same:
-pwr.p.test(h = ES.h(p1 = 0.40, p2 = 0.50), n = 125, sig.level = 0.05, 
+pwr.p.test(h = ES.h(p1 = 0.25, p2 = 0.50), n = 30, sig.level = 0.05, 
            alternative = "less")
 
+# NOTE: Usually recommended to stick with the two-sided alternative.
 
-# Say we think people place name tags on the left 75% percent of the time instead
+
+# YOUR TURN!
+# Say we think people place name tags on the left 70% percent of the time instead
 # of 50%. What sample size do we need to show this assuming a significance level
-# (Type I error) of 0.05 and a desired power of 0.90?
-pwr.p.test(h = ES.h(p1 = 0.75, p2 = 0.50), sig.level = 0.05, power = 0.90)
+# (Type I error) of 0.01, a desired power of 0.90, and a two-sided alternative?
+pwr.p.test(h = ES.h(p1 = 0.70, p2 = 0.50), sig.level = 0.01, power = 0.90)
 
 
 # pwr.2p.test -------------------------------------------------------------
 
-# test for two proportions (ES=h) 
+# two-sample test for proportions (ES=h) 
 
 # We want to test if two proportions are equal. To use this function, we once
 # again need to calculate effect size using ES.h().
 
-# Let's say I randomly sample male and female UVa undergrad students and ask 
-# them if they consume alcohol at least once a week. My null hypothesis is no 
-# difference in the proportion that answer yes. My alternative hypothesis is 
-# that there is a difference. I'd like to detect a difference as small as 5%. 
-# How many students do I need to sample in each group if we want 80% power and
-# 5% chance of Type 1 error?
+# EXAMPLE: Let's say I randomly sample male and female UVa undergrad students
+# and ask them if they consume alcohol at least once a week. My null hypothesis
+# is no difference in the proportion that answer yes. My alternative hypothesis
+# is that there is a difference. (two-sided; one gender has higher proportion, I
+# don't know which.) I'd like to detect a difference as small as 5%. How many
+# students do I need to sample in each group if we want 80% power and 5% chance
+# of Type 1 error?
 
 # 55% vs. 50%
-pwr.2p.test(h = ES.h(p1 = 0.55, 0.50), sig.level = 0.05, power = .80)
+pwr.2p.test(h = ES.h(p1 = 0.55, p2 = 0.50), sig.level = 0.05, power = .80)
 # 35% vs. 30%
-pwr.2p.test(h = ES.h(p1 = 0.35, 0.30), sig.level = 0.05, power = .80)
+pwr.2p.test(h = ES.h(p1 = 0.35, p2 = 0.30), sig.level = 0.05, power = .80)
 
 # Sample size is per group. Always round sample size up.
 
@@ -97,12 +107,20 @@ pwr.2p.test(h = ES.h(p1 = 0.35, 0.30), sig.level = 0.05, power = .80)
 power.prop.test(p1 = 0.55, p2 = 0.50, sig.level = 0.05, power = .80)
 power.prop.test(p1 = 0.35, p2 = 0.30, sig.level = 0.05, power = .80)
 
-# Notice the results are slightly different as it employs a different formula
-# than the pwr function.
+# Notice the results are slightly different. It calculates effect size
+# differently.
+
+# YOUR TURN! I only have access to 80 students in particular class to run this 
+# experiment. What's the power of my test if I assume one proportion is 0.45 and
+# the other is 0.55, and I set significance level to 0.05? (Watch out! n is per
+# group.)
+power.prop.test(p1 = 0.45, p2 = 0.55, sig.level = 0.05, n = 40)
+pwr.2p.test(h = ES.h(p1 = 0.45, p2 = 0.55), sig.level = 0.05, n = 40)
+
 
 # pwr.2p2n.test -----------------------------------------------------------
 
-# test for two proportions (ES=h, unequal sample sizes) 
+# two-sample test for proportions, unequal sample sizes (ES=h) 
 
 # This function allows us to calculate power when we have unequal sample sizes. 
 # We can also use it to find a sample size for one group when we already have
@@ -113,10 +131,16 @@ power.prop.test(p1 = 0.35, p2 = 0.30, sig.level = 0.05, power = .80)
 # test?
 
 # Before we answer, let's revisit effect size. I honestly have no idea if there 
-# would be a difference, or if there was, how big that difference would be.
+# would be a difference, or if there was, how big that difference would be. I 
+# also have no idea about what the proportions would be. In this case we could
+# use a "conventional" effect size. (Small, Medium, or Large)
+
 # Let's say we're interested in being able to detect a "small" effect size.
 
 cohen.ES(test = "p", size = "small") # 0.2
+
+# So instead of use ES.h() with guesses at p1 and p2, I can just use the effect
+# size 0.2.
 pwr.2p2n.test(h = 0.2, n1 = 543, n2 = 675, sig.level = 0.05)
 
 # Let's say I previously surveyed 763 females and found that p% said they 
@@ -131,14 +155,16 @@ pwr.2p2n.test(h = 0.2, n1 = 763, power = 0.8, sig.level = 0.05)
 
 # pwr.t.test --------------------------------------------------------------
 
-# one sample and two samples (equal sizes) t-tests for means (ES=d) 
+# one sample and two sample t tests for means (ES=d) 
 
 # The effect size d is simply the difference in population means divided by the 
 # standard deviation of either population (since they are assumed equal). This 
-# is sometimes called "Cohen's d". There is no function for effect size d. We
-# have to calculate this ourselves.
+# is sometimes called "Cohen's d". Now we have to make a guess at the standard
+# deviation!
 
-# d = mean_1 - mean_2 / sd
+# There is no function for effect size d. We have to calculate this ourselves.
+
+# d = mean1 - mean2 / sd
 
 # The cohen.ES function can return small, medium and large d values, which are
 # 0.2, 0.5 and 0.8:
@@ -146,11 +172,13 @@ cohen.ES(test = "t", size = "small")
 cohen.ES(test = "t", size = "medium")
 cohen.ES(test = "t", size = "large")
 
+# Two-sample t test
+
 # I'm interested to know if there is a difference in the mean price of what male
 # and female students pay at the library coffee shop. Let's say I randomly 
 # observe 30 male and 30 female students check out from the coffee shop and note
 # their total purchase price. How powerful is this experiment if I want to
-# detect a "small" effect?
+# detect a "small" effect in either direction?
 
 pwr.t.test(n = 30, d = 0.2, sig.level = 0.05) # n is per group
 
@@ -162,9 +190,9 @@ pwr.t.test(d = 0.2, power = 0.80, sig.level = 0.05)
 # in either direction. We can specify the alternative as "greater" than 0 or
 # "less" than 0. 
 
-# alternative: greater than 0
+# alternative: greater than 0 (positive effect)
 pwr.t.test(d = 0.2, power = 0.80, sig.level = 0.05, alternative = "greater")
-# alternative: less than 0
+# alternative: less than 0 (negative effect)
 pwr.t.test(d = -0.2, power = 0.80, sig.level = 0.05, alternative = "less")
 
 # same sample size in either case.
@@ -173,8 +201,8 @@ pwr.t.test(d = -0.2, power = 0.80, sig.level = 0.05, alternative = "less")
 # the mean purchase price. How can we convert that to an effect size? First we 
 # need to make a guess at the population standard deviation. If we have 
 # absolutely no idea, one rule of thumb is to take the difference between the 
-# maximum and minimum values and divide by 4. Let's say max is 10 and min is 1.
-# So our guess at a standard deviation is 9/4 = 2.25. Therefore d is
+# maximum and minimum values and divide by 4 (or 6). Let's say max is 10 and min
+# is 1. So our guess at a standard deviation is 9/4 = 2.25. Therefore d is
 
 d <- 0.75/2.25 # 0.333
 pwr.t.test(d = d, power = 0.80, sig.level = 0.05)
@@ -222,11 +250,29 @@ pout <- pwr.t.test(n = n, d = 0.2, sig.level = 0.05)
 plot(x = n, y = pout$power, type = "l")
 abline(h = 0.8, col = "red")
 
+# One-sample t-test
+
+# To calculate power and sample size for one-sample t-test, I have to set the
+# "type" argument to type = "one.sample"
+
+# EXAMPLE: I'm convinced the average purchase price at the Library coffee shop 
+# is over $3 per student. My null is $3 or less, my alternative is greater than 
+# $3. I'd like to be able to detect a small effect with 90% power and
+# significance level of 0.05. How many transactions do I need to log?
+pwr.t.test(d = 0.2, sig.level = 0.05, power = 0.90, type = "one.sample")
+
+# NOTE: A paired t-test is basically the same as a one-sample t-test. Instead of
+# one sample of individual observations, you have one sample of pairs of 
+# observations, of which you typically take the difference between each pair to
+# get a single sample of differences. Notice, these produce the same result:
+pwr.t.test(d = 0.2, sig.level = 0.05, power = 0.90, type = "paired")
+pwr.t.test(d = 0.2, sig.level = 0.05, power = 0.90, type = "one.sample")
+
+
 
 # pwr.t2n.test ------------------------------------------------------------
 
-
-# two samples (different sizes) t test for means (ES=d) 
+# two sample t test for means, unequal sample sizes (ES=d) 
 
 # Find power for a t test with 28 in one group and 35 in the other group and a
 # medium effect size. (sig.level defaults to 0.05.)
@@ -610,10 +656,4 @@ pwr.f2.test(u = 2, v = 3*50 - 2 - 1, f2 = 0.24^2, sig.level = 0.05)
 # u = 2 because a linear model with a 3-level categorical predictor will only
 # have 2 coefficients. v = 147 because 147 = 3*50 - 2 - 1.
 
-# Back to presentation
-
-# Sample size for estimates -----------------------------------------------
-
-
-
-
+# THE END

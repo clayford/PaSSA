@@ -7,8 +7,8 @@ output: beamer_presentation
 
 ## Topics
 
-- Quick intro to power and sample size concepts
-- Calculate power and sample size for various statistical tests using the `pwr` package in R
+- Quick intro to power and sample size concepts as they relate to hypothesis testing
+- Calculate power and sample size for various statistical tests using the `pwr` package in `R` and a few built-in `R` functions
 
 
 ## What is power?
@@ -20,24 +20,34 @@ In a hypothesis test, one of two things true:
 1. Null Hypothesis: No effect
 2. Alternative Hypothesis: _some_ effect
 
-We would like to design an experiment such we have a high probability (or high power) of rejecting #1 if #2 is true. The usual desired power is 0.80, or 80%.
+We would like to design an experiment such we have a high probability (or high power) of rejecting #1 if #2 is true. The usual desired power is at least 0.80, or 80%.
 
 ## Working Toy Example
 
 I suspect most people place name tags on the left side of their chest (probably because most people are right handed). I create an experiment to test this hunch. I randomly sample $n$ people and count the number of people, $X$, who place a name tag on the left. If $X$ exceeds some number, I'll conclude I'm correct. I want my experiment to have a high probability (power) of verifying this hunch if it's true.
 
-## Calculating power
+I can calculate power for a given sample size, or I can calculate sample size for a given power.
 
-To calculate power for my name tag experiment, I have to set certain values in advance:
+## Calculating power or sample size
 
-- the number of randomly selected people (_sample size_)
-- the probability of placing tag on left assuming my hypothesis is correct (_effect size_)
-- the number of tags on left that convince me the hypothesis is true (_critical region_), or a p-value cutoff that convinces me my hypothesis true (_significance level_)
+To calculate power or sample size for my name tag experiment, I have to make certain assumptions and decisions:
 
-I also have to assume a known distribution for total number of name tags placed on left. In this case, a binomial distribution.
+- Decide which statistical test to use (_one-sample proportion test_)
+- For power, I have to set sample size; for sample size, I have to set the desired power
+- Decide on _effect size_, the probability of placing tag on left assuming my hypothesis is correct
+- Determine the number of tags on left that convince me the hypothesis is true (_critical region_), or more commonly set a p-value cutoff such as 0.05 (_significance level_)
 
-We see that "calculating power" is really just a thought experiment. 
 
+## It's all in your head
+
+Calculating power and sample size is just a thought experiment based on assumed values and a hypothetical scenario.
+
+Does that make it useless? No! It makes you plan your experiment.
+
+- Decide what makes for a meaningful effect
+- Determine which statistical test you're going to use to detect the effect
+- Approximate a suitable sample size
+- Or approximate power of experiment if you have a limited sample
 
 ## One possible experiment
 
@@ -114,28 +124,17 @@ More is better, but "more" can mean unnecessary time and money. Why recruit 100 
 
 ## Estimating sample size 
 
-Assume people prefer left 65% of the time and we reject the notion that there is no preference if we witness 60% or more "lefts" at the end of our experiment.
+Assume people prefer left 65% of the time and we reject the notion that there is no preference if we witness more than 60% "lefts" at the end of our experiment.
 
-Let's see how four different sample sizes affect power:
+Compare $n=100; (X > 60)$ versus $n=80;  (X > 48)$:
 
 ```{r}
-n <- c(70, 80, 90, 100)
-pbinom(q = 0.60*n, size = n, prob = 0.65, lower.tail = F) 
+pbinom(q = 60, size = 100, prob = 0.65, lower.tail = F) 
+pbinom(q = 48, size = 80, prob = 0.65, lower.tail = F) 
 ```
 
 It appears 80 people provide sufficient power (about 80%).
 
-## Should we recruit 80 people instead of 100?
-
-What happens to Type I error? 60% of 80 = 48. We reject null if we see 48 or more people with tags on left.
-
-Type I error is $P(X > 47 | n = 80, p = 0.5)$.
-
-```{r}
-pbinom(q = 47, size = 80, prob = 0.5, lower.tail = F)
-```
-
-We now have a little higher chance of incorrectly concluding people have no preference given they truly do have a preference.
 
 ## Visualizing a hypothesis test
 
@@ -168,7 +167,7 @@ The parameters in the formulas are related such that one is determined by the ot
 
 ## The `pwr` package
 
-Today we'll use R and the `pwr` package.
+Today we'll use three base `R` functions and the `pwr` package.
 
 `install.packages("pwr")`   
 `library(pwr)`
@@ -187,44 +186,74 @@ But the functions in the `pwr` package require the effect size to be metric-free
 
 **This means you need to calculate effect size before using `pwr` functions. Entering the wrong effect size leads to incorrect power and sample size estimates!**
 
-Fortunately the `pwr` package provides functions for this.
+Fortunately the `pwr` package provides a few functions for this.
 
-## The `pwr` functions
+## The `pwr` functions and associated statistical tests
 
-- `pwr.p.test`: test for one proportion (ES=h)    
-- `pwr.2p.test`: test for two proportions (ES=h)     
-- `pwr.2p2n.test`: test for two proportions (ES=h, unequal sample sizes)    
-- `pwr.t.test`: one sample and two samples (equal sizes) t tests for means (ES=d)     
-- `pwr.t2n.test`: two samples (different sizes) t test for means (ES=d)    
-- `pwr.chisq.test`: chi-squared test (ES=w)
+- `pwr.p.test`: one-sample test for proportions (ES=h)    
+- `pwr.2p.test`: two-sample test for proportions (ES=h)     
+- `pwr.2p2n.test`: two-sample test for proportions, unequal sample sizes (ES=h)    
+- `pwr.t.test`: one sample and two sample t tests for means (ES=d)     
+- `pwr.t2n.test`: two sample t test for means, unequal sample sizes (ES=d)    
+
+Notice the effect sizes: h and d. We'll define these shortly.
+
+## The `pwr` functions and associated statistical tests
+
+- `pwr.chisq.test`: chi-squared tests, goodness of fit and association (ES=w)
 - `pwr.r.test`: correlation test (ES=r)     
 - `pwr.anova.test`: test for one-way balanced anova (ES=f)    
 - `pwr.f2.test`: test for the general linear model (ES=f2)     
 
-Notice the various effect sizes: h, d, w, r, f and f2. These are based on formulas.
+Notice the effect sizes: w, r, f and f2. We'll define these shortly.
 
 ## The `ES` functions
 
-- `ES.h`: compute effect size h for proportions tests
+Functions to compute effect size:
+
+- `ES.h`: compute effect size h for proportion tests
 - `ES.w1`: compute effect size w1 for chi-squared test for goodness of fit
 - `ES.w2`: compute effect size w2 for chi-squared test for association
 - `cohen.ES`: return conventional effect size (small, medium, large) for all tests available in `pwr`
 
 We will use these functions as needed in the examples that follow.
 
-Other effect sizes - d, r, f, and f2 - must be calculated by hand.
+Other effect sizes (d, r, f, and f2) must be calculated by hand.
  
 
 ## Conventional effect size
 
 Sometimes we don't know the precise effect size we expect or hope to find. In this case we can resort to conventional effect sizes of "small", "medium", or "large".
 
-The `cohen.ES` function generates these for us according to the statistical test of interest.
+The `cohen.ES` function returns these for us according to the statistical test of interest.
 
 For example, a "medium" effect size for a proportion test:
 `cohen.ES(test="p", size="medium")`
 
 This returns 0.5.
+
+## Base `R` power and sample size functions
+
+Base `R` includes three functions for calculating power and sample size:
+
+- `power.prop.test`: two-sample test for proportions
+- `power.t.test`: one-sample and two-sample t tests for means
+- `power.anova.test`: one-way analysis of variance tests
+
+These functions do not require calculating a unitless effect size and assume equal sample sizes across groups.
+
+
+## Leave one out
+
+The `pwr` functions and base `R` functions have `n` and `power` arguments. 
+
+To calculate `power`, you **leave it out** of the function.
+
+To calculate sample size (`n`), you **leave it out** of the function.
+
+For example, the following calculates the power of a two-sample t-test with assumed effect size of 0.2, sample of 60 _in each group_, significance level of 0.05 and a (default) two-sided alternative:
+
+`pwr.t.test(d=0.2, n=60, sig.level=0.05)`
 
 Let's go to R!
 
@@ -240,9 +269,11 @@ Cohen, J. (1988). _Statistical Power Analysis for the Behavioral Sciences (2nd e
 
 Hogg, R and Tanis, E. (2006). _Probability and Statistical Inference (7th ed.)_. Pearson.
 
+Ryan, T. (2013). _Sample Size Determination and Power_. Wiley.
+
 ## Thanks for coming today!
 
-For help and advice with your data analysis, contact us to set up an appointment: statlab@virginia.edu
+For help and advice with your statistical analysis: statlab@virginia.edu
 
 Sign up for more workshops or see past workshops:
 http://data.library.virginia.edu/statlab/
