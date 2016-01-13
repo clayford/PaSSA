@@ -218,7 +218,7 @@ Functions to compute effect size:
 
 We will use these functions as needed in the examples that follow.
 
-Other effect sizes (d, r, f, and f2) must be calculated by hand.
+Other effect sizes (d, f, and f2) must be calculated by hand.
  
 
 ## Conventional effect size
@@ -259,9 +259,17 @@ Let's go to R!
 
 
 
-## Other R packages of potential interest
+## Other Software
 
+### Commercial software
+- PASS. http://www.ncss.com/software/pass/ ($395/year or $795 perpetual)
+- nQuery. http://www.statsols.com/products/nquery-advisor-nterim/ ($440/year)
+- PROC POWER in SAS. Power and sample size analyses for a variety of statistical analyses 
+
+### R packages
 - TrialSize. Functions and examples from the book _Sample Size Calculation in Clinical Research_
+- samplesize. Computes sample size for Student's t-test and for the Wilcoxon-Mann-Whitney test for categorical data
+- clinfun. Functions for both design and analysis of clinical trials.
 
 ## References
 
