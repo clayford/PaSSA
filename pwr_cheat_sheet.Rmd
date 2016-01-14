@@ -1,0 +1,242 @@
+---
+title: "`pwr` cheat sheet"
+author: "Clay Ford"
+output: pdf_document
+---
+
+The `pwr` package provides basic functions for power and sameple size analysis as described in the book _Statistical power analysis for the behavioral sciences_ (2nd ed.) by Jacob Cohen. 
+
+```{r}
+library(pwr)
+```
+
+### conventional effect sizes for certain tests
+
+Test                        | Small | Medium | Large
+----------------------------|-------|--------|-------
+tests for proportions ("p") | 0.2   | 0.5    | 0.8
+tests for means ("d")       | 0.2   | 0.5    | 0.8
+chi-square tests ("w1","w2")| 0.1   | 0.3    | 0.5
+correlation test ("r")      | 0.1   | 0.3    | 0.5 
+anova ("f")                 | 0.1   | 0.25   | 0.4 
+general linear model ("f2") | 0.02  | 0.15   | 0.35 
+
+
+### one-sample test for proportions  
+
+Say we think people place name tags on 
+the left side of their chest 65% percent of the time versus random chance
+(50%). What sample size do we need to show this assuming a significance level
+(Type I error) of 0.05 and a desired power of 0.80?
+
+```{r eval=FALSE}
+pwr.p.test(h = ES.h(p1 = 0.65, p2 = 0.50), sig.level = 0.05, power = 0.80)
+```
+
+Say we think people place name tags on the left 75% percent of the time instead 
+of 50%. What is the power of our test if we survey 30 people provided
+we accept a significance level (Type I error) of 0.05? 
+```{r eval=FALSE}
+pwr.p.test(h = ES.h(p1 = 0.75, p2 = 0.50), n = 30, sig.level = 0.05)
+```
+
+
+### two-sample test for proportions
+
+I randomly sample male and female UVa undergrad students
+and ask them if they consume alcohol at least once a week. My null hypothesis
+is no difference in the proportion that answer yes. My alternative hypothesis
+is that there is a difference. (two-sided; one gender has higher proportion, I
+don't know which.) I'd like to detect a difference as small as 5%. How many
+students do I need to sample in each group if we want 80% power and 5% chance
+of Type 1 error?
+
+```{r eval=FALSE}
+# 55% vs. 50%
+pwr.2p.test(h = ES.h(p1 = 0.55, p2 = 0.50), sig.level = 0.05, power = .80)
+# 35% vs. 30%
+pwr.2p.test(h = ES.h(p1 = 0.35, p2 = 0.30), sig.level = 0.05, power = .80)
+# using "small" conventional effect size 
+pwr.2p.test(h = 0.2, sig.level = 0.05, power = .80)
+```
+
+
+### two-sample test for proportions, unequal sample sizes
+
+I randomly sample male and female UVa undergrad students
+and ask them if they consume alcohol at least once a week. My null hypothesis
+is no difference in the proportion that answer yes. My alternative hypothesis
+is that there is a difference. (two-sided; one gender has higher proportion, I
+don't know which.) We were able to survey 543 males and 675 females. What's the power of our
+test if we want to be able to detect a "small" effect (h = 0.2)?
+```{r eval=FALSE}
+pwr.2p2n.test(h = 0.2, n1 = 543, n2 = 675, sig.level = 0.05)
+```
+
+
+### one sample and two sample t tests for means
+
+I'm interested to know if there is a difference in the mean price of what male
+and female students pay at the library coffee shop. Let's say I randomly 
+observe 30 male and 30 female students check out from the coffee shop and note
+their total purchase price. How powerful is this experiment if I want to
+detect a "small" effect in either direction?
+
+```{r eval=FALSE}
+# two-sample test
+pwr.t.test(n = 30, d = 0.2, sig.level = 0.05) # n is per group
+
+```
+
+How many do I need to observe for a test with 80% power?
+```{r eval=FALSE}
+pwr.t.test(d = 0.2, power = 0.80, sig.level = 0.05)
+# alternative: greater than 0 (positive effect)
+pwr.t.test(d = 0.2, power = 0.80, sig.level = 0.05, alternative = "greater")
+# alternative: less than 0 (negative effect)
+pwr.t.test(d = -0.2, power = 0.80, sig.level = 0.05, alternative = "less")
+```
+
+Let's say we want to be able to detect a difference of at least 75 cents in 
+the mean purchase price. How can we convert that to an effect size? First we 
+need to make a guess at the population standard deviation. If we have 
+absolutely no idea, one rule of thumb is to take the difference between the 
+maximum and minimum values and divide by 4 (or 6). Let's say max is 10 and min
+is 1. So our guess at a standard deviation is 9/4 = 2.25. 
+
+```{r eval=FALSE}
+d <- 0.75/2.25 # 0.333
+pwr.t.test(d = d, power = 0.80, sig.level = 0.05)
+
+```
+
+### two sample t test for means, unequal sample sizes
+
+Find power for a t test with 28 in one group and 35 in the other group and a
+medium effect size. (sig.level defaults to 0.05.)
+```{r eval=FALSE}
+pwr.t2n.test(n1 = 28, n2 = 35, d = 0.5)
+
+```
+
+
+Find n1 sample size when other group has 35, desired power is 0.80, effect 
+size is 0.5 and significance level is 0.05:
+```{r eval=FALSE}
+pwr.t2n.test(n2 = 35, d = 0.5, power = 0.8)
+```
+
+### chi-squared tests 
+
+(From Cohen, example 7.1) A market researcher is seeking to determine
+preference among 4 package designs. He arranges to have a panel of 100 
+consumers. He wants to perform a chi-square goodness of fit test against the 
+null of equal preference (25% for each design) with a significance level of 
+0.05. What's the power of the test if 3/8 of the population actually prefers 
+design 1 and the remaining 5/8 are split over the other 3 designs?
+
+```{r eval=FALSE}
+# Goodness of Fit
+# We need to create vectors of null and alternative proportions:
+P0 <- rep(0.25, 4)
+P1 <- c(3/8, rep((5/8)/3, 3))
+
+# To calculate power, specify effect size, N, and degrees of freedom (4-1).
+pwr.chisq.test(w=ES.w1(P0,P1), N=100, df=(4-1), sig.level=0.05)
+
+# How many subjects do we need to achieve 80% power?
+pwr.chisq.test(w=ES.w1(P0,P1), df=(4-1), power=0.8, sig.level = 0.05)
+
+```
+
+I want to see if there's an association between gender and flossing
+teeth among UVa students. I randomly sample 100 students (male and female) and
+ask whether or not they floss daily. I want to carry out a chi-square test of 
+association to determine if there's an association between these two 
+variables. As usual I set my significance level to 0.05. To determine effect 
+size I need to propose an alternative hypothesis, which in this case is a 
+table of proportions.
+
+```{r eval=FALSE}
+# test of association
+# using hypothesized proportions
+prob <- matrix(c(0.10,0.20,0.40,0.30), ncol=2, 
+               dimnames = list(c("M","F"),c("Floss","No Floss")))
+pwr.chisq.test(w = ES.w2(prob), N = 100, df = 1, sig.level = 0.05)
+
+# How many students should I survey if I wish to achieve 90% power?
+pwr.chisq.test(w = ES.w2(prob), power = 0.9, df = 1, sig.level = 0.05)
+
+# using "small" conventional effect
+pwr.chisq.test(w = 0.1, N = 100, df = 1, sig.level = 0.05)
+pwr.chisq.test(w = 0.1, power = 0.9, df = 1, sig.level = 0.05)
+```
+
+### correlation test
+
+Let's say I'm a web developer and I want to conduct an experiment with one of 
+my sites. I want to randomly select a group of people, ranging in age from 18 
+- 65, and time them how long it takes them to complete a task, say locate some
+piece of information. I suspect there may be a "small" positive linear
+relationship between time it takes to complete the task and age. How many
+subjects do I need to detect this relationship with 80% power and the usual
+0.05 significance level?
+
+```{r eval=FALSE}
+# "small" effect is 0.1
+pwr.r.test(r = 0.1, sig.level = 0.05, power = 0.8, alternative = "greater")
+# detect small effect in either direction 
+pwr.r.test(r = 0.1, sig.level = 0.05, power = 0.8, alternative = "two.sided")
+
+```
+
+### balanced one-way analysis of variance tests
+
+Let's say I'm a web developer and I'm interested in 3 web site 
+designs for a client. I'd like to know which design(s) help users find 
+information fastest, or which design requires the most time. I design an 
+experiment where I have 3 groups of randomly selected people use one of the 
+designs to find some piece of information and I record how long it takes. (All
+groups look for the same information.) How many people do I need in each group
+to detect a "medium" effect if I desire power
+and significance levels of 0.8 and 0.05?
+
+```{r eval=FALSE}
+pwr.anova.test(k = 3, f = 0.25, sig.level = 0.05, power = 0.8)
+```
+
+What's the power of my test to detect a medium effect if I get 50 for each group?
+
+```{r eval=FALSE}
+pwr.anova.test(k = 3, f = 0.25, sig.level = 0.05, n = 50)
+```
+
+
+### test for the general linear model
+
+Let's say I'm a web developer and I want to conduct an experiment with one of 
+my sites. I want to randomly select a group of people, ranging in age from 18 
+- 65, and time them how long it takes them to complete a task, say locate some
+piece of information. I know there will be variability in the observed times. 
+I think age, gender and years of education may explain this variability. How 
+powerful is my experiment if I recruit 40 subjects and I want to be able to 
+detect at least 30% explained variance ($R^{2} = .30$) with a 0.05 significance 
+level?
+
+Three predictors, so u = 3. 40 subjects, so v = 40 - 3 - 1. $R^{2} = .30$, so effect size is $f2 = 0.3/(1 - 0.3)$
+
+```{r eval=FALSE}
+pwr.f2.test(u = 3, v = 40 - 3 - 1, f2 = 0.3/(1 - 0.3), sig.level = 0.05)
+
+```
+
+
+How many subjects do I need if I want to be able to detect at least 30%
+explained variance ($R^{2} = .30$) with 80% power and the usual 0.05 significance
+level? We have to find v and than derive n.
+
+```{r eval=FALSE}
+pwr.f2.test(u = 3, f2 = 0.3/(1 - 0.3), sig.level = 0.05, power = 0.8)
+# n = sample size estimate + u + 1
+```
+

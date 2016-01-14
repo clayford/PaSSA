@@ -4,7 +4,7 @@
 # UVa StatLab
 
 # Power and sample size calculations for various statistical tests using the
-# "pwr" package a few built-in R functions
+# "pwr" package and a few built-in R functions
 
 
 # install.packages("pwr")
@@ -110,6 +110,16 @@ power.prop.test(p1 = 0.35, p2 = 0.30, sig.level = 0.05, power = .80)
 # Notice the results are slightly different. It calculates effect size
 # differently.
 
+# If we don't have any preconceived estimates of proportions or don't feel
+# comfortable making estimates, we can use a conventional effect size:
+cohen.ES(test = "p", size = "small") # 0.2
+cohen.ES(test = "p", size = "medium") # 0.5
+cohen.ES(test = "p", size = "large") # 0.8
+
+# What sample size do I need to detect a small effect?
+pwr.2p.test(h = 0.2, sig.level = 0.05, power = .80)
+
+
 # YOUR TURN! I only have access to 80 students in particular class to run this 
 # experiment. What's the power of my test if I assume one proportion is 0.45 and
 # the other is 0.55, and I set significance level to 0.05? (Watch out! n is per
@@ -130,10 +140,10 @@ pwr.2p.test(h = ES.h(p1 = 0.45, p2 = 0.55), sig.level = 0.05, n = 40)
 # we were able to survey 543 males and 675 females. What's the power of our
 # test?
 
-# Before we answer, let's revisit effect size. I honestly have no idea if there 
-# would be a difference, or if there was, how big that difference would be. I 
-# also have no idea about what the proportions would be. In this case we could
-# use a "conventional" effect size. (Small, Medium, or Large)
+# I honestly have no idea if there would be a difference, or if there was, how
+# big that difference would be. I also have no idea about what the proportions
+# would be. In this case we could use a "conventional" effect size. (Small,
+# Medium, or Large)
 
 # Let's say we're interested in being able to detect a "small" effect size.
 
@@ -286,7 +296,7 @@ pwr.t2n.test(n2 = 35, d = 0.5, power = 0.8)
 
 # pwr.chisq.test ----------------------------------------------------------
 
-# chi-squared test (ES=w)
+# chi-squared tests (ES=w)
 
 # There are two chi-square tests this function addresses:
 
@@ -518,7 +528,8 @@ power.anova.test(groups = 3, between.var = var(gm), within.var = 10^2, power = 0
 # Translation: standard deviation of the k means divided the common standard 
 # deviation of the populations involved.
 
-# Easier and more practical to just use conventional effect sizes: 0.1, 0.25, 0.4
+# Perhaps easier and more practical to just use conventional effect sizes: 0.1, 
+# 0.25, 0.4. 
 
 cohen.ES(test = "anov", size = "small")
 cohen.ES(test = "anov", size = "medium")
@@ -621,7 +632,7 @@ cohen.ES(test = "f2", size = "large") # 0.35
 pwr.f2.test(u = 3, v = 40 - 3 - 1, f2 = 0.3/(1 - 0.3), sig.level = 0.05)
 
 # How many subjects do I need if I want to be able to detect at least 30%
-# explained variance (R^ = .30) with 80% power and the usual 0.05 significance
+# explained variance (R^2 = .30) with 80% power and the usual 0.05 significance
 # level? We have to find v and than derive n.
 
 pwr.f2.test(u = 3, f2 = 0.3/(1 - 0.3), sig.level = 0.05, power = 0.8)
