@@ -25,7 +25,7 @@ library(pwr)
 # (Type I error) of 0.05 and a desired power of 0.80?
 
 # The effect size is .65 - .50 = .15. But notice that .16 - .01 = .15 as well. 
-# The are absolute differences are equal but notice their ratios:
+# The absolute differences are equal but notice their ratios:
 
 0.65/0.50
 0.16/0.01
@@ -76,7 +76,7 @@ pwr.p.test(h = ES.h(p1 = 0.25, p2 = 0.50), n = 30, sig.level = 0.05,
 # YOUR TURN!
 # Say we think people place name tags on the left 70% percent of the time instead
 # of 50%. What sample size do we need to show this assuming a significance level
-# (Type I error) of 0.01, a desired power of 0.90, and a two-sided alternative?
+# of 0.01, a desired power of 0.90, and a two-sided alternative?
 pwr.p.test(h = ES.h(p1 = 0.70, p2 = 0.50), sig.level = 0.01, power = 0.90)
 
 
@@ -116,16 +116,17 @@ cohen.ES(test = "p", size = "small") # 0.2
 cohen.ES(test = "p", size = "medium") # 0.5
 cohen.ES(test = "p", size = "large") # 0.8
 
+
 # What sample size do I need to detect a small effect?
 pwr.2p.test(h = 0.2, sig.level = 0.05, power = .80)
 
+# What power do I have if I sample 100 per group and assume a medium effect?
+pwr.2p.test(h = 0.5, sig.level = 0.05, n = 100)
 
-# YOUR TURN! I only have access to 80 students in particular class to run this 
-# experiment. What's the power of my test if I assume one proportion is 0.45 and
-# the other is 0.55, and I set significance level to 0.05? (Watch out! n is per
-# group.)
-power.prop.test(p1 = 0.45, p2 = 0.55, sig.level = 0.05, n = 40)
-pwr.2p.test(h = ES.h(p1 = 0.45, p2 = 0.55), sig.level = 0.05, n = 40)
+# YOUR TURN! Let's say we're only able to randomly sample 80 students (40 per 
+# group). What's the power of our two-sided test test if we assume a small
+# effect size of 0.2 and we set significance level to 0.05?
+pwr.2p.test(h = 0.2, sig.level = 0.05, n = 40)
 
 
 # pwr.2p2n.test -----------------------------------------------------------
@@ -160,6 +161,8 @@ pwr.2p2n.test(h = 0.2, n1 = 543, n2 = 675, sig.level = 0.05)
 # significance level of 0.05?
 
 pwr.2p2n.test(h = 0.2, n1 = 763, power = 0.8, sig.level = 0.05)
+# or specify n2; it doesn't matter
+pwr.2p2n.test(h = 0.2, n2 = 763, power = 0.8, sig.level = 0.05)
 
 
 
@@ -192,17 +195,28 @@ cohen.ES(test = "t", size = "large")
 
 pwr.t.test(n = 30, d = 0.2, sig.level = 0.05) # n is per group
 
-# Not very powerful. How many do I need to observe for a test with 80% power?
-
+# How many do I need to observe for a test with 80% power?
 pwr.t.test(d = 0.2, power = 0.80, sig.level = 0.05)
+
+# What about medium and large effects?
+pwr.t.test(n = 30, d = 0.5, sig.level = 0.05) 
+pwr.t.test(d = 0.5, power = 0.8, sig.level = 0.05) 
+
+pwr.t.test(n = 30, d = 0.8, sig.level = 0.05) # n is per group
+pwr.t.test(d = 0.8, power = 0.8, sig.level = 0.05) 
+
 
 # The default alternative is "two.sided". That is, we're looking for an effect 
 # in either direction. We can specify the alternative as "greater" than 0 or
 # "less" than 0. 
 
 # alternative: greater than 0 (positive effect)
+# what sample size do I need for 80% power?
 pwr.t.test(d = 0.2, power = 0.80, sig.level = 0.05, alternative = "greater")
+
 # alternative: less than 0 (negative effect)
+# need to make the effect negative
+# what sample size do I need for 80% power?
 pwr.t.test(d = -0.2, power = 0.80, sig.level = 0.05, alternative = "less")
 
 # same sample size in either case.
@@ -252,7 +266,7 @@ power.t.test(delta = 0.75, sd = 2.25, sig.level = 0.05, power = 0.8)
 # multiple power estimates. For example, let's see how power changes as we let n
 # go from 100 to 300 by 25 using a "small" effect size of 0.2.
 
-pwr.t.test(n = seq(100,300,25), d = 0.2, sig.level = 0.05)
+pwr.t.test(n = seq(100,500,100), d = 0.2, sig.level = 0.05)
 
 # We can save this output and graph:
 n <- seq(100,900,10)
@@ -266,15 +280,21 @@ abline(h = 0.8, col = "red")
 # "type" argument to type = "one.sample"
 
 # EXAMPLE: I'm convinced the average purchase price at the Library coffee shop 
-# is over $3 per student. My null is $3 or less, my alternative is greater than 
-# $3. I'd like to be able to detect a small effect with 90% power and
-# significance level of 0.05. How many transactions do I need to log?
-pwr.t.test(d = 0.2, sig.level = 0.05, power = 0.90, type = "one.sample")
+# is over $3 per student. My null is $3 or less; my alternative is greater than 
+# $3. I'd like to be able to detect a small effect with 90% power and 
+# significance level of 0.05. How many transactions do I need to observe? Let's 
+# say max purchase price is $10 and min is $1. So our guess at a standard
+# deviation is 9/4 = 2.25. Therefore d is...
 
-# NOTE: A paired t-test is basically the same as a one-sample t-test. Instead of
-# one sample of individual observations, you have one sample of pairs of 
-# observations, of which you typically take the difference between each pair to
-# get a single sample of differences. Notice, these produce the same result:
+d <- 0.75/2.25
+pwr.t.test(d = d, sig.level = 0.05, power = 0.90, alternative = "greater", 
+           type = "one.sample")
+
+# Another type is "paired". A paired t-test is basically the same as a 
+# one-sample t-test. Instead of one sample of individual observations, you have 
+# one sample of pairs of observations, where you take the difference between
+# each pair to get a single sample of differences. Notice these produce the
+# same result:
 pwr.t.test(d = 0.2, sig.level = 0.05, power = 0.90, type = "paired")
 pwr.t.test(d = 0.2, sig.level = 0.05, power = 0.90, type = "one.sample")
 
@@ -284,7 +304,7 @@ pwr.t.test(d = 0.2, sig.level = 0.05, power = 0.90, type = "one.sample")
 
 # two sample t test for means, unequal sample sizes (ES=d) 
 
-# Find power for a t test with 28 in one group and 35 in the other group and a
+# Find power for a t-test with 28 in one group and 35 in the other group and a
 # medium effect size. (sig.level defaults to 0.05.)
 pwr.t2n.test(n1 = 28, n2 = 35, d = 0.5)
 
@@ -518,7 +538,8 @@ var(c(30, 30, 35))
 10^2
 
 gm <- c(30, 30, 35)
-power.anova.test(groups = 3, between.var = var(gm), within.var = 10^2, power = 0.8)
+power.anova.test(groups = 3, between.var = 25, within.var = 10^2, power = 0.8)
+pwr.anova.test()
 
 # The pwr.anova.test function requires you to provide an effect size. The effect
 # size, f, for k groups is calculated as follows:
