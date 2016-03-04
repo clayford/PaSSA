@@ -101,3 +101,17 @@ glm1 <- glm(by ~ x1 + x2, data=dat, family = binomial)
 summary(glm1)
 
 
+
+qs <- 0:20
+plot(qs, dbinom(x = qs, size = 20, prob = 0.5), type="h", xlab="X", ylab="P(X)",
+     main="Binomial distribution with n=20 and p=0.5")
+# sum(dbinom(x = 15:20, size = 20, prob = 0.5))
+segments(x0 = 15:20, y0 = 0, x1 = 15:20, y1 = dbinom(x = 15:20, size = 20, prob = 0.5),col = "red", lwd = 3)
+text(x = 17, y = .05, labels = expression(P(X) > 14 %~~% 0.02))
+
+
+qs <- 0:100
+plot(qs, dbinom(x = qs, size = 100, prob = 0.6), type="h", xlab="X", ylab="P(X)")
+
+qbinom(p = 0.05, size = 100, prob = 0.5, lower.tail = F)
+

@@ -16,7 +16,7 @@ output: beamer_presentation
 Power is the probability a statistical test will detect a hypothesized effect.  
 \ 
 
-In a hypothesis test, one of two things true:
+In a hypothesis test, we assume one of two things true:
 
 1. Null Hypothesis: No effect
 2. Alternative Hypothesis: _some_ effect
@@ -58,6 +58,26 @@ Does that make it useless? No! It makes you plan your experiment.
 Let $X$ equal number of tags placed on left and assume $X$ has binomial distribution. Conclude people prefer left if I observe $X > 14$ "lefts" in 20 trials.  
 \ 
 
+The binomial distribution can be thought of as the "coin-flipping" distribution. If I flip 20 coins each with the same probability of heads, I will get 0 - 20 heads. Some results, such as 10 or 11, are more likely to occur than other results, such as 0 or 20.  
+\ 
+
+The binomial distribution assigns probabilities to those results based on two parameters: _n_, the number of flips (or trials), and _p_, the probability of heads (or success).
+
+## The binomial distribution
+
+```{r echo=FALSE}
+
+qs <- 0:20
+plot(qs, dbinom(x = qs, size = 20, prob = 0.5), type="h", xlab="X", ylab="P(X)",
+     main="Binomial distribution with n=20 and p=0.5")
+
+```
+
+## One possible experiment - cont'd
+
+Let $X$ equal number of tags placed on left and assume $X$ has binomial distribution. Conclude people prefer left if I observe $X > 14$ "lefts" in 20 trials.  
+\ 
+
 Why 14? Less than 5% chance that would happen if people have no preference.  
 \ 
 
@@ -69,9 +89,23 @@ To determine in R:
 qbinom(p = 0.05, size = 20, prob = 0.5, lower.tail = F)
 ```
 
+## $P(X) > 14$
+
+```{r echo=FALSE}
+
+qs <- 0:20
+plot(qs, dbinom(x = qs, size = 20, prob = 0.5), type="h", xlab="X", ylab="P(X)",
+     main="Binomial distribution with n=20 and p=0.5")
+segments(x0 = 15:20, y0 = 0, x1 = 15:20, y1 = dbinom(x = 15:20, size = 20, prob = 0.5),col = "red", lwd = 3)
+text(x = 17, y = .05, labels = expression(P(X) > 14 %~~% 0.02))
+
+```
+
+
+
 ## One possible experiment - cont'd
 
-Assume people prefer left 60% of the time and that $X$ has binomial distribution.  
+Assume people prefer left 60% of the time and that $X$ has binomial distribution. Let's say I sample 20 people.  
 \ 
 
 Power is $P(X > 14 | n = 20, p = 0.60)$  
@@ -84,10 +118,7 @@ pbinom(q = 14, size = 20, prob = 0.6, lower.tail = F)
 
 Not very powerful assuming my estimate of 60% left preference is correct.
 
-## Another possible experiment
-
-Let's increase sample size.  
-\ 
+## Let's increase sample size
 
 Conclude people prefer left if I observe $X > 59$ "lefts" in 100 trials. Assume people prefer left 60% of the time.  
 \ 
@@ -100,7 +131,7 @@ pbinom(q = 59, size = 100, prob = 0.6, lower.tail = F)
 
 Better, but still not close to 0.80. We see increasing sample size increased power.
 
-## Yet another possible experiment
+## Let's increase effect size
 
 Conclude people prefer left if I observe $X > 59$ "lefts" in 100 trials. Assume people prefer left 65% of the time.  
 \ 
@@ -154,10 +185,10 @@ More is better, but "more" can mean unnecessary time and money. Why recruit 100 
 
 ## Estimating sample size 
 
-Assume people prefer left 65% of the time and we reject the notion that there is no preference if we witness more than 60% "lefts" at the end of our experiment.  
+Assume people prefer left 65% of the time and we reject the notion that there is no preference if we witness more than 60% "lefts" at the end of our experiment. Compare two sample sizes:  
 \ 
 
-Compare $n=100 (X > 60)$ versus $n=80 (X > 48)$:
+$P(X > 60 | n = 100, p = 0.65)$ vs. $P(X > 48 | n = 80, p = 0.65)$
 
 ```{r}
 pbinom(q = 60, size = 100, prob = 0.65, lower.tail = F) 
@@ -239,7 +270,7 @@ Notice the effect sizes: h and d. We'll define these shortly.
 
 ## The `pwr` functions and associated statistical tests (2)
 
-- `pwr.chisq.test`: chi-squared tests, goodness of fit and association (ES=w)
+- `pwr.chisq.test`: chi-squared tests; goodness of fit and association (ES=w)
 - `pwr.r.test`: correlation test (ES=r)     
 - `pwr.anova.test`: test for one-way balanced anova (ES=f)    
 - `pwr.f2.test`: test for the general linear model (ES=f2)     
