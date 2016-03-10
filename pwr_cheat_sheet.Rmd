@@ -12,14 +12,22 @@ library(pwr)
 
 ### conventional effect sizes for certain tests
 
-Test                        | Small | Medium | Large
+Test                        | `small` | `medium` | `large`
 ----------------------------|-------|--------|-------
-tests for proportions ("p") | 0.2   | 0.5    | 0.8
-tests for means ("d")       | 0.2   | 0.5    | 0.8
-chi-square tests ("w1","w2")| 0.1   | 0.3    | 0.5
-correlation test ("r")      | 0.1   | 0.3    | 0.5 
-anova ("f")                 | 0.1   | 0.25   | 0.4 
-general linear model ("f2") | 0.02  | 0.15   | 0.35 
+tests for proportions (`p`) | 0.2   | 0.5    | 0.8
+tests for means (`t`)       | 0.2   | 0.5    | 0.8
+chi-square tests (`chisq`)| 0.1   | 0.3    | 0.5
+correlation test (`r`)      | 0.1   | 0.3    | 0.5 
+anova (`anov`)                 | 0.1   | 0.25   | 0.4 
+general linear model (`f2`) | 0.02  | 0.15   | 0.35 
+
+To get these in R: 
+`cohen.ES(test = c("p", "t", "r", "anov", "chisq", "f2"), size = c("small", "medium", "large"))`
+
+Example:
+```{r}
+cohen.ES(test = "anov", size = "small")
+```
 
 
 ### one-sample test for proportions  
@@ -30,16 +38,23 @@ the left side of their chest 65% percent of the time versus random chance
 (Type I error) of 0.05 and a desired power of 0.80?
 
 ```{r eval=FALSE}
-pwr.p.test(h = ES.h(p1 = 0.65, p2 = 0.50), sig.level = 0.05, power = 0.80)
+pwr.p.test(h = ES.h(p1 = 0.65, p2 = 0.50), sig.level = 0.05, 
+           power = 0.80, alternative = "greater")
 ```
 
 Say we think people place name tags on the left 75% percent of the time instead 
 of 50%. What is the power of our test if we survey 30 people provided
 we accept a significance level (Type I error) of 0.05? 
 ```{r eval=FALSE}
-pwr.p.test(h = ES.h(p1 = 0.75, p2 = 0.50), n = 30, sig.level = 0.05)
+pwr.p.test(h = ES.h(p1 = 0.75, p2 = 0.50), n = 30, 
+           sig.level = 0.05, alternative = "greater")
 ```
 
+Say we think people placing name tags on the left side of their chest is not governed by random chance (50%). What sample size do we need to detect a "small" effect of 0.2 assuming a significance level of 0.05 and a desired power of 0.80?
+
+```{r eval=FALSE}
+pwr.p.test(h = 0.2, sig.level = 0.05, power = 0.8, alternative = "two.sided")
+```
 
 ### two-sample test for proportions
 
@@ -74,7 +89,21 @@ pwr.2p2n.test(h = 0.2, n1 = 543, n2 = 675, sig.level = 0.05)
 ```
 
 
-### one sample and two sample t tests for means
+### one-sample and two-sample t-tests for means
+
+The effect size for two-sample t-tests:
+
+$$ d = \frac{m_1 - m_2}{\sigma}$$
+
+The effect size for one-sample t-tests:
+
+$$ d = \frac{m_1 - null}{\sigma}$$
+
+The effect size for paired t-tests (with and without correlation):
+
+$$ d = \frac{m_1 - m_2}{\sigma \sqrt{2}}$$
+$$ d = \frac{m_1 - m_2}{\sigma \sqrt{2(1 - r)}}$$
+
 
 I'm interested to know if there is a difference in the mean price of what male
 and female students pay at the library coffee shop. Let's say I randomly 
@@ -105,10 +134,31 @@ maximum and minimum values and divide by 4 (or 6). Let's say max is 10 and min
 is 1. So our guess at a standard deviation is 9/4 = 2.25. 
 
 ```{r eval=FALSE}
+# one-sample test
 d <- 0.75/2.25 # 0.333
-pwr.t.test(d = d, power = 0.80, sig.level = 0.05)
+pwr.t.test(d = d, power = 0.80, sig.level = 0.05, type = "one.sample")
 
 ```
+
+24 high school boys are put on a ultraheavy rope-jumping program. 
+Does this increase their 40-yard dash time? We'll measure their 40 time before
+the program and after. We'll use a paired t-test to see if the difference in 
+times is greater than 0. Assume the standard deviation of the differences will
+be about 0.25. How powerful is the test to detect a difference of about positive 0.08
+with 0.05 significance?
+
+```{r eval=FALSE}
+# paired t-test
+pwr.t.test(n = 24, d = 0.08 / (0.25 * sqrt(2)), 
+           type = "paired", alternative = "greater")
+
+# or 
+power.t.test(n = 24, delta = 0.08, sd = 0.25 * sqrt(2), 
+             type = "paired", alternative = "one.sided")
+
+```
+
+
 
 ### two sample t test for means, unequal sample sizes
 
@@ -133,7 +183,7 @@ preference among 4 package designs. He arranges to have a panel of 100
 consumers. He wants to perform a chi-square goodness of fit test against the 
 null of equal preference (25% for each design) with a significance level of 
 0.05. What's the power of the test if 3/8 of the population actually prefers 
-design 1 and the remaining 5/8 are split over the other 3 designs?
+one of the designs and the remaining 5/8 are split over the other 3 designs?
 
 ```{r eval=FALSE}
 # Goodness of Fit
@@ -211,6 +261,17 @@ What's the power of my test to detect a medium effect if I get 50 for each group
 pwr.anova.test(k = 3, f = 0.25, sig.level = 0.05, n = 50)
 ```
 
+How many people do I need in each group
+if I believe two of the designs will take 30 seconds and one will take 35
+seconds? Assume population standard deviation is 10 and that I desire power
+and significance levels of 0.8 and 0.05. Using `power.anova.test`:
+
+```{r eval=FALSE}
+power.anova.test(groups = 3, between.var = var(c(30, 30, 35)), 
+                 within.var = 10^2, power = 0.8)
+
+```
+
 
 ### test for the general linear model
 
@@ -237,6 +298,16 @@ level? We have to find v and than derive n.
 
 ```{r eval=FALSE}
 pwr.f2.test(u = 3, f2 = 0.3/(1 - 0.3), sig.level = 0.05, power = 0.8)
-# n = sample size estimate + u + 1
+# n = round(v) + u + 1
 ```
 
+### References
+
+
+Cohen, J. (1988). _Statistical Power Analysis for the Behavioral Sciences (2nd ed.)_. LEA.  
+
+Dalgaard, P. (2002). _Introductory Statistics with R_. Springer.   
+
+Hogg, R and Tanis, E. (2006). _Probability and Statistical Inference (7th ed.)_. Pearson.  
+
+Ryan, T. (2013). _Sample Size Determination and Power_. Wiley.   

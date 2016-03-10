@@ -263,8 +263,8 @@ Fortunately the `pwr` package provides a few functions for this.
 - `pwr.p.test`: one-sample test for proportions (ES=h)    
 - `pwr.2p.test`: two-sample test for proportions (ES=h)     
 - `pwr.2p2n.test`: two-sample test for proportions, unequal sample sizes (ES=h)    
-- `pwr.t.test`: one sample and two sample t tests for means (ES=d)     
-- `pwr.t2n.test`: two sample t test for means, unequal sample sizes (ES=d)    
+- `pwr.t.test`: one-sample and two-sample - tests for means (ES=d)     
+- `pwr.t2n.test`: two-sample t-test for means, unequal sample sizes (ES=d)    
 
 Notice the effect sizes: h and d. We'll define these shortly.
 
@@ -288,9 +288,8 @@ Functions to compute effect size:
 
 We will use these functions as needed in the examples that follow.
 
-Other effect sizes (d, f, and f2) must be calculated by hand.
+Other effect sizes (d, r, f, and f2) must be calculated by hand.
  
-
 ## Conventional effect size
 
 Sometimes we don't know the precise effect size we expect or hope to find. In this case we can resort to conventional effect sizes of "small", "medium", or "large".  
@@ -335,8 +334,6 @@ For example, the following calculates the power of a two-sample t-test with assu
 
 Let's go to R!
 
-
-
 ## Other Software
 
 ### Software
@@ -355,10 +352,14 @@ Let's go to R!
 Cohen, J. (1988). _Statistical Power Analysis for the Behavioral Sciences (2nd ed.)_. LEA.  
 \ 
 
+Dalgaard, P. (2002). _Introductory Statistics with R_. Springer.   
+\ 
+
 Hogg, R and Tanis, E. (2006). _Probability and Statistical Inference (7th ed.)_. Pearson.  
 \ 
 
 Ryan, T. (2013). _Sample Size Determination and Power_. Wiley.   
+\ 
 
 ## Thanks for coming today!
 
@@ -369,4 +370,5 @@ Sign up for more workshops or see past workshops:
 http://data.library.virginia.edu/statlab/   
 \ 
 
-Register for the Research Data Services newsletter to stay up-to-date on StatLab events and resources: http://data.library.virginia.edu/newsletters/    
+Register for the Research Data Services newsletter to stay up-to-date on RDS 
+events and resources: http://data.library.virginia.edu/newsletters/    
