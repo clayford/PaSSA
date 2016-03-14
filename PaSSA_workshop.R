@@ -745,5 +745,40 @@ pwr.f2.test(u = 3, f2 = 0.3/(1 - 0.3), sig.level = 0.05, power = 0.8)
 # subjects gives us 80% chance of correctly detecting the effect of at least one
 # of our predictors, provided one or more truly affect our response.
 
+# Continuing with previous example, it would be of interest if using a mobile 
+# device accounted for at least 5% beyond the variance explained by the model
+# with age, gender and years of education. We could think of this as a 0/1
+# indicator in the model that takes the value 1 if the user is on a mobile
+# device, and 0 otherwise.
+
+# Call the mobile device indicator variable set "B" and the others variable set 
+# "A". We'd like to know the power of this regression for detecting the 
+# contribution of B to the model with A. This is sometimes called a Partial F 
+# test. We test if a set of predictors explain variance above and beyond a
+# second set of predictors. The null is no contribution.
+
+# The effect size for this test:
+  
+# f2 = (R^2_AB - R^2_A) / (1 - R^2_AB)
+
+# R^2_AB is percent variance explained by variable sets A and B. R^2_A is 
+# percent variance explained by variable set A.
+
+# In this case, f2 = (0.35 - 0.30)/(1 - 0.35)
+  
+# How many subjects would be needed to identify the mobile/tablet contribution
+# to variance explained with 90% power and a signficance level of 0.05?
+
+# u = number of variables in set "A"
+# v = n - number of variables in sets "A" and "B" - 1
+
+pwr.f2.test(u = 3, f2 = (0.35 - 0.30) /(1 - 0.35), sig.level = 0.05, power = 0.9)
+
+# To calculate sample size:
+# n = round(v) + number of variables in A & B + 1
+# n = 185 + 4 + 1 = 190
+
+
+
 
 # END WORKSHOP SCRIPT

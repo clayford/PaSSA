@@ -275,6 +275,16 @@ power.anova.test(groups = 3, between.var = var(c(30, 30, 35)),
 
 ### test for the general linear model
 
+Effect size for testing if set of predictors explain any variance:
+
+$$ f^{2} = \frac{R^{2}}{1 - R^{2}}$$
+
+Effect size for test if set of predictors explain variance above and beyond a second set of predictors:
+
+$$ f^{2} = \frac{R^{2}_{AB} - R^{2}_{A}}{1 - R^{2}_{AB}}$$
+
+$R^{2}$ is percent variance explained. $R^{2}_{AB}$ is percent variance explained by variable sets A and B. $R^{2}_{A}$ is percent variance explained by variable set A. 
+
 Let's say I'm a web developer and I want to conduct an experiment with one of 
 my sites. I want to randomly select a group of people, ranging in age from 18 
 - 65, and time them how long it takes them to complete a task, say locate some
@@ -301,6 +311,21 @@ pwr.f2.test(u = 3, f2 = 0.3/(1 - 0.3), sig.level = 0.05, power = 0.8)
 # n = round(v) + u + 1
 ```
 
+
+Continuing with previous example, it would be of interest if using a mobile device or tablet accounted for at least 5% beyond the variance explained by the model with age, gender and years of education. Call the mobile device or tablet indicator variable set "B" and the others variable set "A". In this case our effect size is 
+
+$$ f^{2} = \frac{0.35 - 0.30}{1 - 0.35}$$
+
+How many subjects would be needed to identify the mobile/tablet contribution to variance explained with 90% power and a signficance level of 0.05?
+
+```{r eval=FALSE}
+pwr.f2.test(u = 3, f2 = (0.35 - 0.30) /(1 - 0.35), sig.level = 0.05, power = 0.9)
+# n = round(v) + number of variables in A & B + 1
+# n = 185 + 4 + 1 = 190
+```
+
+
+
 ### References
 
 
@@ -310,4 +335,6 @@ Dalgaard, P. (2002). _Introductory Statistics with R_. Springer.
 
 Hogg, R and Tanis, E. (2006). _Probability and Statistical Inference (7th ed.)_. Pearson.  
 
-Ryan, T. (2013). _Sample Size Determination and Power_. Wiley.   
+Kabacoff, R. (2011). _R in Action_. Manning.   
+
+Ryan, T. (2013). _Sample Size Determination and Power_. Wiley.     
