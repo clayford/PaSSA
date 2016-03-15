@@ -38,7 +38,7 @@ ES.h(p1 = 0.65, p2 = 0.50)
 ES.h(p1 = 0.16, p2 = 0.01) # larger effect size
 
 # NOTE: the effect size is calculated using an arcsine transformation. Also, the
-# "h" effect size ranges (practically) from about 0.05 to 2.7.
+# "h" effect size ranges (practically) from about 0.05 to 2.7 in absolute value.
 
 # In this particular statistical test, we want the p1 = alternative and p2 =
 # Null: ES.h(p1 = 0.65, p2 = 0.50)
@@ -151,19 +151,28 @@ ceiling(pwr.2p.test(h = 0.2, power = 0.80, sig.level = 0.05)$n)
 
 # comparing effect size to sample size to help us get a feel for their
 # relationship:
+
+# generate a sequence of effect sizes
 h <- seq(0.1, 0.9, 0.01)
-n <- sapply(es, function(x)ceiling(pwr.2p.test(h = x, power = 0.80)$n))
+
+# "apply" the pwr.p.test function to the effect sizes
+n <- sapply(h, function(x)ceiling(pwr.2p.test(h = x, power = 0.80)$n))
+
+# plot sample size vs. effect size
 plot(h, n, type="l", main="Sample size vs Effect size h")
+
+# add points representing "conventional" effect sizes
 points(x = c(0.2,0.5,0.8), y = n[h %in% c(0.2,0.5,0.8)], 
        pch=19, cex=1, col=c("black","red","blue"))
 legend("topright", legend = c("0.2 - small","0.5 - medium","0.8 - large"), 
        col = c("black","red","blue"), 
        pch = 19, title = "effect size")
 
-# Beyond 0.2, the sample size takes off!
+# As we go below 0.2, the sample size takes off!
 
-# What power do I have if I sample 100 per group and assume a medium effect?
-pwr.2p.test(h = 0.5, sig.level = 0.05, n = 100)
+# What sample size do I need to detect effects of 0.2 and 0.1 with 80% power?
+pwr.2p.test(h = 0.2, sig.level = 0.05, power = 0.8)
+pwr.2p.test(h = 0.1, sig.level = 0.05, power = 0.8)
 
 # YOUR TURN! Let's say we're only able to randomly sample 80 students (40 per 
 # group). What's the power of our two-sided test test if we assume a small
@@ -176,8 +185,8 @@ pwr.2p.test(h = 0.2, sig.level = 0.05, n = 40)
 # two-sample test for proportions, unequal sample sizes (ES=h) 
 
 # This function allows us to calculate power when we have unequal sample sizes. 
-# We can also use it to find a sample size for one group when we already have
-# data for another. It has two "n" arguments: n1 and n2
+# We can also use it to find a sample size for one group when we already know
+# the size of the other. It has two "n" arguments: n1 and n2
 
 # Let's return to our undergraduate survey of alcohol consumption. It turns out 
 # we were able to survey 543 males and 675 females. What's the power of our
@@ -192,14 +201,14 @@ pwr.2p.test(h = 0.2, sig.level = 0.05, n = 40)
 
 cohen.ES(test = "p", size = "small") # 0.2
 
-# So instead of use ES.h() with guesses at p1 and p2, I can just use the effect
-# size 0.2.
+# So instead of using ES.h() with guesses at p1 and p2, I can just use the
+# effect size 0.2.
 pwr.2p2n.test(h = 0.2, n1 = 543, n2 = 675, sig.level = 0.05)
 
-# Let's say I previously surveyed 763 females and found that p% said they 
-# consumed alcohol once a week. I'd like to survey some males and see if a 
-# significantly different proportion respond yes. How many do I need to sample 
-# to detect a small effect size in either direction with 80% power and a
+# Let's say I previously surveyed 763 female undergraduates and found that p%
+# said they consumed alcohol once a week. I'd like to survey some males and see
+# if a significantly different proportion respond yes. How many do I need to
+# sample to detect a small effect size in either direction with 80% power and a 
 # significance level of 0.05?
 
 pwr.2p2n.test(h = 0.2, n1 = 763, power = 0.8, sig.level = 0.05)
@@ -213,9 +222,8 @@ pwr.2p2n.test(h = 0.2, n2 = 763, power = 0.8, sig.level = 0.05)
 # one sample and two sample t tests for means (ES=d) 
 
 # The effect size d is simply the difference in population means divided by the 
-# standard deviation of either population (since they are assumed equal). This 
-# is sometimes called "Cohen's d". Now we have to make a guess at the standard
-# deviation!
+# standard deviation of either population (since they are assumed equal). Now we
+# have to make a guess at the standard deviation!
 
 # There is no function for effect size d. We have to calculate this ourselves.
 
@@ -229,11 +237,11 @@ cohen.ES(test = "t", size = "large")
 
 # Two-sample t test
 
-# I'm interested to know if there is a difference in the mean price of what male
-# and female students pay at the library coffee shop. Let's say I randomly 
-# observe 30 male and 30 female students check out from the coffee shop and note
-# their total purchase price. How powerful is this experiment if I want to
-# detect a "medium" effect in either direction?
+# EXAMPLE: I'm interested to know if there is a difference in the mean price of 
+# what male and female students pay at the library coffee shop. Let's say I 
+# randomly observe 30 male and 30 female students check out from the coffee shop
+# and note their total purchase price. How powerful is this experiment if I want
+# to detect a "medium" effect in either direction?
 
 pwr.t.test(n = 30, d = 0.5, sig.level = 0.05) # n is per group
 
@@ -261,9 +269,9 @@ pwr.t.test(d = -0.5, power = 0.80, sig.level = 0.05, alternative = "less")
 # Same sample size in either case. Again, in practice, probably best to conduct
 # two-sided tests.
 
-# Let's say we want to be able to detect a difference of at least 75 cents in 
-# the mean purchase price. How can we convert that to an effect size? First we 
-# need to make a guess at the population standard deviation. If we have 
+# EXAMPLE: Let's say we want to be able to detect a difference of at least 75
+# cents in the mean purchase price. How can we convert that to an effect size?
+# First we need to make a guess at the population standard deviation. If we have
 # absolutely no idea, one rule of thumb is to take the difference between the 
 # maximum and minimum values and divide by 4 (or 6). Let's say max is 10 and min
 # is 1. So our guess at a standard deviation is 9/4 = 2.25. Therefore d is
@@ -310,22 +318,31 @@ abline(h = 0.8, col = "red")
 # To calculate power and sample size for one-sample t-test, I have to set the
 # "type" argument to type = "one.sample"
 
-# EXAMPLE: I'm convinced the average purchase price at the Library coffee shop 
-# is over $3 per student. My null is $3 or less; my alternative is greater than 
-# $3. I'd like to be able to detect a small effect with 90% power and 
-# significance level of 0.05. How many transactions do I need to observe? Let's 
+# EXAMPLE: I think the average purchase price at the Library coffee shop is over
+# $3 per student. My null is $3 or less; my alternative is greater than $3. If 
+# the true average purchase price is $3.50, I would like to have 90% power to 
+# declare my estimated average purchase price is greater than $3. How many 
+# transactions do I need to observe assuming a significance level of 0.05? Let's
 # say max purchase price is $10 and min is $1. So our guess at a standard
 # deviation is 9/4 = 2.25. Therefore d is...
 
-d <- 0.75/2.25
+d <- 0.50/2.25
 pwr.t.test(d = d, sig.level = 0.05, power = 0.90, alternative = "greater", 
            type = "one.sample")
 
 # or with power.t.test:
-power.t.test(delta = 0.75, sd = 2.25, power = 0.90, alternative = "one.sided", 
-             type = "one.sample")
+power.t.test(delta = 0.50, sd = 2.25, power = 0.90, sig.level = 0.05, 
+             alternative = "one.sided", type = "one.sample")
 
 # Very important to remember type = "one.sample"
+
+# What if I lower my significance level to 0.01?
+pwr.t.test(d = d, sig.level = 0.01, power = 0.90, alternative = "greater", 
+           type = "one.sample")
+
+# Going to extremes...
+pwr.t.test(d = d, sig.level = 0.001, power = 0.999, alternative = "greater", 
+           type = "one.sample")
 
 # Another type is "paired". A paired t-test is basically the same as a 
 # one-sample t-test. Instead of one sample of individual observations, you have 
@@ -341,6 +358,8 @@ power.t.test(delta = 0.75, sd = 2.25, power = 0.90, alternative = "one.sided",
 # Another definition of effect size for paired data (without correlation):
 
 # d = (mean1 - mean2) / sd * sqrt(2)    (Dalgaard, p. 145)
+
+# The second is more conservative and probably safer to use.
 
 # Notice "paired" and "one.sample" return the same result, but the effect (d)
 # means different things in each scenario.
@@ -365,10 +384,9 @@ power.t.test(n = 24, delta = 0.08, sd = 0.25 * sqrt(2),
              type = "paired", alternative = "one.sided")
 
 
-# YOUR TURN! How many pairs of boys would I need to sample to detect a 
-# difference of 0.05 in either direction with 80% power and the usual 0.05
-# significance level, assuming the standard deviation of the differences will be
-# about 0.25?
+# YOUR TURN! How many boys would I need to sample to detect a difference of 0.05
+# in either direction with 80% power and the usual 0.05 significance level,
+# assuming the standard deviation of the differences will be about 0.25?
 pwr.t.test(d = 0.05 / (0.25 * sqrt(2)), power = 0.8, type = "paired")
 power.t.test(delta = 0.05, sd = 0.25 * sqrt(2), power = 0.8, type = "paired")
 
