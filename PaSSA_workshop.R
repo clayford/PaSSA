@@ -798,5 +798,52 @@ pwr.f2.test(u = 2, f2 = (0.35 - 0.30) /(1 - 0.35), sig.level = 0.05, power = 0.9
 165 + 3 + 1
 
 
+# time permitting material ------------------------------------------------
+
+# sample size curves
+
+# Sample size curves can be a useful visual aid in helping understand the 
+# relationship between effect size, power, sample size and significance level.
+# Let's make some for a chi-square test of association for a 2 x 2 table.
+
+# generate a sequence of effect sizes and power values
+es <- seq(0.1,0.5,0.01)
+pow <- c(0.8, 0.85, 0.9, 0.95)
+
+# combine these values into a data frame
+vals <- expand.grid(es=es,pow=pow)
+
+# create a function to calculate sample size and extract
+getN <- function(es,pow,sl=0.05){
+  ceiling(pwr.chisq.test(w = es, df = 1, power = pow, sig.level = sl)$N)
+}
+
+# "apply" the function to the es and pow columns of the vals data frame
+vals$n <- mapply(getN, vals$es, vals$pow)
+# add a column to indicate significance level
+vals$sl <- 0.05
+
+# create temporary copy of vals to do the same for 0.01 significance level
+tmp <- vals
+tmp$n <- mapply(getN, vals$es, vals$pow, 0.01)
+tmp$sl <- 0.01
+
+# combine tmp and vals into vals
+vals <- rbind(vals, tmp); rm(tmp)
+
+# set "pow" as factor to aid in plotting
+vals$pow <- factor(vals$pow)
+
+# create sample size curves faceted by significance level
+library(ggplot2)
+ggplot(vals, aes(es, n, color=pow, group=pow)) + geom_line() +
+  facet_wrap(~ sl) +
+  labs(x="Effect Size", y="Sample Size", title="Sample Sizes for Chi-square Test (2 x 2)") +
+  scale_color_discrete("Power") 
+
+
+
+
+
 
 # END WORKSHOP SCRIPT
