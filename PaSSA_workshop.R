@@ -16,7 +16,7 @@ library(pwr)
 # one-sample test for proportions  (ES=h) 
 
 # When we want to test if a proportion is equal to some hypothesized value 
-# versus a null values, such as random chance, or 0.5. Notice it requires an
+# versus a null value, such as random chance, or 0.5. Notice it requires an
 # effect size expressed as "h". Use the ES.h() function for this.
 
 # This applies to our name tag example. Say we think people place name tags on 
@@ -48,10 +48,12 @@ ES.h(p1 = 0.16, p2 = 0.01) # larger effect size
 h <- ES.h(p1 = 0.65, p2 = 0.50)
 pwr.p.test(h = h, sig.level = 0.05, power = 0.80)
 
-# The previous assumed a two-sided test: Null = 0.5, Alt != 0.5. However our 
-# hypothesis is that the proportion is GREATER than 0.5, so we should modify our
-# calculations to be one-sided. Our test is more powerful if we're willing to
-# believe the alternative is "greater" than .50. Set alternative = "greater"
+# About 85 people; always round up.
+
+# The previous example assumed a two-sided test: Null = 0.5, Alt != 0.5. However
+# our hypothesis is that the proportion is GREATER than 0.5, so we should modify
+# our calculations to be one-sided. Our test is more powerful if we're willing
+# to believe the alternative is "greater" than .50. Set alternative = "greater"
 pwr.p.test(h = h, sig.level = 0.05, power = 0.80, alternative = "greater")
 
 # Notice we need fewer people. 

@@ -13,15 +13,18 @@ output: beamer_presentation
 
 ## What is power?
 
-Power is the probability a statistical test will detect a hypothesized effect.  
+Power is the probability a statistical test will correctly detect a hypothesized effect.  
 \ 
 
-In a hypothesis test, we assume one of two things true:
+In a hypothesis test, we assume two possible realities:
 
 1. Null Hypothesis: No effect
 2. Alternative Hypothesis: _some_ effect
 
-We would like to design an experiment such we have a high probability (or high power) of rejecting #1 if #2 is true. The usual desired power is at least 0.80, or 80%.
+At the conclusion, we decide whether to reject or fail to reject #1.   
+\ 
+
+When we design an experiment and carry out a hypothesis test, we would like to have a high probability (or high power) of rejecting #1 if #2 is true. The usual desired power is at least 0.80, or 80%.
 
 ## Working Toy Example
 
@@ -34,7 +37,7 @@ I can calculate power for a given sample size, or I can calculate sample size fo
 
 To calculate power or sample size for my name tag experiment, I have to make certain assumptions and decisions:
 
-- Decide which statistical test to use (_one-sample proportion test_)
+- Decide which statistical test to use (_one-sample proportion test_ or _binomial test_)
 - For power, I have to set sample size; for sample size, I have to set the desired power
 - Decide on _effect size_, the probability of placing tag on left assuming my hypothesis is correct
 - Determine the number of tags on left that convince me the hypothesis is true (_critical region_), or set a p-value cutoff such as 0.05 (_significance level_)
