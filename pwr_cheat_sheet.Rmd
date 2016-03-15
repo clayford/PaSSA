@@ -140,6 +140,27 @@ pwr.t.test(d = d, power = 0.80, sig.level = 0.05, type = "one.sample")
 
 ```
 
+
+I think the average purchase price at the Library coffee shop is over
+$3 per student. My null is $3 or less; my alternative is greater than $3. If 
+the true average purchase price is $3.50, I would like to have 90% power to 
+declare my estimated average purchase price is greater than $3. How many 
+transactions do I need to observe assuming a significance level of 0.05? Let's
+say max purchase price is $10 and min is $1. So our guess at a standard
+deviation is 9/4 = 2.25. Therefore d is...
+
+```{r eval=FALSE}
+d <- 0.50/2.25
+pwr.t.test(d = d, sig.level = 0.05, power = 0.90, alternative = "greater", 
+           type = "one.sample")
+
+# or with power.t.test:
+power.t.test(delta = 0.50, sd = 2.25, power = 0.90, sig.level = 0.05, 
+             alternative = "one.sided", type = "one.sample")
+
+```
+
+             
 24 high school boys are put on a ultraheavy rope-jumping program. 
 Does this increase their 40-yard dash time? We'll measure their 40 time before
 the program and after. We'll use a paired t-test to see if the difference in 
@@ -180,7 +201,7 @@ pwr.t2n.test(n2 = 35, d = 0.5, power = 0.8)
 
 (From Cohen, example 7.1) A market researcher is seeking to determine
 preference among 4 package designs. He arranges to have a panel of 100 
-consumers. He wants to perform a chi-square goodness of fit test against the 
+consumers pick their favorite design. He wants to perform a chi-square goodness of fit test against the 
 null of equal preference (25% for each design) with a significance level of 
 0.05. What's the power of the test if 3/8 of the population actually prefers 
 one of the designs and the remaining 5/8 are split over the other 3 designs?
@@ -262,13 +283,13 @@ pwr.anova.test(k = 3, f = 0.25, sig.level = 0.05, n = 50)
 ```
 
 How many people do I need in each group
-if I believe two of the designs will take 30 seconds and one will take 35
-seconds? Assume population standard deviation is 10 and that I desire power
+if I believe two of the designs will take 30 seconds and one will take 25
+seconds? Assume population standard deviation is 5 and that I desire power
 and significance levels of 0.8 and 0.05. Using `power.anova.test`:
 
 ```{r eval=FALSE}
-power.anova.test(groups = 3, between.var = var(c(30, 30, 35)), 
-                 within.var = 10^2, power = 0.8)
+power.anova.test(groups = 3, between.var = var(c(30, 30, 25)), 
+                 within.var = 5^2, power = 0.8)
 
 ```
 
@@ -285,56 +306,60 @@ $$ f^{2} = \frac{R^{2}_{AB} - R^{2}_{A}}{1 - R^{2}_{AB}}$$
 
 $R^{2}$ is percent variance explained. $R^{2}_{AB}$ is percent variance explained by variable sets A and B. $R^{2}_{A}$ is percent variance explained by variable set A. 
 
-Let's say I'm a web developer and I want to conduct an experiment with one of 
-my sites. I want to randomly select a group of people, ranging in age from 18 
-- 65, and time them how long it takes them to complete a task, say locate some
-piece of information. I know there will be variability in the observed times. 
-I think age, gender and years of education may explain this variability. How 
-powerful is my experiment if I recruit 40 subjects and I want to be able to 
-detect at least 30% explained variance ($R^{2} = .30$) with a 0.05 significance 
-level?
+Let's say I'm hired to survey a company's workforce about job 
+satisfaction. I ask employees to rate their satisfaction on a scale from 1 
+(hating life) to 10 (loving life). I know there will be variability in the 
+answers, but I think two variables that will explain this variability are 
+salary and gender. In fact I think it will explain at least 30% (R^2 = .30) of
+the variance. How powerful is my "experiment" if I randomly recruit 40
+employees and accept a 0.05 significance level?
 
-Three predictors, so u = 3. 40 subjects, so v = 40 - 3 - 1. $R^{2} = .30$, so effect size is $f2 = 0.3/(1 - 0.3)$
+Two predictors, so u = 3. 
+40 employees, so v = 40 - 3 - 1. 
+$R^{2} = .30$, so effect size is $f2 = 0.3/(1 - 0.3)$
 
 ```{r eval=FALSE}
 pwr.f2.test(u = 3, v = 40 - 3 - 1, f2 = 0.3/(1 - 0.3), sig.level = 0.05)
 
 ```
 
-
-How many subjects do I need if I want to be able to detect at least 30%
-explained variance ($R^{2} = .30$) with 80% power and the usual 0.05 significance
-level? We have to find v and than derive n.
+How many employees do I need to survey if I want to be able to detect at least
+30% explained variance (R^2 = .30) with 80% power and the usual 0.05
+significance level? We have to find v and then derive n.
 
 ```{r eval=FALSE}
-pwr.f2.test(u = 3, f2 = 0.3/(1 - 0.3), sig.level = 0.05, power = 0.8)
+pwr.f2.test(u = 2, f2 = 0.3/(1 - 0.3), sig.level = 0.05, power = 0.8)
 # n = round(v) + u + 1
 ```
 
 
-Continuing with previous example, it would be of interest if using a mobile device or tablet accounted for at least 5% beyond the variance explained by the model with age, gender and years of education. Call the mobile device or tablet indicator variable set "B" and the others variable set "A". In this case our effect size is 
+Continuing with previous example, it would be of interest if having your own 
+office accounted for at least 5% beyond the variance explained by the model 
+with salary and gender. We could think of this as a 0/1 indicator in the model
+that takes the value 1 if an employee has his/her own office, and 0 otherwise. In this case our effect size is 
 
 $$ f^{2} = \frac{0.35 - 0.30}{1 - 0.35}$$
 
-How many subjects would be needed to identify the mobile/tablet contribution to variance explained with 90% power and a signficance level of 0.05?
+How many employees would we need to survey to identify the office
+contribution to variance explained with 90% power and a signficance level of
+0.05?
 
 ```{r eval=FALSE}
-pwr.f2.test(u = 3, f2 = (0.35 - 0.30) /(1 - 0.35), sig.level = 0.05, power = 0.9)
+pwr.f2.test(u = 2, f2 = (0.35 - 0.30) /(1 - 0.35), sig.level = 0.05, power = 0.9)
 # n = round(v) + number of variables in A & B + 1
-# n = 185 + 4 + 1 = 190
+# n = 165 + 3 + 1 = 169
 ```
 
 
 
 ### References
 
-
 Cohen, J. (1988). _Statistical Power Analysis for the Behavioral Sciences (2nd ed.)_. LEA.  
 
-Dalgaard, P. (2002). _Introductory Statistics with R_. Springer.   
+Dalgaard, P. (2002). _Introductory Statistics with R_. Springer. (Ch. 2)    
 
-Hogg, R and Tanis, E. (2006). _Probability and Statistical Inference (7th ed.)_. Pearson.  
+Hogg, R and Tanis, E. (2006). _Probability and Statistical Inference (7th ed.)_. Pearson. (Ch. 9)  
 
-Kabacoff, R. (2011). _R in Action_. Manning.   
+Kabacoff, R. (2011). _R in Action_. Manning. (Ch. 10)   
 
-Ryan, T. (2013). _Sample Size Determination and Power_. Wiley.     
+Ryan, T. (2013). _Sample Size Determination and Power_. Wiley.   

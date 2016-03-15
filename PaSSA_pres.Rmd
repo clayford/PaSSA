@@ -355,13 +355,13 @@ Let's go to R!
 Cohen, J. (1988). _Statistical Power Analysis for the Behavioral Sciences (2nd ed.)_. LEA.  
 \ 
 
-Dalgaard, P. (2002). _Introductory Statistics with R_. Springer.   
+Dalgaard, P. (2002). _Introductory Statistics with R_. Springer. (Ch. 2)    
 \ 
 
-Hogg, R and Tanis, E. (2006). _Probability and Statistical Inference (7th ed.)_. Pearson.  
+Hogg, R and Tanis, E. (2006). _Probability and Statistical Inference (7th ed.)_. Pearson. (Ch. 9)  
 \ 
 
-Kabacoff, R. (2011). _R in Action_. Manning.   
+Kabacoff, R. (2011). _R in Action_. Manning. (Ch. 10)   
 \ 
 
 Ryan, T. (2013). _Sample Size Determination and Power_. Wiley.   
