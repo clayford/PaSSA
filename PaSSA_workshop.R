@@ -461,10 +461,11 @@ cohen.ES(test = "chisq", size = "large")
 
 # EXAMPLE: (From Cohen, example 7.1) A market researcher is seeking to determine
 # preference among 4 package designs. He arranges to have a panel of 100 
-# consumers. He wants to perform a chi-square goodness of fit test against the 
-# null of equal preference (25% for each design) with a significance level of 
-# 0.05. What's the power of the test if 3/8 of the population actually prefers 
-# one of the designs and the remaining 5/8 are split over the other 3 designs?
+# consumers rate their favorite package design. He wants to perform a chi-square
+# goodness of fit test against the null of equal preference (25% for each
+# design) with a significance level of 0.05. What's the power of the test if 3/8
+# of the population actually prefers one of the designs and the remaining 5/8
+# are split over the other 3 designs?
 
 # To calculate effect size, we need to create vectors of null and alternative
 # proportions:
@@ -479,8 +480,8 @@ pwr.chisq.test(w=ES.w1(null,alt), N=100, df=(4-1), sig.level=0.05)
 # How many subjects do we need to achieve 80% power?
 pwr.chisq.test(w=ES.w1(null,alt), df=(4-1), power=0.8, sig.level = 0.05)
 
-# If our alternative is correct - people prefer design 1 - then we need to
-# survey at least 131 people to detect this with 80% power.
+# If our alternative is correct then we need to survey at least 131 people to
+# detect this with 80% power.
 
 # test of association
 
@@ -627,17 +628,17 @@ pwr.r.test(n = 50, r = 0.3, sig.level = 0.05, alternative = "greater")
 # experiment where I have 3 groups of randomly selected people use one of the 
 # designs to find some piece of information and I record how long it takes. (All
 # groups look for the same information.) How many people do I need in each group
-# if I believe two of the designs will take 30 seconds and one will take 35
-# seconds? Assume population standard deviation is 10 and that I desire power
+# if I believe two of the designs will take 30 seconds and one will take 25
+# seconds? Assume population standard deviation is 5 and that I desire power
 # and significance levels of 0.8 and 0.05.
 
 # The between group variance:
-var(c(30, 30, 35))
+var(c(30, 30, 25))
 
 # The within group variance (sd ^ 2):
-10^2
+5^2
 
-power.anova.test(groups = 3, between.var = 8.3, within.var = 10^2, power = 0.8)
+power.anova.test(groups = 3, between.var = 8.3, within.var = 5^2, power = 0.8)
 
 
 # The pwr.anova.test function requires you to provide an effect size. The effect
@@ -648,8 +649,7 @@ power.anova.test(groups = 3, between.var = 8.3, within.var = 10^2, power = 0.8)
 # Translation: standard deviation of the k means divided the common standard 
 # deviation of the populations involved.
 
-# Perhaps easier and more practical to just use conventional effect sizes: 0.1, 
-# 0.25, 0.4. 
+# Or just use conventional effect sizes: 0.1, 0.25, 0.4.
 
 cohen.ES(test = "anov", size = "small")
 cohen.ES(test = "anov", size = "medium")
@@ -714,7 +714,7 @@ summary(lm(stack.loss ~ ., data=stackloss))
 
 # To determine your effect size you hypothesize the proportion of variance your
 # model explains, or the R-squared. For example, 0.45. This leads to an effect size of
-0.45/(1 - 0.45) # 0.81
+0.45/(1 - 0.45) # ~0.81
 
 # It should be noted we can reverse this. Given an effect size, we can determine
 # R-squared as ES / (1 + ES)
@@ -734,40 +734,41 @@ cohen.ES(test = "f2", size = "large") # 0.35
 # R-squared:
 0.35/(1 + 0.35) # 0.259
 
-# Obviously these are debatable!
+# Obviously these are debatable! What's conventional in the behavioral and
+# social sciences may not be in other fields.
 
 # EXAMPLE: Let's say I'm a web developer and I want to conduct an experiment
 # with one of my sites. I want to randomly select a group of people, ranging in
 # age from 18 - 65, and time them how long it takes them to complete a task, say
 # locate some piece of information. I know there will be variability in the
-# observed times. I think age, gender and years of education may explain this
+# observed times. I think age and years of education may explain this
 # variability. How powerful is my experiment if I recruit 40 subjects and I want
 # to be able to detect at least 30% explained variance (R^2 = .30) with a 0.05
 # significance level?
 
-# Three predictors, so u = 3
-# 40 subjects, so v = 40 - 3 - 1 = 36
+# Three predictors, so u = 2
+# 40 subjects, so v = 40 - 2 - 1 = 37
 # R^2 = .30, so effect size f2 = 0.3/(1 - 0.3)
 
-pwr.f2.test(u = 3, v = 36, f2 = 0.3/(1 - 0.3), sig.level = 0.05)
+pwr.f2.test(u = 2, v = 37, f2 = 0.3/(1 - 0.3), sig.level = 0.05)
 
 # How many subjects do I need if I want to be able to detect at least 30%
 # explained variance (R^2 = .30) with 80% power and the usual 0.05 significance
 # level? We have to find v and then derive n.
 
-pwr.f2.test(u = 3, f2 = 0.3/(1 - 0.3), sig.level = 0.05, power = 0.8)
+pwr.f2.test(u = 2, f2 = 0.3/(1 - 0.3), sig.level = 0.05, power = 0.8)
 # now find n
-26 + 3 + 1
+23 + 2 + 1
 
 # It's important to note that the alternative hypothesis here is that at least 
 # one of the coefficients in my model is not 0. This doesn't mean we need at 
-# least 30 subjects to have all coefficients significant. It just means 30 
+# least 26 subjects to have all coefficients significant. It just means 26 
 # subjects gives us 80% chance of correctly detecting the effect of at least one
 # of our predictors, provided one or more truly affect our response.
 
 # Continuing with previous example, it would be of interest if using a mobile 
 # device accounted for at least 5% beyond the variance explained by the model
-# with age, gender and years of education. We could think of this as a 0/1
+# with age and years of education. We could think of this as a 0/1
 # indicator in the model that takes the value 1 if the user is on a mobile
 # device, and 0 otherwise.
 
@@ -792,12 +793,11 @@ pwr.f2.test(u = 3, f2 = 0.3/(1 - 0.3), sig.level = 0.05, power = 0.8)
 # u = number of variables in set "A"
 # v = n - number of variables in sets "A" and "B" - 1
 
-pwr.f2.test(u = 3, f2 = (0.35 - 0.30) /(1 - 0.35), sig.level = 0.05, power = 0.9)
+pwr.f2.test(u = 2, f2 = (0.35 - 0.30) /(1 - 0.35), sig.level = 0.05, power = 0.9)
 
 # To calculate sample size:
 # n = round(v) + number of variables in A & B + 1
-# n = 185 + 4 + 1 = 190
-
+165 + 3 + 1
 
 
 
