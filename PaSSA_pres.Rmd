@@ -7,7 +7,7 @@ output: beamer_presentation
 
 ## Topics
 
-- Quick intro to power and sample size concepts as they relate to hypothesis testing
+- Intro to power and sample size concepts
 - Calculate power and sample size for various statistical tests using the `pwr` package in `R` and a few built-in `R` functions
 
 

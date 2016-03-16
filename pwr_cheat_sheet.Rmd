@@ -310,7 +310,7 @@ Let's say I'm hired to survey a company's workforce about job
 satisfaction. I ask employees to rate their satisfaction on a scale from 1 
 (hating life) to 10 (loving life). I know there will be variability in the 
 answers, but I think two variables that will explain this variability are 
-salary and gender. In fact I think it will explain at least 30% (R^2 = .30) of
+salary and gender. In fact I think it will explain at least 30% ($R{^2} = 0.30$) of
 the variance. How powerful is my "experiment" if I randomly recruit 40
 employees and accept a 0.05 significance level?
 
@@ -324,7 +324,7 @@ pwr.f2.test(u = 3, v = 40 - 3 - 1, f2 = 0.3/(1 - 0.3), sig.level = 0.05)
 ```
 
 How many employees do I need to survey if I want to be able to detect at least
-30% explained variance (R^2 = .30) with 80% power and the usual 0.05
+30% explained variance ($R^{2} = 0.30$) with 80% power and the usual 0.05
 significance level? We have to find v and then derive n.
 
 ```{r eval=FALSE}
