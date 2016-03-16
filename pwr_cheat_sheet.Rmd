@@ -4,7 +4,7 @@ author: "Clay Ford"
 output: pdf_document
 ---
 
-The `pwr` package provides basic functions for power and sameple size analysis as described in the book _Statistical power analysis for the behavioral sciences_ (2nd ed.) by Jacob Cohen. 
+The `pwr` package provides basic functions for power and sameple size analysis as described in the book _Statistical Power Analysis for the Behavioral Sciences_ (2nd ed.) by Jacob Cohen. 
 
 ```{r}
 library(pwr)

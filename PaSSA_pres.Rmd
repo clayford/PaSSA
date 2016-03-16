@@ -84,10 +84,11 @@ Let $X$ equal number of tags placed on left and assume $X$ has binomial distribu
 Why 14? Less than 5% chance that would happen if people have no preference.  
 \ 
 
-$P(X > 14 | n = 20, p = 0.50) < 0.05$  
+To determine in R:   
 \ 
 
-To determine in R:
+$P(X > q | n = 20, p = 0.50) < 0.05$
+
 ```{r}
 qbinom(p = 0.05, size = 20, prob = 0.5, lower.tail = F)
 ```

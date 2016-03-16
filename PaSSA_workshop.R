@@ -83,8 +83,7 @@ pwr.p.test(h = ES.h(p1 = 0.25, p2 = 0.50), n = 30, sig.level = 0.05,
 # Say we think people place name tags on the left 70% percent of the time instead
 # of 50%. What sample size do we need to show this assuming a significance level
 # of 0.01, a desired power of 0.90, and a one-sided "greater" alternative?
-pwr.p.test(h = ES.h(p1 = 0.70, p2 = 0.50), sig.level = 0.01, power = 0.90, 
-           alternative = "greater")
+
 
 
 # pwr.2p.test -------------------------------------------------------------
@@ -177,7 +176,6 @@ pwr.2p.test(h = 0.1, sig.level = 0.05, power = 0.8)
 # YOUR TURN! Let's say we're only able to randomly sample 80 students (40 per 
 # group). What's the power of our two-sided test test if we assume a small
 # effect size of 0.2 and we set significance level to 0.05?
-pwr.2p.test(h = 0.2, sig.level = 0.05, n = 40)
 
 
 # pwr.2p2n.test -----------------------------------------------------------
@@ -387,8 +385,8 @@ power.t.test(n = 24, delta = 0.08, sd = 0.25 * sqrt(2),
 # YOUR TURN! How many boys would I need to sample to detect a difference of 0.05
 # in either direction with 80% power and the usual 0.05 significance level,
 # assuming the standard deviation of the differences will be about 0.25?
-pwr.t.test(d = 0.05 / (0.25 * sqrt(2)), power = 0.8, type = "paired")
-power.t.test(delta = 0.05, sd = 0.25 * sqrt(2), power = 0.8, type = "paired")
+
+
 
 # pwr.t2n.test ------------------------------------------------------------
 
@@ -601,7 +599,6 @@ pwr.r.test(r = -0.1, sig.level = 0.05, power = 0.8, alternative = "less")
 # YOUR TURN:
 # What's the power of my test if I recruit 50 people and I hypothesize a medium
 # positive effect?
-pwr.r.test(n = 50, r = 0.3, sig.level = 0.05, alternative = "greater")
 
 
 
