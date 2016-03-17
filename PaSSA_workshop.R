@@ -85,7 +85,6 @@ pwr.p.test(h = ES.h(p1 = 0.25, p2 = 0.50), n = 30, sig.level = 0.05,
 # of 0.01, a desired power of 0.90, and a one-sided "greater" alternative?
 
 
-
 # pwr.2p.test -------------------------------------------------------------
 
 # two-sample test for proportions (ES=h) 
@@ -178,6 +177,7 @@ pwr.2p.test(h = 0.1, sig.level = 0.05, power = 0.8)
 # effect size of 0.2 and we set significance level to 0.05?
 
 
+
 # pwr.2p2n.test -----------------------------------------------------------
 
 # two-sample test for proportions, unequal sample sizes (ES=h) 
@@ -241,7 +241,7 @@ cohen.ES(test = "t", size = "large")
 # and note their total purchase price. How powerful is this experiment if I want
 # to detect a "medium" effect in either direction?
 
-pwr.t.test(n = 30, d = 0.5, sig.level = 0.05) # n is per group
+pwr.t.test(n = (60/2), d = 0.5, sig.level = 0.05) # n is per group
 
 # How many do I need to observe for a test with 80% power?
 pwr.t.test(d = 0.5, power = 0.80, sig.level = 0.05)
@@ -280,18 +280,6 @@ pwr.t.test(d = d, power = 0.80, sig.level = 0.05)
 # An effect size of 0.333 requires 143 per group 
 # An effect size of 0.2 requires 394 per group.
 
-# Let's see how effect size affects sample size. Create a plot of effect size
-# versus required sample size for 80% power and 0.05 significance level:
-d <- seq(0.1,0.9,0.01)
-n <- sapply(d, function(x) ceiling(pwr.t.test(d = x, power = 0.80)$n))
-plot(d,n,type="l", main="Sample size vs Effect size d")
-points(x = c(0.2,0.5,0.8), y = n[d %in% c(0.2,0.5,0.8)], 
-       pch=19, cex=1, col=c("black","red","blue"))
-legend("topright", legend = c("0.2 - small","0.5 - medium","0.8 - large"), 
-       col = c("black","red","blue"), 
-       pch = 19, title = "effect size")
-
-# We can see how crucial anticipated effect size is to determining sample size.
 
 # If you don't like working with d, you can use the power.t.test function that 
 # comes with base R. It allows you to specify "delta" (true difference in means)
@@ -348,25 +336,6 @@ pwr.t.test(d = d, sig.level = 0.001, power = 0.999, alternative = "greater",
 # each pair to get a single sample of differences. These are commonly before and
 # after measures on the same person.
 
-# The effect size for a paired t-test can include correlation between the pairs 
-# (This is because the pairs are dependent, not independent):
-
-# d = (mean1 - mean2) / sd * sqrt(2 * (1 - r))   (Cohen, p. 48)
-
-# Another definition of effect size for paired data (without correlation):
-
-# d = (mean1 - mean2) / sd * sqrt(2)    (Dalgaard, p. 145)
-
-# The second is more conservative and probably safer to use.
-
-# Notice "paired" and "one.sample" return the same result, but the effect (d)
-# means different things in each scenario.
-pwr.t.test(d = 0.2, power = 0.90, type = "paired")
-pwr.t.test(d = 0.2, power = 0.90, type = "one.sample")
-
-power.t.test(delta = 0.75, sd = 3.75, power = 0.90, type = "paired")
-power.t.test(delta = 0.75, sd = 3.75, power = 0.90, type = "one.sample")
-
 # EXAMPLE: 24 high school boys are put on a ultraheavy rope-jumping program. 
 # Does this increase their 40-yard dash time? We'll measure their 40 time before
 # the program and after. We'll use a paired t-test to see if the difference in 
@@ -374,15 +343,25 @@ power.t.test(delta = 0.75, sd = 3.75, power = 0.90, type = "one.sample")
 # be about 0.25. How powerful is the test to detect a difference of about 0.08
 # with 0.05 significance?
 
-pwr.t.test(n = 24, d = 0.08 / (0.25 * sqrt(2)), 
+pwr.t.test(n = 24, d = 0.08 / 0.25, 
            type = "paired", alternative = "greater")
 
 # or 
-power.t.test(n = 24, delta = 0.08, sd = 0.25 * sqrt(2), 
+power.t.test(n = 24, delta = 0.08, sd = 0.25, 
              type = "paired", alternative = "one.sided")
 
+# WARNING: If working with "within person" standard deviation, you need to 
+# multiply the standard deviation by sqrt(2) to get the standard deviation of 
+# differences. For example, suppose you estimate the within person standard 
+# deviation of the high school boys to be 0.15. To get the estimated standard
+# deviation of differences we would use sqrt(2)*0.15
+pwr.t.test(n = 24, d = 0.08 / (0.15 * sqrt(2)), 
+           type = "paired", alternative = "greater")
+# or
+power.t.test(n = 24, delta = 0.08, sd = 0.15*sqrt(2), 
+             type = "paired", alternative = "one.sided")
 
-# YOUR TURN! How many boys would I need to sample to detect a difference of 0.05
+# YOUR TURN! How many boys would I need to sample to detect a difference of 0.08
 # in either direction with 80% power and the usual 0.05 significance level,
 # assuming the standard deviation of the differences will be about 0.25?
 
@@ -837,10 +816,6 @@ ggplot(vals, aes(es, n, color=pow, group=pow)) + geom_line() +
   facet_wrap(~ sl) +
   labs(x="Effect Size", y="Sample Size", title="Sample Sizes for Chi-square Test (2 x 2)") +
   scale_color_discrete("Power") 
-
-
-
-
 
 
 # END WORKSHOP SCRIPT

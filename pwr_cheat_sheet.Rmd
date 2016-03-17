@@ -99,11 +99,9 @@ The effect size for one-sample t-tests:
 
 $$ d = \frac{m_1 - null}{\sigma}$$
 
-The effect size for paired t-tests (with and without correlation):
+The effect size for paired t-tests, where $\sigma_{d}$ is the standard deviation of differences between pairs:
 
-$$ d = \frac{m_1 - m_2}{\sigma \sqrt{2}}$$
-$$ d = \frac{m_1 - m_2}{\sigma \sqrt{2(1 - r)}}$$
-
+$$ d = \frac{m_1 - m_2}{\sigma_{d}}$$
 
 I'm interested to know if there is a difference in the mean price of what male
 and female students pay at the library coffee shop. Let's say I randomly 
@@ -170,11 +168,11 @@ with 0.05 significance?
 
 ```{r eval=FALSE}
 # paired t-test
-pwr.t.test(n = 24, d = 0.08 / (0.25 * sqrt(2)), 
+pwr.t.test(n = 24, d = 0.08 / 0.25, 
            type = "paired", alternative = "greater")
 
 # or 
-power.t.test(n = 24, delta = 0.08, sd = 0.25 * sqrt(2), 
+power.t.test(n = 24, delta = 0.08, sd = 0.25, 
              type = "paired", alternative = "one.sided")
 
 ```
