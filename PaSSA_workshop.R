@@ -211,7 +211,6 @@ pwr.2p2n.test(h = 0.2, n1 = 543, n2 = 675, sig.level = 0.05)
 
 pwr.2p2n.test(h = 0.2, n1 = 763, power = 0.8, sig.level = 0.05)
 # or specify n2; it doesn't matter
-pwr.2p2n.test(h = 0.2, n2 = 763, power = 0.8, sig.level = 0.05)
 
 
 
@@ -241,7 +240,7 @@ cohen.ES(test = "t", size = "large")
 # and note their total purchase price. How powerful is this experiment if I want
 # to detect a "medium" effect in either direction?
 
-pwr.t.test(n = (60/2), d = 0.5, sig.level = 0.05) # n is per group
+pwr.t.test(n = 30, d = 0.5, sig.level = 0.05) # n is per group
 
 # How many do I need to observe for a test with 80% power?
 pwr.t.test(d = 0.5, power = 0.80, sig.level = 0.05)
@@ -515,8 +514,8 @@ pwr.chisq.test(w = 0.1, power = 0.9, df = 1, sig.level = 0.05)
 # relationship between two continuous variables. In other words, can we reject
 # the null hypothesis of the correlation coefficient being 0. 
 
-# Here's an example of what appears to be a linear relationship. (Note: The iris
-# dataset comes with R.)
+# Here's an example of what appears to be a somewhat linear relationship. (Note:
+# The iris dataset comes with R.)
 head(iris)
 x <- iris$Sepal.Length
 y <- iris$Petal.Length
@@ -586,9 +585,9 @@ pwr.r.test(r = -0.1, sig.level = 0.05, power = 0.8, alternative = "less")
 # balanced one-way analysis of variance tests
 
 # ANOVA, or Analysis of Variance, tests whether or not means differ between more
-# than 2 groups. One-way means one explanatory variable. Balanced means we have
-# equal sample size in each group. The null hypothesis is that the means are all
-# equal.
+# than 2 groups. "One-way" means one explanatory variable. "Balanced" means we 
+# have equal sample size in each group. The null hypothesis is that the means 
+# are all equal.
 
 # Let's start with the power.anova.test function that comes with base R. It's 
 # easier to use than pwr.anova.test and does not require calculating an effect
@@ -732,8 +731,8 @@ pwr.f2.test(u = 2, v = 37, f2 = 0.3/(1 - 0.3), sig.level = 0.05)
 # significance level? We have to find v and then derive n.
 
 pwr.f2.test(u = 2, f2 = 0.3/(1 - 0.3), sig.level = 0.05, power = 0.8)
-# now find n
-23 + 2 + 1
+# now find n, which is n = v + u + 1
+23 + 2 + 1 # 26
 
 # It's important to note that the alternative hypothesis here is that at least 
 # one of the coefficients in my model is not 0. This doesn't mean we need at 
@@ -770,8 +769,8 @@ pwr.f2.test(u = 2, f2 = 0.3/(1 - 0.3), sig.level = 0.05, power = 0.8)
 pwr.f2.test(u = 2, f2 = (0.35 - 0.30) /(1 - 0.35), sig.level = 0.05, power = 0.9)
 
 # To calculate sample size:
-# n = round(v) + number of variables in A & B + 1
-165 + 3 + 1
+# n = ceiling(v) + number of variables in A & B + 1
+165 + 3 + 1 # 169
 
 
 # time permitting material ------------------------------------------------

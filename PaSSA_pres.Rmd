@@ -31,7 +31,9 @@ When we design an experiment and carry out a hypothesis test, we would like to h
 I suspect most people place name tags on the left side of their chest (probably because most people are right handed). I create an experiment to test this hunch. I randomly sample $n$ people and count the number of people, $X$, who place a name tag on the left. If $X$ exceeds some number, I'll conclude I'm correct. I want my experiment to have a high probability (power) of verifying this hunch if it's true.  
 \ 
 
-I can calculate power for a given sample size, or I can calculate sample size for a given power.
+Two things I may want to do:  
+1. calculate power for a given sample size   
+2. calculate sample size for a given power   
 
 ## Calculating power or sample size
 
@@ -76,7 +78,7 @@ plot(qs, dbinom(x = qs, size = 20, prob = 0.5), type="h", xlab="X", ylab="P(X)",
 
 ```
 
-## One possible experiment - cont'd
+## One possible experiment - Why 14?
 
 Let $X$ equal number of tags placed on left and assume $X$ has binomial distribution. Conclude people prefer left if I observe $X > 14$ "lefts" in 20 trials.  
 \ 
@@ -107,7 +109,7 @@ text(x = 17, y = .05, labels = expression(P(X) > 14 %~~% 0.02))
 
 
 
-## One possible experiment - cont'd
+## One possible experiment - calculate power
 
 Assume people prefer left 60% of the time and that $X$ has binomial distribution. Let's say I sample 20 people.  
 \ 
