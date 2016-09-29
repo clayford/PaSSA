@@ -13,7 +13,7 @@ output: beamer_presentation
 
 ## Hello, my name is...
 
-- I suspect most people place sticky-back name tags on the left side of their chest (probably because most people are right handed). I create an experiment to test this hunch. 
+- I suspect people place sticky-back name tags on the left side of their chest about 75% of the time (probably because most people are right handed). I create an experiment to verify this. 
 
 - I randomly sample $n$ people and determine the proportion $p$ of people who place a name tag on the left.
 
@@ -23,16 +23,23 @@ output: beamer_presentation
 
 - *How many people should I sample?*
 
-## Determining sample size
+- Or, *I can only samply 30 people. Do I have sufficient power?* 
 
-Determining a sufficient sample size for a statistical test comes down to three quantities:
+## Determining sample size and power
+
+Determining a sufficient sample size for a statistical test comes down to four _settings_:
 
 1. Power
 2. Effect size
 3. Significance level
+4. Alternative direction
 
-Let's talk about each of these in turn.
+Determining power for a statistical test comes down to four _settings_:
 
+1. Sample Size
+2. Effect size
+3. Significance level
+4. Alternative direction
 
 ## What is power?
 
@@ -40,8 +47,8 @@ Let's talk about each of these in turn.
 
 - In a hypothesis test, we assume two possible realities:
 
-1. Null Hypothesis: No effect
-2. Alternative Hypothesis: _some_ effect
+1. Null Hypothesis: No effect (eg, random chance, 0.50)
+2. Alternative Hypothesis: _some_ effect (eg, 0.75)
 
 - At the conclusion, we decide whether to reject or fail to reject #1, usually based on a _p-value_ falling below a threshold such as 0.05.   
 
@@ -58,7 +65,7 @@ Let's talk about each of these in turn.
 
 - In the former scenario (90%), I don't have to sample that many people to confirm my suspicion. In the latter scenario (55%), I probably need to sample quite a few people to get a proportion that is significantly different from random chance (50%)
 
-- In sample size analysis, we have to pick an effect size. We usually pick the _smallest effect we don't want to miss_.
+- In sample size and power analyses, we have to pick an effect size. We usually pick the _smallest effect we don't want to miss_.
 
 - Increasing effect size means decreasing sample size.
 
@@ -66,17 +73,31 @@ Let's talk about each of these in turn.
 
 - This is the cut-off for determining whether or not our p-value is significant. 
 
-- Typical value is 0.05, though 0.01 and 0.005 are fairly common as well. 
+- Typical values are 0.05, 0.01 and 0.001. 
 
 - Recall, a p-value is the probability under the null hypothesis that a statistical summary of data would be equal to or more extreme than its observed value.
 
 - Lower significance levels mean increasing sample size. 
 
+## What is Alternative Direction?
+
+- This refers to how we think our alternative hypothesis differs from the null.
+
+- If I think the left preference is greater than (or less than) 50%, then I have a _one-sided_ alternative.
+
+- If I think the left preference is simply different from 50%, then I have a _two-sided_ alternative.
+
+- The one-sided alternative is a stronger assumption and results in a smaller sample size. 
+
+- The two-sided alternative is conservative and results in a larger sample size. Most people stick with this alternative.
+
 ## Type I and Type II errors
 
-- If I conclude people prefer left when they actually don't I have made a _Type I error_. 
+- If I conclude people prefer left when they actually don't I have made a _Type I error_. (Rejecting the null hypothesis in error) 
 
-- If I conclude people have no preference when they really do prefer left I have made a _Type II error_.
+- If I conclude people have no preference when they really do prefer left I have made a _Type II error_. (Failing to reject null hypothesis in error)
+
+- We can never know if we have made these errors.
 
 - Our tolerance for a Type I error is the significance level. Usually 0.05.
 
@@ -111,7 +132,7 @@ One of the tricks to using the `pwr` package is understanding how it defines _ef
 
 - Cohen defines "effect size" as "the degree to which the null hypothesis is false."   
 
-- Example: If our null is 50%, and the alternative 65%, the effect size is 15%.   
+- Example: If our null is 50%, and the alternative 75%, the effect size is 25%.   
 
 - But the functions in the `pwr` package require the effect size to be metric-free (unitless).    
 
@@ -124,7 +145,7 @@ One of the tricks to using the `pwr` package is understanding how it defines _ef
 - `pwr.p.test`: one-sample test for proportions (ES=h)    
 - `pwr.2p.test`: two-sample test for proportions (ES=h)     
 - `pwr.2p2n.test`: two-sample test for proportions, unequal sample sizes (ES=h)    
-- `pwr.t.test`: one-sample and two-sample - tests for means (ES=d)     
+- `pwr.t.test`: one-sample and two-sample t-tests for means (ES=d)     
 - `pwr.t2n.test`: two-sample t-test for means, unequal sample sizes (ES=d)    
 
 Notice the effect sizes: h and d. We'll define these shortly.
@@ -175,20 +196,38 @@ These functions do not require calculating a unitless effect size and assume equ
 
 ## Leave one out
 
-The `pwr` functions and base `R` functions have `n` and `power` arguments.  
-\ 
+- The `pwr` functions and base `R` functions have `n` and `power` arguments.  
 
-To calculate `power`, you **leave it out** of the function.   
-\ 
+- To calculate `power`, you **leave it out** of the function.   
 
-To calculate sample size (`n`), you **leave it out** of the function.    
-\ 
+- To calculate sample size (`n`), you **leave it out** of the function.    
 
-For example, the following calculates the power of a two-sample t-test with assumed effect size of 0.2, sample of 60 _in each group_, significance level of 0.05 and a (default) two-sided alternative:   
-\ 
+- For example, to calculate the power of a one-sample proportion test with an effect size of $h=0.5$, sample size of $n=30$, significance level of 0.05 and a one-sided "greater" alternative:
 
-`pwr.t.test(d=0.2, n=60, sig.level=0.05)`  
-\ 
+```{r echo=FALSE}
+library(pwr)
+```
+
+
+
+```{r eval=FALSE}
+pwr.p.test(h=0.5, n=30, sig.level=0.05, 
+           alternative = "greater")
+```
+
+- This returns a power of 0.86. If there really is an effect of 0.5 in the population, a sample size of $n=30$ gives us a 86% chance of detecting this effect.
+
+## Let's get started!
+
+- We'll go through each function available to us in the `pwr` package and base `R`.
+
+- We'll go to `R` and demonstrate how to use it.
+
+- I'll give you a quick opportunity to practice.
+
+- As we'll see, understanding power and sample size analyses requires understanding the statistical test we're using.
+
+
 
 ## one-sample test for proportions
 
@@ -204,7 +243,7 @@ For example, the following calculates the power of a two-sample t-test with assu
 
 ## one-sample test for proportions - example
 
-We think people place name tags on the left side of their chest 65% percent of the time versus random chance (50%). What sample size do we need to show this assuming a significance level (Type I error) of 0.05 and a desired power of 0.80?
+We think people place name tags on the left side of their chest 75% percent of the time versus random chance (50%). What sample size do we need to show this assuming a significance level (Type I error) of 0.05 and a desired power of 0.80?
 
 
 ## one-sample test for proportions - code
@@ -212,13 +251,13 @@ We think people place name tags on the left side of their chest 65% percent of t
 
 ```{r}
 library(pwr) # do this once per session
-h <- ES.h(p1 = 0.65, p2 = 0.50)
+h <- ES.h(p1 = 0.75, p2 = 0.50)
 pwr.p.test(h = h, sig.level = 0.05, power = 0.80, 
            alternative = "greater")
 ```
 
 ## one-sample test for proportions - plot
-```{r}
+```{r fig.height=5}
 plot(pwr.p.test(h = h, sig.level = 0.05, power = 0.80, 
            alternative = "greater"))
 ```
@@ -226,9 +265,9 @@ plot(pwr.p.test(h = h, sig.level = 0.05, power = 0.80,
 
 ## one-sample test for proportions - results
 
-- Always round up `n`. In our example, that gives us 67.
+- Always round up `n`. In our example, that gives us 23.
 
-- Notice the argument `alternative = "greater"`. That was because we hypothesized greater than random chance (65% > 50%)
+- Notice the argument `alternative = "greater"`. That was because we hypothesized greater than random chance (75% > 50%)
 
 - A safer and more common approach is to accept the default alternative: `alternative = "two.sided"`
 

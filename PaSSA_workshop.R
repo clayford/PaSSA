@@ -15,14 +15,14 @@ library(pwr)
 # one-sample test for proportions  (ES=h) 
 
 # This applies to our name tag example. Say we think people place name tags on 
-# the left side of their chest 65% percent of the time versus random chance
+# the left side of their chest 75% percent of the time versus random chance
 # (50%). What sample size do we need to show this assuming a significance level
 # (Type I error) of 0.05 and a desired power of 0.80?
 
-h <- ES.h(p1 = 0.65, p2 = 0.50)
+h <- ES.h(p1 = 0.75, p2 = 0.50)
 pwr.p.test(h = h, sig.level = 0.05, power = 0.80, alternative = "greater")
 
-# About 67 people; always round up.
+# About 23 people; always round up.
 
 # The previous example assumed a one-sided test: Null = 0.5, Alt > 0.5. 
 
