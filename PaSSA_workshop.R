@@ -54,7 +54,7 @@ pwr.p.test(h = ES.h(p1 = 0.25, p2 = 0.50), n = 30, sig.level = 0.05,
 # NOTE: Usually recommended to stick with the two-sided alternative.
 
 # We can also save the result of a sample size estimate and plot it.
-pout <- pwr.p.test(h = ES.h(p1 = 0.70, p2 = 0.50), power = 0.80, sig.level = 0.05)
+pout <- pwr.p.test(h = ES.h(p1 = 0.75, p2 = 0.50), power = 0.80, sig.level = 0.05)
 plot(pout)
 
 # Your plot will look different from mine if you do not have the ggplot2 package
@@ -138,11 +138,11 @@ cohen.ES(test = "p", size = "small") # 0.2
 # effect size 0.2.
 pwr.2p2n.test(h = 0.2, n1 = 543, n2 = 675, sig.level = 0.05)
 
-# Let's say I previously surveyed 763 female undergraduates and found that p%
-# said they consumed alcohol once a week. I'd like to survey some males and see
-# if a significantly different proportion respond yes. How many do I need to
-# sample to detect a small effect size in either direction with 80% power and a 
-# significance level of 0.05?
+# Let's say I previously surveyed 763 female undergraduates and found that p% 
+# said they consumed alcohol once a week. I'd like to survey some males and see 
+# if a significantly different proportion respond yes. How many do I need to 
+# sample to detect a small effect size (0.2) in either direction with 80% power
+# and a significance level of 0.05?
 
 pwr.2p2n.test(h = 0.2, n1 = 763, power = 0.8, sig.level = 0.05)
 # or specify n2; it doesn't matter
@@ -166,7 +166,7 @@ pwr.t.test(n = 30, d = 0.5, sig.level = 0.05) # n is per group
 # How many do I need to observe for a test with 80% power?
 pwr.t.test(d = 0.5, power = 0.80, sig.level = 0.05)
 
-# What about a large effect?
+# What about a large effect (0.8)?
 pwr.t.test(n = 30, d = 0.8, sig.level = 0.05) # n is per group
 pwr.t.test(d = 0.8, power = 0.8, sig.level = 0.05) 
 
@@ -183,8 +183,6 @@ d <- 0.75/2.25 # 0.333
 pwr.t.test(d = d, power = 0.80, sig.level = 0.05)
 
 # An effect size of 0.333 requires 143 per group 
-# An effect size of 0.2 requires 394 per group.
-
 
 # If you don't like working with d, you can use the power.t.test function that 
 # comes with base R. It allows you to specify "delta" (true difference in means)
@@ -196,22 +194,30 @@ power.t.test(delta = 0.75, sd = 2.25, sig.level = 0.05, power = 0.8)
 # multiple power estimates. For example, let's see how power changes as we let n
 # go from 100 to 500 by 100 using a "small" effect size of 0.2.
 
-pwr.t.test(n = seq(100,500,100), d = 0.2, sig.level = 0.05)
+pwr.t.test(n = seq(25,150,25), d = 0.333, sig.level = 0.05)
 
 # We can also save the result of a sample size estimate and plot it.
-d <- 0.75/2.25 # 0.333
-pout <- pwr.t.test(d = d, power = 0.80, sig.level = 0.05)
+pout <- pwr.t.test(d = 0.333, power = 0.80, sig.level = 0.05)
 plot(pout)
 
-# This doesn't work for power.t.test but we do something pretty similar rather
-# quickly.
+# We can't plot the result of power.t.test using plot(). However we can do it
+# manually:
 
 pout <- power.t.test(delta = 0.75, sd = 2.25, sig.level = 0.05, n=seq(20,200,10))
+
+# Notice the contents of "pout"
+str(pout)
+
+# We can use these to create a plot
 x <- pout$n
 y <- pout$power
-plot(x,y,type="l")
-points(x,y)
-abline(v = x[min(which(y > 0.8))], lty = 2)
+plot(x, y, type="l", xlab = "Sample Size", ylab = "Power")
+points(x, y)
+
+# find optimal sample size that yields 80% power and save to n:
+n <- power.t.test(delta = 0.75, sd = 2.25, sig.level = 0.05, power = 0.80)$n
+abline(v = n, lty = 2)
+title(paste("Optimal sample size is", ceiling(n)))
 
 # One-sample t-test
 
@@ -261,18 +267,6 @@ pwr.t.test(n = 24, d = 0.08 / 0.25,
 power.t.test(n = 24, delta = 0.08, sd = 0.25, 
              type = "paired", alternative = "one.sided")
 
-# WARNING: If working with "within person" standard deviation, you need to 
-# multiply the standard deviation by sqrt(2) to get the standard deviation of 
-# differences. 
-
-# For example, suppose you estimate the within person standard deviation of the
-# high school boys to be 0.15. To get the estimated standard deviation of
-# differences we would use sqrt(2)*0.15
-pwr.t.test(n = 24, d = 0.08 / (0.15 * sqrt(2)), 
-           type = "paired", alternative = "greater")
-# or
-power.t.test(n = 24, delta = 0.08, sd = 0.15*sqrt(2), 
-             type = "paired", alternative = "one.sided")
 
 # YOUR TURN! How many boys would I need to sample to detect a difference of 0.08
 # in either direction with 80% power and the usual 0.05 significance level,
@@ -544,6 +538,8 @@ vals <- expand.grid(es=es,pow=pow)
 getN <- function(es,pow,sl=0.05){
   ceiling(pwr.chisq.test(w = es, df = 1, power = pow, sig.level = sl)$N)
 }
+
+getN(vals$es, vals$pow)
 
 # "apply" the function to the es and pow columns of the vals data frame
 vals$n <- mapply(getN, vals$es, vals$pow)

@@ -27,14 +27,14 @@ output: beamer_presentation
 
 ## Determining sample size and power
 
-Determining a sufficient sample size for a statistical test comes down to four _settings_:
+A sufficient sample size for a statistical test is determined from four _parameters_:
 
 1. Power
 2. Effect size
 3. Significance level
 4. Alternative direction
 
-Determining power for a statistical test comes down to four _settings_:
+Determining the power of a statistical test is determined from four _parameters_:
 
 1. Sample Size
 2. Effect size
@@ -54,8 +54,6 @@ Determining power for a statistical test comes down to four _settings_:
 
 - We would like to have a high probability (or high power) of rejecting #1 if #2 is true. The usual desired power is at least 0.80.
 
-- Increasing power means increasing sample size.
-
 
 ## What is effect size?
 
@@ -67,7 +65,6 @@ Determining power for a statistical test comes down to four _settings_:
 
 - In sample size and power analyses, we have to pick an effect size. We usually pick the _smallest effect we don't want to miss_.
 
-- Increasing effect size means decreasing sample size.
 
 ## What is significance level?
 
@@ -77,7 +74,6 @@ Determining power for a statistical test comes down to four _settings_:
 
 - Recall, a p-value is the probability under the null hypothesis that a statistical summary of data would be equal to or more extreme than its observed value.
 
-- Lower significance levels mean increasing sample size. 
 
 ## What is Alternative Direction?
 
@@ -87,9 +83,8 @@ Determining power for a statistical test comes down to four _settings_:
 
 - If I think the left preference is simply different from 50%, then I have a _two-sided_ alternative.
 
-- The one-sided alternative is a stronger assumption and results in a smaller sample size. 
+- The one-sided alternative is a stronger assumption. 
 
-- The two-sided alternative is conservative and results in a larger sample size. Most people stick with this alternative.
 
 ## Type I and Type II errors
 
@@ -108,10 +103,10 @@ Determining power for a statistical test comes down to four _settings_:
 
 Power and sample size formulas have been derived for many statistical tests that allows us to...
 
-- calculate **sample size** given power, effect size and significance level
-- calculate **power** given sample size, effect size and significance level
+- calculate **sample size** given power, effect size, significance level and alternative direction
+- calculate **power** given sample size, effect size, significance level and alternative direction
 
-The parameters in the formulas are related such that one is determined by the other three. 
+The parameters in the formulas are related such that one is determined by the other four. 
 
 
 ## The `pwr` package
@@ -376,13 +371,13 @@ Let's go to R!
 
 - Test if a mean is equal to specific value (one-sample), test if means of two different groups are equal (two-sample), or test if "paired" means are equal
 
-- `pwr.t.test` requies effect size `d`. `d` is the difference in population means divided by the standard deviation of either population (since they are assumed equal). Now we have to make a guess at the standard deviation.
+- `pwr.t.test` requires effect size `d`. `d` is the difference in population means divided by the standard deviation of either population (since they are assumed equal). Now we have to make a guess at the standard deviation.
 
 - There is no function for effect size `d`. We have to calculate this ourselves if we wish to use `pwr.t.test`.
 
 - Conventional effect sizes: 0.2, 0.5 and 0.8
 
-- Specify type of test with `type` argument. `"two.sample", "one.sample", "paired"`
+- Specify type of test with `type` argument: `"two.sample", "one.sample", "paired"`
 
 
 ## one-sample, two-sample and paired t tests for means
@@ -391,7 +386,7 @@ Let's go to R!
 
 - `delta` is difference in means; `sd` is standard deviation
 
-- Specify type of test with `type` argument. `"two.sample", "one.sample", "paired"`
+- Specify type of test with `type` argument: `"two.sample", "one.sample", "paired"`
 
 
 ## two-sample t test - example 1
@@ -440,7 +435,6 @@ power.t.test(delta = 0.75, sd = 2.25,
 
 - To calculate power and sample size for paired t test, set the `type` argument to `"paired"`
 
-- NOTE: If working with "within person" standard deviation (for paired t test), you need to  multiply the standard deviation by $\sqrt{2}$ to get the standard deviation of differences.
 
 ## one-sample t test - example
 
@@ -512,6 +506,8 @@ Two kinds of chi-squared tests:
 ## chi-squared tests - goodness of fit
 
 - A single dimension of proportions is tested against a prespecified set of proportions which constitutes the null hypothesis. 
+
+- Example: $H_{0}: \frac{1}{3}, \frac{1}{3}, \frac{1}{3}$ vs $H_{a}: \frac{1}{2}, \frac{1}{4}, \frac{1}{4}$
 
 - Rejecting the null means we have sufficient evidence to conclude the data don't appear to "fit" the prespecified set of proportions. 
 
@@ -591,15 +587,15 @@ Let's go to R!
 
 - `pwr.anova.test` or `power.anova.test`
 
-- The power.anova.test function that comes with base R is easier to use than `pwr.anova.test` and does not require calculating an effect size.
+- The `power.anova.test` function that comes with base R is easier to use than `pwr.anova.test` and does not require calculating an effect size.
 
 ## balanced one-way analysis of variance test
 
-- The power.anova.test function requires you to specify the number of `groups`, the between group variance (`between.var`), and the within group variance (`within.var`), which we assume is the same for all groups.
+- The `power.anova.test` function requires you to specify the number of `groups`, the between group variance (`between.var`), and the within group variance (`within.var`), which we assume is the same for all groups.
 
-- The pwr.anova.test function requires you to provide an effect size, `f`. 
+- The `pwr.anova.test` function requires you to provide an effect size, `f`. 
 
-- The effect size, f, for k groups is calculated as $SD_{means}$ / $SD_{populations}$ (Translation: standard deviation of the k means divided the common standard deviation of the populations involved.)
+- The effect size, `f`, for k groups is calculated as $SD_{means}$ / $SD_{populations}$ (Translation: standard deviation of the k means divided the common standard deviation of the populations involved.)
 
 - conventional effect sizes: 0.1, 0.25, 0.4
 
