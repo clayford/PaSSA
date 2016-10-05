@@ -98,7 +98,6 @@ Determining the power of a statistical test is determined from four _parameters_
 
 - Our tolerance for a Type II error is 1 - Power. Usually 0.20.
 
-
 ## Calculating power and sample size
 
 Power and sample size formulas have been derived for many statistical tests that allows us to...
@@ -106,7 +105,154 @@ Power and sample size formulas have been derived for many statistical tests that
 - calculate **sample size** given power, effect size, significance level and alternative direction
 - calculate **power** given sample size, effect size, significance level and alternative direction
 
-The parameters in the formulas are related such that one is determined by the other four. 
+The parameters in the formulas are related such that one is determined given the others. 
+
+
+## Visualizing a one-sample proportion test
+
+Sample size = 30, Power = 0.89, effect size = 0.75 vs. 0.50, 
+significance level = 0.05, alternative = greater
+
+```{r echo=FALSE}
+
+par(mfrow=c(2,1))
+n <- 30
+x <- 0:n
+y1 <- dbinom(x = x, size = n, prob = 0.5)
+plot(x, y1, type = "h", ylab = "Prob", xlab = "Number tags on left", 
+     main = "Null Reality: true probability of left = 0.50")
+sig.line <- qbinom(p = 0.05, size = n, prob = 0.5, lower.tail = FALSE)
+abline(v = sig.line, col = "red", lty = 2)
+text(x = 25, y = 0.11, "Type I error\nP(X > 19) < 0.05")
+y2 <- dbinom(x = x, size = n, prob = 0.75)
+plot(x, y2, type = "h", ylab = "Prob", xlab = "Number tags on left",
+     main = "Alternate Reality: true probability of left = 0.75")
+abline(v = sig.line, col = "red", lty = 2)
+text(x = c(10, 28), y = 0.11, c("Type II error\nP(X <= 19) = 0.11", "Power\nP(X > 19) = 0.89"))
+
+
+```
+
+
+## Visualizing a one-sample proportion test
+
+Sample size = 30, Power = 0.67, effect size = 0.75 vs. 0.50,
+significance level = 0.01,  alternative = greater
+
+```{r echo=FALSE}
+par(mfrow=c(2,1))
+n <- 30
+x <- 0:n
+y1 <- dbinom(x = x, size = n, prob = 0.5)
+plot(x, y1, type = "h", ylab = "Prob", xlab = "Number tags on left", 
+     main = "Null Reality: true probability of left = 0.50")
+sig.line <- qbinom(p = 0.01, size = n, prob = 0.5, lower.tail = FALSE)
+abline(v = sig.line, col = "red", lty = 2)
+text(x = 25, y = 0.11, "Type I error\nP(X > 21) < 0.01")
+y2 <- dbinom(x = x, size = n, prob = 0.75)
+plot(x, y2, type = "h", ylab = "Prob", xlab = "Number tags on left",
+     main = "Alternate Reality: true probability of left = 0.75")
+abline(v = sig.line, col = "red", lty = 2)
+text(x = c(10, 28), y = 0.11, c("Type II error\nP(X <= 19) = 0.33", "Power\nP(X > 21) = 0.67"))
+
+```
+
+## Visualizing a one-sample proportion test
+
+Sample size = 30, Power = 0.51, effect size = 0.65 vs. 0.50,
+significance level = 0.05, alternative = greater
+
+```{r echo=FALSE}
+par(mfrow=c(2,1))
+n <- 30
+x <- 0:n
+y1 <- dbinom(x = x, size = n, prob = 0.5)
+plot(x, y1, type = "h", ylab = "Prob", xlab = "Number tags on left", 
+     main = "Null Reality: true probability of left = 0.50")
+sig.line <- qbinom(p = 0.05, size = n, prob = 0.5, lower.tail = FALSE)
+abline(v = sig.line, col = "red", lty = 2)
+text(x = 25, y = 0.11, "Type I error\nP(X > 19) < 0.05")
+y2 <- dbinom(x = x, size = n, prob = 0.65)
+plot(x, y2, type = "h", ylab = "Prob", xlab = "Number tags on left",
+     main = "Alternate Reality: true probability of left = 0.65")
+abline(v = sig.line, col = "red", lty = 2)
+text(x = c(10, 28), y = 0.11, c("Type II error\nP(X <= 19) = 0.49", "Power\nP(X > 21) = 0.51"))
+
+```
+
+
+## Visualizing a one-sample proportion test
+
+Sample size = 50, Power = 0.62, effect size = 0.65 vs. 0.50, 
+significance level = 0.05, alternative = greater
+
+```{r echo=FALSE}
+par(mfrow=c(2,1))
+n <- 50
+x <- 0:n
+y1 <- dbinom(x = x, size = n, prob = 0.5)
+plot(x, y1, type = "h", ylab = "Prob", xlab = "Number tags on left", 
+     main = "Null Reality: true probability of left = 0.50")
+sig.line <- qbinom(p = 0.05, size = n, prob = 0.5, lower.tail = FALSE)
+abline(v = sig.line, col = "red", lty = 2)
+text(x = 40, y = 0.08, "Type I error\nP(X > 31) < 0.05")
+y2 <- dbinom(x = x, size = n, prob = 0.65)
+plot(x, y2, type = "h", ylab = "Prob", xlab = "Number tags on left",
+     main = "Alternate Reality: true probability of left = 0.65")
+abline(v = sig.line, col = "red", lty = 2)
+text(x = c(20, 45), y = 0.08, c("Type II error\nP(X <= 31) = 0.38", "Power\nP(X > 31) = 0.62"))
+
+```
+
+## Visualizing a one-sample proportion test
+
+Sample size = 67,  Power = 0.80, effect size = 0.65 vs. 0.50,
+significance level = 0.05, alternative = greater
+
+```{r echo=FALSE}
+par(mfrow=c(2,1))
+n <- 67
+x <- 0:n
+y1 <- dbinom(x = x, size = n, prob = 0.5)
+plot(x, y1, type = "h", ylab = "Prob", xlab = "Number tags on left", 
+     main = "Null Reality: true probability of left = 0.50")
+sig.line <- qbinom(p = 0.05, size = n, prob = 0.5, lower.tail = FALSE)
+abline(v = sig.line, col = "red", lty = 2)
+text(x = 50, y = 0.07, "Type I error\nP(X > 40) < 0.05")
+y2 <- dbinom(x = x, size = n, prob = 0.65)
+plot(x, y2, type = "h", ylab = "Prob", xlab = "Number tags on left",
+     main = "Alternate Reality: true probability of left = 0.65")
+abline(v = sig.line, col = "red", lty = 2)
+text(x = c(30, 60), y = 0.08, c("Type II error\nP(X <= 40) = 0.20", "Power\nP(X > 40) = 0.80"))
+
+```
+
+
+## Visualizing a one-sample proportion test
+
+Sample size = 67, Power = 0.80, effect size = 0.65 vs. 0.50,
+significance level = 0.05, alternative = two-sided
+
+```{r echo=FALSE}
+par(mfrow=c(2,1))
+n <- 67
+x <- 0:n
+y1 <- dbinom(x = x, size = n, prob = 0.5)
+plot(x, y1, type = "h", ylab = "Prob", xlab = "Number tags on left", 
+     main = "Null Reality: true probability of left = 0.50")
+sig.line <- c(qbinom(p = 0.025, size = n, prob = 0.5),
+              qbinom(p = 0.025, size = n, prob = 0.5, lower.tail = FALSE))
+abline(v = sig.line, col = "red", lty = 2)
+text(x = c(15,50), y = 0.07, c("Type I error\nP(X < 26) < 0.025","Type I error\nP(X > 41) < 0.025"))
+y2 <- dbinom(x = x, size = n, prob = 0.65)
+plot(x, y2, type = "h", ylab = "Prob", xlab = "Number tags on left",
+     main = "Alternate Reality: true probability of left = 0.65")
+abline(v = sig.line, col = "red", lty = 2)
+text(x = c(15, 31, 55), y = 0.08, c("Power\nP(X <= 26) = 0", 
+                                    "Type II error\nP(26 <= X <= 41) = 0.30" ,
+                                    "Power\nP(X > 41) = 0.70"))
+```
+
 
 
 ## The `pwr` package
