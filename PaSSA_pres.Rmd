@@ -23,7 +23,7 @@ output: beamer_presentation
 
 - *How many people should I sample?*
 
-- Or, *I can only samply 30 people. Do I have sufficient power?* 
+- Or, *I can only sample 30 people. Do I have sufficient power?* 
 
 ## Determining sample size and power
 
@@ -43,7 +43,7 @@ Determining the power of a statistical test is determined from four _parameters_
 
 ## What is power?
 
-- Power is the probability a statistical test will correctly detect a hypothesized effect.
+- Power is the probability a statistical test will correctly detect a hypothesized effect (if it really exists).
 
 - In a hypothesis test, we assume two possible realities:
 
@@ -83,7 +83,7 @@ Determining the power of a statistical test is determined from four _parameters_
 
 - If I think the left preference is simply different from 50%, then I have a _two-sided_ alternative.
 
-- The one-sided alternative is a stronger assumption. 
+- The one-sided alternative is a stronger assumption. Most power and sample size analyses will play it safe by assuming a two-sided alternative.
 
 
 ## Type I and Type II errors
@@ -296,7 +296,7 @@ Notice the effect sizes: h and d. We'll define these shortly.
 - `pwr.chisq.test`: chi-squared tests; goodness of fit and association (ES=w)
 - `pwr.r.test`: correlation test (ES=r)     
 - `pwr.anova.test`: test for one-way balanced anova (ES=f)    
-- `pwr.f2.test`: test for the general linear model (ES=f2)     
+- `pwr.f2.test`: test for the general linear model (multiple regression) (ES=f2)     
 
 Notice the effect sizes: w, r, f and f2. We'll define these shortly.
 
@@ -332,7 +332,7 @@ Base `R` includes three functions for calculating power and sample size:
 - `power.t.test`: one-sample and two-sample t tests for means
 - `power.anova.test`: one-way analysis of variance tests
 
-These functions do not require calculating a unitless effect size and assume equal sample sizes across groups.
+These functions **do not** require calculating a unitless effect size and assume equal sample sizes across groups.
 
 
 ## Leave one out
@@ -343,7 +343,7 @@ These functions do not require calculating a unitless effect size and assume equ
 
 - To calculate sample size (`n`), you **leave it out** of the function.    
 
-- For example, to calculate the power of a one-sample proportion test with an effect size of $h=0.5$, sample size of $n=30$, significance level of 0.05 and a one-sided "greater" alternative:
+- For example, to calculate the sample size needed for a one-sample proportion test to have 80% power assuming a "small" effect size of $h=0.2$, significance level of 0.05 and a one-sided "greater" alternative:
 
 ```{r echo=FALSE}
 library(pwr)
@@ -352,11 +352,11 @@ library(pwr)
 
 
 ```{r eval=FALSE}
-pwr.p.test(h=0.5, n=30, sig.level=0.05, 
+pwr.p.test(h=0.2, power = 0.8, sig.level=0.05, 
            alternative = "greater")
 ```
 
-- This returns a power of 0.86. If there really is an effect of 0.5 in the population, a sample size of $n=30$ gives us a 86% chance of detecting this effect.
+- This returns a sample size of 155. If there really is a "small" effect in the population, a sample size of $n=155$ gives us a 80% chance of rejecting the null of no effect.
 
 ## Let's get started!
 
@@ -381,6 +381,8 @@ pwr.p.test(h=0.5, n=30, sig.level=0.05,
 - Why h? Observe 0.65 - 0.50 and 0.16 - 0.01 both equal 0.15. But 0.16 is 16 times bigger than 0.01, while 0.65 is only 1.3 times bigger than 0.50. The arcsine transformation basically captures these differences. 
 
 - Conventional effect sizes: 0.2 (small), 0.5 (medium) and 0.8 (large)
+
+- Remember, effect size $h$ is not a proportion. It ranges in practical value from about 0.02 to 3.
 
 ## one-sample test for proportions - example
 
@@ -414,7 +416,7 @@ plot(pwr.p.test(h = h, sig.level = 0.05, power = 0.80,
 
 - The `two.sided` alternative says we're not sure which direction the effect is in. It results in a larger sample size.
 
-- For the remainder of the workshop we'll accept the default `alternative = "two.sided"`
+- For the remainder of the workshop we'll almost always use the default `alternative = "two.sided"`
 
 ## How effect size affects sample size
 
@@ -774,6 +776,7 @@ Let's go to R!
 
 - conventional effect sizes: 0.02, 0.15, 0.35
 
+- There is currently no built-in plot method.
 
 ## test for the general linear model - effect size
 
