@@ -71,13 +71,13 @@ plot(pout)
 
 # two-sample test for proportions (ES=h) 
 
-# EXAMPLE: Let's say I randomly sample male and female UVa undergrad students
-# and ask them if they consume alcohol at least once a week. My null hypothesis
-# is no difference in the proportion that answer yes. My alternative hypothesis
-# is that there is a difference. (two-sided; one gender has higher proportion, I
-# don't know which.) I'd like to detect a difference as small as 5%. How many
-# students do I need to sample in each group if we want 80% power and a
-# significance level of 0.05?
+# EXAMPLE: Let's say I want to randomly sample male and female UVa undergrad
+# students and ask them if they consume alcohol at least once a week. My null
+# hypothesis is no difference in the proportion that answer yes. My alternative
+# hypothesis is that there is a difference. (two-sided; one gender has higher
+# proportion, I don't know which.) I'd like to detect a difference as small as
+# 5%. How many students do I need to sample in each group if we want 80% power
+# and a significance level of 0.05?
 
 # Recall effect size depends on the two proportions we compare:
 ES.h(p1 = 0.55, p2 = 0.50)
@@ -200,24 +200,11 @@ pwr.t.test(n = seq(25,150,25), d = 0.333, sig.level = 0.05)
 pout <- pwr.t.test(d = 0.333, power = 0.80, sig.level = 0.05)
 plot(pout)
 
-# We can't plot the result of power.t.test using plot(). However we can do it
-# manually:
+# We can also plot the result of power.t.test using plot():
+pout <- power.t.test(delta = 0.75, sd = 2.25, power = 0.8, sig.level = 0.05)
+plot(pout)
 
-pout <- power.t.test(delta = 0.75, sd = 2.25, sig.level = 0.05, n=seq(20,200,10))
 
-# Notice the contents of "pout"
-str(pout)
-
-# We can use these to create a plot
-x <- pout$n
-y <- pout$power
-plot(x, y, type="l", xlab = "Sample Size", ylab = "Power")
-points(x, y)
-
-# find optimal sample size that yields 80% power and save to n:
-n <- power.t.test(delta = 0.75, sd = 2.25, sig.level = 0.05, power = 0.80)$n
-abline(v = n, lty = 2)
-title(paste("Optimal sample size is", ceiling(n)))
 
 # One-sample t-test
 
@@ -227,7 +214,7 @@ title(paste("Optimal sample size is", ceiling(n)))
 # EXAMPLE: I think the average purchase price at the Library coffee shop is over
 # $3 per student. My null is $3 or less; my alternative is greater than $3. If 
 # the true average purchase price is $3.50, I would like to have 90% power to 
-# declare my estimated average purchase price is greater than $3. How many 
+# declare the estimated average purchase price is greater than $3. How many 
 # transactions do I need to observe assuming a significance level of 0.05? Let's
 # say max purchase price is $10 and min is $1. So our guess at a standard
 # deviation is 9/4 = 2.25. Therefore d is...
@@ -254,11 +241,11 @@ pwr.t.test(d = d, sig.level = 0.001, power = 0.999, alternative = "greater",
 # "paired" t-test. 
 
 # EXAMPLE: 24 high school boys are put on a ultraheavy rope-jumping program. 
-# Does this increase their 40-yard dash time? We'll measure their 40 time before
-# the program and after. We'll use a paired t-test to see if the difference in 
-# times is greater than 0 (before - after). Assume the standard deviation of the
-# differences will be about 0.25. How powerful is the test to detect a
-# difference of about 0.08 with 0.05 significance?
+# Does this decrease their 40-yard dash time (ie, make them faster)? We'll
+# measure their 40 time before the program and after. We'll use a paired t-test
+# to see if the difference in times is greater than 0 (before - after). Assume
+# the standard deviation of the differences will be about 0.25. How powerful is
+# the test to detect a difference of about 0.08 with 0.05 significance?
 
 pwr.t.test(n = 24, d = 0.08 / 0.25, 
            type = "paired", alternative = "greater")
@@ -394,10 +381,10 @@ pwr.r.test(r = 0.1, sig.level = 0.05, power = 0.8, alternative = "two.sided")
 
 # balanced one-way analysis of variance tests
 
-# EXAMPLE: Let's say I'm a web developer and I'm interested in 3 web site 
-# designs for a client. I'd like to know which design(s) help users find 
-# information fastest, or which design requires the most time. I design an 
-# experiment where I have 3 groups of randomly selected people use one of the 
+# EXAMPLE: Let's say I'm a web developer and I'm interested in 3 web site
+# designs for a client. I'd like to know which design(s) help users find
+# information fastest, or which design requires the most time. I design an
+# experiment where I have 3 groups of randomly selected people use one of the
 # designs to find some piece of information and I record how long it takes. (All
 # groups look for the same information.) How many people do I need in each group
 # if I believe two of the designs will take 30 seconds and one will take 25
@@ -412,6 +399,7 @@ var(c(30, 30, 25))
 
 power.anova.test(groups = 3, between.var = 8.3, within.var = 5^2, power = 0.8)
 
+# n = 16
 
 # The pwr.anova.test function requires you to provide an effect size. The effect
 # size, f, for k groups is calculated as follows:
