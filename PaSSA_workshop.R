@@ -26,8 +26,9 @@ pwr.p.test(h = h, sig.level = 0.05, power = 0.80, alternative = "greater")
 
 # The previous example assumed a one-sided test: Null = 0.5, Alt > 0.5. 
 
-# We typically take the conservative route and calculate sample size based on a
-# two-sided test. That is Null = 0.5, Alt != 0.5
+# We typically take the conservative route and calculate sample size based on a 
+# two-sided test. That is Null = 0.5, Alt != 0.5. If we don't specify an
+# alternative, the default alternative is two.sided.
 
 pwr.p.test(h = h, sig.level = 0.05, power = 0.80)
 
@@ -48,7 +49,7 @@ pwr.p.test(h = ES.h(p1 = 0.70, p2 = 0.50), n = 30, sig.level = 0.05,
 # Equivalently we can think of one proportion being "less" than some value, say
 # 0.25 versus random chance. Notice the effect is negative and resulting power is
 # the same:
-pwr.p.test(h = ES.h(p1 = 0.25, p2 = 0.50), n = 30, sig.level = 0.05, 
+pwr.p.test(h = ES.h(p1 = 0.30, p2 = 0.50), n = 30, sig.level = 0.05, 
            alternative = "less")
 
 # NOTE: Usually recommended to stick with the two-sided alternative.
@@ -59,6 +60,16 @@ plot(pout)
 
 # Your plot will look different from mine if you do not have the ggplot2 package
 # installed.
+
+# Conventional effect sizes for "h":
+cohen.ES(test = "p", size = "small")
+cohen.ES(test = "p", size = "medium")
+cohen.ES(test = "p", size = "large")
+
+# We can use these instead of specifying proportions:
+pwr.p.test(h = 0.2, sig.level = 0.05, power = 0.8)
+pwr.p.test(h = 0.5, sig.level = 0.05, power = 0.8)
+pwr.p.test(h = 0.8, sig.level = 0.05, power = 0.8)
 
 # YOUR TURN!
 # Say we think people place name tags on the left 70% percent of the time instead
@@ -102,12 +113,9 @@ power.prop.test(p1 = 0.15, p2 = 0.10, sig.level = 0.05, power = .80)
 # Notice the results are slightly different. It calculates effect size
 # differently.
 
-# If we don't have any preconceived estimates of proportions or don't feel
-# comfortable making estimates, we can use a conventional effect size:
-cohen.ES(test = "p", size = "small") # 0.2
-cohen.ES(test = "p", size = "medium") # 0.5
-cohen.ES(test = "p", size = "large") # 0.8
-
+# If we don't have any preconceived estimates of proportions or don't feel 
+# comfortable making estimates, we can use a conventional effect sizes of 0.2,
+# 0.5 or 0.8
 
 # Sample sizes for the conventional effects:
 pwr.2p.test(h = 0.2, sig.level = 0.05, power = .80)
@@ -192,16 +200,12 @@ power.t.test(delta = 0.75, sd = 2.25, sig.level = 0.05, power = 0.8)
 
 # For any of the pwr functions we can provide multiple sample size values to get
 # multiple power estimates. For example, let's see how power changes as we let n
-# go from 100 to 500 by 100 using a "small" effect size of 0.2.
+# go from 25 to 150 by 25 using an effect size of 0.333.
 
 pwr.t.test(n = seq(25,150,25), d = 0.333, sig.level = 0.05)
 
-# We can also save the result of a sample size estimate and plot it.
+# We can also save the result of a pwr.t.test sample size estimate and plot it.
 pout <- pwr.t.test(d = 0.333, power = 0.80, sig.level = 0.05)
-plot(pout)
-
-# We can also plot the result of power.t.test using plot():
-pout <- power.t.test(delta = 0.75, sd = 2.25, power = 0.8, sig.level = 0.05)
 plot(pout)
 
 
@@ -271,6 +275,9 @@ pwr.t2n.test(n1 = 28, n2 = 35, d = 0.5)
 # Find n1 sample size when other group has 35, desired power is 0.80, effect 
 # size is 0.5 and significance level is 0.05:
 pwr.t2n.test(n2 = 35, d = 0.5, power = 0.8)
+
+# what about a large effect?
+pwr.t2n.test(n2 = 35, d = 0.8, power = 0.8)
 
 
 
@@ -344,6 +351,12 @@ cohen.ES(test = "chisq", size = "small")
 pwr.chisq.test(w = 0.1, N = 100, df = 1, sig.level = 0.05)
 pwr.chisq.test(w = 0.1, power = 0.9, df = 1, sig.level = 0.05)
 
+# Could also reframe the question as a two-sample proportion test. What sample 
+# size do I need to detect a small effect in gender on the proportion of
+# students who floss with 90% power?
+pwr.2p.test(h = 0.2, sig.level = 0.05, power = 0.9)
+
+# Notice this returns the same answer, except divided by 2.
 
 # pwr.r.test --------------------------------------------------------------
 
