@@ -85,7 +85,7 @@ Determining the power of a statistical test is determined from:
 
 - The one-sided alternative is a stronger assumption. Most power and sample size analyses will play it safe by assuming a two-sided alternative.
 
-- Also some hypothesis tests only have one "direction", such as ANOVA and chi-square.
+- Some hypothesis tests only have a two-sided alternative, such as ANOVA and chi-square.
 
 
 ## Type I and Type II errors
@@ -94,7 +94,7 @@ Determining the power of a statistical test is determined from:
 
 - If I conclude people have no preference when they really do prefer left I have made a _Type II error_. (Failing to reject null hypothesis in error)
 
-- We can never know if we have made these errors.
+- We usually never know if we have made these errors.
 
 - Our tolerance for a Type I error is the significance level. Usually 0.05, 0.01 or lower.
 
@@ -638,7 +638,7 @@ Let's go to R!
 
 - The `pwr.anova.test` function requires you to provide an effect size, `f`. 
 
-- The effect size, `f`, for k groups is calculated as $SD_{means}$ / $SD_{populations}$ (Translation: standard deviation of the k means divided the common standard deviation of the populations involved.)
+- The effect size, `f`, for k groups is calculated as $SD_{means}$ / $SD_{populations}$ (Translation: standard deviation of the k means divided by the common standard deviation of the populations involved.)
 
 - conventional effect sizes: 0.1, 0.25, 0.4
 
@@ -720,9 +720,9 @@ Let's go to R!
 - G*Power. http://www.gpower.hhu.de/en.html (Free)
 
 ### R packages
-- TrialSize. Functions and examples from the book _Sample Size Calculation in Clinical Research_
-- samplesize. Computes sample size for Student's t-test and for the Wilcoxon-Mann-Whitney test for categorical data
-- clinfun. Functions for both design and analysis of clinical trials.
+- `TrialSize`. Functions and examples from the book _Sample Size Calculation in Clinical Research_
+- `samplesize`. Computes sample size for Student's t-test and for the Wilcoxon-Mann-Whitney test for categorical data
+- `clinfun`. Functions for both design and analysis of clinical trials.
 
 ## References
 

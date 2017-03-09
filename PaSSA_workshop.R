@@ -1,6 +1,6 @@
 # Clay Ford
 # Power and Sample Size Analysis workshop
-# Fall 2016
+# Spring 2017
 # UVa StatLab
 
 # Power and sample size calculations for various statistical tests using the
@@ -21,7 +21,7 @@ library(pwr)
 
 h <- ES.h(p1 = 0.75, p2 = 0.50)
 pwr.p.test(h = h, sig.level = 0.05, power = 0.80, alternative = "greater")
-
+pwr.p.test(h = h, sig.level = 0.05, power = 0.80, alternative = "greater")
 # About 23 people; always round up.
 
 # The previous example assumed a one-sided test: Null = 0.5, Alt > 0.5. 
@@ -75,7 +75,6 @@ pwr.p.test(h = 0.8, sig.level = 0.05, power = 0.8)
 # Say we think people place name tags on the left 70% percent of the time instead
 # of 50%. What sample size do we need to show this assuming a significance level
 # of 0.01, a desired power of 0.90, and a one-sided "greater" alternative?
-
 
 
 # pwr.2p.test -------------------------------------------------------------
@@ -264,6 +263,8 @@ power.t.test(n = 24, delta = 0.08, sd = 0.25,
 # assuming the standard deviation of the differences will be about 0.25?
 
 
+
+
 # pwr.t2n.test ------------------------------------------------------------
 
 # two-sample t test for means, unequal sample sizes (ES=d) 
@@ -303,10 +304,10 @@ alt <- c(3/8, rep((5/8)/3, 3))
 ES.w1(null,alt)
 
 # To calculate power, specify effect size, N, and degrees of freedom (4-1).
-pwr.chisq.test(w=ES.w1(null,alt), N=100, df=(4-1), sig.level=0.05)
+pwr.chisq.test(w = ES.w1(null,alt), N = 100, df = (4-1), sig.level = 0.05)
 
 # How many subjects do we need to achieve 80% power?
-pwr.chisq.test(w=ES.w1(null,alt), df=(4-1), power=0.8, sig.level = 0.05)
+pwr.chisq.test(w = ES.w1(null,alt), df = (4-1), power = 0.8, sig.level = 0.05)
 
 # If our alternative is correct then we need to survey at least 131 people to
 # detect this with 80% power.
@@ -520,7 +521,9 @@ pwr.f2.test(u = 2, f2 = (0.35 - 0.30) /(1 - 0.35), sig.level = 0.05, power = 0.9
 165 + 3 + 1 # 169
 
 
-# time permitting material ------------------------------------------------
+
+# Appendix ----------------------------------------------------------------
+
 
 # sample size curves
 
@@ -539,8 +542,6 @@ vals <- expand.grid(es=es,pow=pow)
 getN <- function(es,pow,sl=0.05){
   ceiling(pwr.chisq.test(w = es, df = 1, power = pow, sig.level = sl)$N)
 }
-
-getN(vals$es, vals$pow)
 
 # "apply" the function to the es and pow columns of the vals data frame
 vals$n <- mapply(getN, vals$es, vals$pow)
