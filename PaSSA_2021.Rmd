@@ -1,0 +1,425 @@
+---
+title: "Power and Sample Size Analysis"
+output: html_notebook
+editor_options: 
+  chunk_output_type: inline
+---
+
+## Workshop agenda
+
+- What is power and how does it relate to sample size?
+- When and why to calculate power and sample size for a study
+- How to do it for various statistical tests in R
+- Intro to using simulation for estimating power and sample size
+
+## Hello, my name is...
+
+- I suspect people place sticky-back name tags on the left side of their chest about _75%_ of the time (probably because most people are right handed). I create an experiment to test this _hypothesis_. 
+
+- Experiment: randomly sample _n_ people and calculate the proportion _p_ of people who place a name tag on the left.
+
+- Analysis: conduct a _one-sample proportion test_ to see if the sample proportion is significantly greater than random chance (50%).
+
+- Decision: reject the _null hypothesis_ of random chance if the p-value of the one-sample proportion test is below _0.05_.
+
+QUESTIONS:
+
+- How many people should I sample? 
+- Or, I can only sample 30 people. Do I have sufficient _power_?
+
+## What is Power?
+
+Power is a probability. It ranges from (0, 1). Power is the probability of correctly rejecting a false null hypothesis.
+
+Returning to our example, we have two possibilities, or _hypotheses_:
+
+1. Percentage of people who place name tags on the left side of their chest is random (50%), the _null hypothesis_
+2. Percentage of people who place name tags on the left side of their chest is at least 75%, the _alternative hypothesis_
+
+Let's assume the alternative hypothesis is _correct_: at least 75% of people place name tags on the left side of their chest. Therefore we would like our hypothesis test to have a _high probability_, or _high power_, of returning the correct result: returning a p-value below 0.05.
+
+If our assumption is correct, a sufficiently large sample size should have a high probability of correctly rejecting the null hypothesis. So one approach is to sample as many people as possible. But that can be expensive and time-consuming. So we want to _find the smallest sample size that provides the power we desire_.
+
+## Power and sample size analysis for our experiment
+
+Let's go ahead and calculate the sample size for our experiment. For this we'll use the pwr package. The `pwr.p.test` function can be used to calculate power or sample size for a one-sample proportion test.
+
+Notice we first have to calculate the _effect size_ using the `ES.h` function. The `p1` argument is the alternative proportion, the `p2` argument is the null proportion. The `h` notation is due to Cohen (1988). It represents effect sizes for proportions.
+
+Since we want sample size, we _leave it out of the function_. We specify our desired power (0.80); our significance level (0.05) which is the threshold we cross for "rejecting" the null; and the alternative ("greater") which says we think the alternative hypothesis is _greater than that null_.
+
+```{r}
+library(pwr) # do this once per session
+h <- ES.h(p1 = 0.75, p2 = 0.50)
+pwr.p.test(h = h, sig.level = 0.05, power = 0.80, 
+           alternative = "greater")
+```
+
+Our answer is the line that begins with "n". Our minimal sample size to have 80% power of rejecting the null at 0.05 is 23. Always round up. So if our alternative hypothesis is correct, we should aim to sample at least 23 people, if not more.
+
+## IMPORTANT POINTS
+
+- We haven't yet run the experiment! We're still in the planning stages.
+- We don't know if our hypothesized effect size (75%) is correct! We're just pretending it is.
+- A sample size of 23 does NOT guarantee we will reject the null! It simply gives an 80% chance of rejecting the null based on our assumption that the effect size is 75%!
+- We have a 20% chance of incorrectly failing to reject null, again based on our assumption that the effect size is 75%!
+- Accept and embrace the uncertainty in this power and sample size "analysis". It truly is a thought experiment!
+
+## More power and sample size estimates for our experiment
+
+How large a sample do we need to achieve 90% power with a significance level of 0.01?
+
+```{r}
+pwr.p.test(h = h, sig.level = 0.01, power = 0.90, alternative = "greater")
+```
+
+What is the power of our experiment if we sample 30 people with a significance level of 0.01?
+
+```{r}
+pwr.p.test(h = h, sig.level = 0.01, n = 30, alternative = "greater")
+
+```
+
+What is the power of our experiment if we sample 50 people with a significance level of 0.01 and an assumed effect size of 65%?
+
+```{r}
+pwr.p.test(h = ES.h(p1 = 0.65, p2 = 0.5), n = 50, sig.level = 0.01, 
+           alternative = "greater")
+```
+
+
+## Remember
+
+- Detecting smaller effects requires larger sample sizes
+- Using lower significance levels requires larger sample sizes
+- Higher power requires larger sample sizes
+
+
+## Type I and Type II errors
+
+If we conclude people prefer left when they actually don't I have made a _Type I error_. (Rejecting the null hypothesis in error) 
+
+If we conclude people have no preference when they really do prefer left I have made a _Type II error_. (Failing to reject null hypothesis in error)
+
+We usually never know if we have made these errors.
+
+Our tolerance for a Type I error is the significance level. Usually 0.05, 0.01 or lower.
+
+Our tolerance for a Type II error is 1 - Power. Usually 0.20 or lower.
+
+
+## Picking an effect sizes
+
+Hypothesizing realistic and meaningful effect sizes is the most important part of power and sample size analysis. This requires subject matter expertise. A rule of thumb is to pick the _smallest effect you don't want to miss_. Or stated another way, pick the smallest effect that would be worth reporting or that would "make news".
+
+Cohen defines "effect size" as "the degree to which the null hypothesis is false." Example: If our null is 50%, and the alternative 75%, the effect size is 25%. 
+
+## Two-sample proportion test
+
+Let's say I want to randomly sample male and female UVA undergrad students and ask them if they consume alcohol at least once a week. 
+
+- null hypothesis: no difference in the proportion that answer yes. 
+- alternative hypothesis: there is a difference
+
+This is "two-sided" alternative; one gender has higher proportion, I don't know which.
+
+I'd like to detect a difference as small as 5%. That's my effect size.
+
+How many students do I need to sample in _each group_ if we want 80% power
+and a significance level of 0.05?
+
+We can either use `pwr.2p.test` or the base R `power.prop.test`. Notice we have to specify proportions that differ by 5%, and that the required sample size changes dramatically based on where these two proportions fall in the range from 0 to 1.
+
+```{r}
+pwr.2p.test(h = ES.h(p1 = 0.20, p2 = 0.25), sig.level = 0.05, power = 0.8)
+```
+
+Notice that n is the number in each group! 
+
+The base R function does not require us to use a separate effect size function.
+
+```{r}
+power.prop.test(p1 = 0.20, p2 = 0.25, sig.level = 0.05, power = 0.80)
+```
+
+What if we change the proportions to 0.10 and 0.15?
+
+```{r}
+power.prop.test(p1 = 0.10, p2 = 0.15, sig.level = 0.05, power = 0.80)
+
+```
+
+When it comes to comparing proportions, the higher the ratio of one proportion to the other means a larger effect and hence a smaller sample size to achieve desired power.
+
+## Two-sample t-test
+
+I'm interested in learning if there is a difference in the mean price of what male and female students pay at the library coffee shop. Let's say I randomly observe 30 male and 30 female students check out from the coffee shop and note their total purchase price. How powerful is this experiment if I want to detect a difference of 75 cents in either direction with 90% power?
+
+The base R `power.t.test` makes this fairly simple to answer. The effect size (75 cents) is specified as `delta`. We also need to specify a hypothesized population standard deviation. One rule of thumb: take the difference between the maximum and minimum possible mean values and divide by 4 (or 6). Let's say the max is `$10` and min is `$1`. So our guess at a standard deviation is:
+
+(10 - 1)/4 = 2.25
+
+```{r}
+power.t.test(delta = 0.75, sd = 2.25, sig.level = 0.05, n = 30)
+```
+
+This experiment is not very powerful. If 75 cents really is the difference in the means, there is only about 25 percent chance we'll reject the null hypothesis with a sample size of 30 per group.
+
+How many should we sample for a power of 90%?
+
+```{r}
+power.t.test(delta = 0.75, sd = 2.25, sig.level = 0.05, power = 0.90)
+```
+
+The pwr package provides the `pwr.t.test` function. It's a little more difficult to use because we have to specify the effect size using the `d` argument. It's simply delta divided by the standard deviation.
+
+```{r}
+pwr.t.test(d = 0.75/2.25, sig.level = 0.05, power = 0.90)
+```
+
+## Paired t-test
+
+
+24 high school boys are put on a ultraheavy rope-jumping program. Does this decrease their 40-yard dash time (ie, make them faster)? We'll measure their 40 time _before_ the program and _after_. We'll use a _paired t-test_ to see if the difference in times is greater than 0 (before - after). These are not indepedent groups, so we can't use a 2-sample t-test. Assume the _standard deviation of the differences_ will be about 0.25. How powerful is the test to detect a difference of about 0.08 with 0.05 significance?
+
+Notice we need to specify `type = "paired"` and `alternative = "one.sided"`. Also notice the estimated standard deviation is on the differences, not the populations.
+
+```{r}
+power.t.test(n = 24, delta = 0.08, sd = 0.25, sig.level = 0.05, 
+             type = "paired", alternative = "one.sided")
+```
+
+Using the `pwr.t.test` function we have to specify `type = "paired"` and `alternative = "greater"`.
+
+```{r}
+pwr.t.test(n = 24, d = 0.08/0.25, sig.level = 0.05, 
+           type = "paired", alternative = "greater")
+```
+
+How many pairs do we need to sample to achieve at least 90% power, assuming out hypothesized effect size is correct?
+
+```{r}
+power.t.test(power = 0.90, delta = 0.08, sd = 0.25, sig.level = 0.05, 
+             type = "paired", alternative = "one.sided")
+
+```
+
+
+## Oneway ANOVA
+
+To test if more than two means are different we can use a Oneway _ANOVA_. The null hypothesis is none of the means are different. The alternative is at least one is different. By itself the ANOVA is not a very interesting statistical test. Rejecting the null should be followed by comparisons to see where and how big the differences are.
+
+I'm a web developer and I'm interested in 3 web site designs for a client. I'd like to know which design helps users find information fastest. I design an experiment where I have 3 groups of randomly selected people use one of the designs to find some piece of information and I record how long it takes. (All groups look for the same information.) How many people do I need in each group if I believe two of the designs will take 30 seconds and one will take 25 seconds? Assume population standard deviation is 5 seconds and that I desire power and significance levels of 0.90 and 0.05, respectively.
+
+The base R `power.anova.test` function requires you to specify...
+
+- the number of `groups` you plan to compare
+- the hypothesized between-group variance (`between.var`)
+- the hypothesized within-group variance (`within.var`), which we assume is the same for all groups.
+
+Notice we need to specify _variance_, not standard deviation
+
+```{r}
+power.anova.test(groups = 3, between.var = var(c(30,30,25)), 
+                 within.var = 5^2, sig.level = 0.05, power = 0.90)
+```
+
+The pwr package provides the `pwr.anova.test` function which requires you to once again specify an effect size, this time using the `f` argument. The effect size `f` is the _standard deviation of the means divided by the common standard deviation of the populations_, each assuming a denominator of `k` instead of `k-1`. To replicate the results of `power.anova.test` we need to multiply the standard deviation of the means by `sqrt(k-1/k)`.
+
+```{r}
+sd_means <- sd(c(30,30,25))
+sd_pop <- 5
+pwr.anova.test(k = 3, f = sd_means*sqrt(2/3)/sd_pop, 
+               sig.level = 0.05, power = 0.90)
+```
+
+```{r}
+pout <- pwr.anova.test(k = 3, f = sd_means*sqrt(2/3)/sd_pop, 
+               sig.level = 0.05, power = 0.90)
+plot(pout)
+```
+
+While the `pwr.anova.test` function is a little more difficult to use because of the `f` argument, we might want to use it for the pwr packages plot method. Simply save the result and use it with `plot`.
+
+```{r}
+pout <- pwr.anova.test(k = 3, f = sd_means*sqrt(2/3)/sd_pop, 
+               sig.level = 0.05, power = 0.90)
+plot(pout)
+```
+
+We can see that once the group size is larger than 30, there is little reason to make the sample bigger. AGAIN, assuming our estimated effects sizes are true.
+
+## Convention effect sizes
+
+Cohen proposed conventional effect sizes for each test called "small", "medium", and "large". These are controversial because they're vague. However they may be worth calculating to give you a ballpark range of sample sizes.
+
+The `cohen.ES` function returns an effect size for a given `test` and `size`.
+
+- test: "p", "t", "r", "anov", "chisq", "f2"
+- size: "small", "medium", "large"
+
+For example, "small" effect size for a one-way ANOVA test.
+
+```{r}
+cohen.ES(test = "anov", size = "small")
+```
+
+Using the effect size with our previous example:
+
+```{r}
+pwr.anova.test(k = 3, f = 0.1, 
+               sig.level = 0.05, power = 0.90)
+```
+
+To detect a "small" effect in a oneway ANOVA with 3 groups, 90% power, and 0.05 significance level, we need about 423 subjects per group. This is a ballpark figure. It's meant to give us an _idea_ of the sample size we need.
+
+
+## Using simulation to estimate power and sample size
+
+Research questions often require analyses more sophisticated than t-tests and oneway ANOVAs. It can be useful to simulate data with effects you want to detect and see how often you actually detect them. Basically we generate the data and analysis many, many times and get the proportion of times we reject the null hypothesis.
+
+This requires some knowledge of programming as well as statistics. Here's a quick example for a two-sample t-test. Recall the previous code for estimating power for two groups of size 30:
+
+```{r}
+power.t.test(delta = 0.75, sd = 2.25, sig.level = 0.05, n = 30)
+```
+
+We can obtain a similar result using simulation. Let's simulate one data set and analysis. The delta is the difference in means (ie, 10.75 - 10 = 0.75). Notice also the constant standard deviation for the two populations.
+
+```{r}
+x1 <- rnorm(n = 30, mean = 10.00, sd = 2.25)
+x2 <- rnorm(n = 30, mean = 10.75, sd = 2.25)
+t.test(x1, x2, var.equal = TRUE)
+# is it less than significance level?
+t.test(x1, x2, var.equal = TRUE)$p.value < 0.05
+```
+
+Now we repeat this 1000 times and see what proportion of times we get a p-value below our significance level. We can do this with the `replicate` function in base R. Notice we simply wrap our previous code in curly braces `{}` to create an _expression_. The result is a vector of TRUE/FALSE values. The mean of a TRUE/FALSE vector is the proportion of TRUEs.
+
+```{r}
+result <- replicate(n = 1000, expr = 
+                      {x1 <- rnorm(n = 30, mean = 10.00, sd = 2.25)
+                      x2 <- rnorm(n = 30, mean = 10.75, sd = 2.25)
+                      t.test(x1, x2, var.equal = TRUE)$p.value < 0.05})
+mean(result)
+```
+
+Your result will differ slightly from mine due to sampling variation, but the results will be similar to what we calculated with the `power.t.test` function.
+
+The power is quite low. We may want to try different sample sizes. With a little extra work we can program that as well. One way is to create a function out of the previous chunk of code and allow the sample size to be an argument. Then we use `sapply` to _apply_ the function to various sample sizes. The "s" in `sapply` means to "simplify" the output from a list to a matrix. Then we _apply_ the `mean` function to the columns of the matrix of results.
+
+```{r}
+sim_ttest <- function(n){
+  replicate(n = 1000, expr = 
+            {x1 <- rnorm(n = n, mean = 10.00, sd = 2.25)
+            x2 <- rnorm(n = n, mean = 10.75, sd = 2.25)
+            t.test(x1, x2, var.equal = TRUE)$p.value < 0.05})
+          }
+result <- sapply(c(50, 75, 100, 150), sim_ttest)
+apply(result, 2, mean)
+```
+
+Notice we could also simulate power for different sample sizes and different population standard deviations. 
+
+## Simulate a 2-way ANOVA
+
+Let's say we want to investigate different weights of paper and different designs of paper airplanes on the distance flown in inches. Perhaps we have two designs and two weights of paper. That's four combinations of levels. What power do we have to detect a difference of 12 inches for design "b" with a significance level of 0.01, assuming a sample size of 10 per group and a common standard deviation of 10 between the four groups? 
+
+To begin, let's just simulate one data set and one analysis.
+
+```{r}
+n <- 10 # per group
+design <- rep(c("a","b"), each = n*2)
+weight <- rep(c("20 lb","28 lb"), times = n*2)
+table(design, weight)
+```
+
+Now we can simulate our response according to the following:
+
+- design a, 20 lb paper: 72
+- design b, 20 lb paper: 72 + 12
+- design a, 28 lb paper: 72 + -4
+- design b, 28 lb paper: 72 + 12 + -4
+
+These are known as _additive_ effects. The `rnorm` function at the end adds "noise" to the distance and is analogous to setting the standard deviation for each design/weight combination to 10.
+
+```{r}
+dist <- 72 + (design == "b")*12 + (weight == "28 lb")*-4 + 
+  rnorm(n*4, mean = 0, sd = 10)
+```
+
+And finally run the analysis using the `lm` function.
+
+```{r}
+m <- lm(dist ~ design + weight)
+coef(summary(m))['designb','Pr(>|t|)'] < 0.01
+```
+
+Now repeat 1000 times:
+
+```{r}
+results <- replicate(1000, expr = {
+  dist <- 72 + (design == "b")*12 + (weight == "28 lb")*-4 + 
+  rnorm(n*4, mean = 0, sd = 10)
+  m <- lm(dist ~ design + weight)
+  coef(summary(m))['designb','Pr(>|t|)'] < 0.01
+})
+mean(results)
+```
+
+What if we wanted to detect an interaction between design and weight? Let's say it would be of interest if the interaction was 6 inches. That is, the effect of design changes 6 inches depending on weight.
+
+Now we simulate our response according to the following:
+
+- design a, 20 lb paper: 72
+- design b, 20 lb paper: 72 + 12
+- design a, 28 lb paper: 72 + -4
+- design b, 28 lb paper: 72 + 12 + -4 + 6
+
+To specify the interaction in `lm` we use the `:` operator (design:weight)
+
+```{r}
+dist <- 72 + (design == "b")*12 + (weight == "28 lb")*-4 + 
+  (design == "b")*(weight == "28 lb")*6 +
+  rnorm(n*4, mean = 0, sd = 10)
+m <- lm(dist ~ design + weight + design:weight)
+coef(summary(m))['designb:weight28 lb','Pr(>|t|)'] < 0.01
+```
+
+Let's run it 1000 times and see what proportion of times we _detect_ the interaction:
+
+```{r}
+results <- replicate(1000, expr = {
+  dist <- 72 + (design == "b")*12 + (weight == "28 lb")*-4 +
+    (design == "b")*(weight == "28 lb")*6 +
+    rnorm(n*4, mean = 0, sd = 10)
+  m <- lm(dist ~ design + weight + design:weight)
+  coef(summary(m))['designb:weight28 lb','Pr(>|t|)'] < 0.01
+})
+mean(results)
+```
+
+We need a much bigger sample size to detect this interaction!
+
+Let's turn this into a function so we can easily try different sample sizes.
+
+```{r}
+sim_model <- function(n){
+  replicate(n = 1000, expr = {
+    design <- rep(c("a","b"), each = n*2)
+    weight <- rep(c("20 lb","28 lb"), times = n*2)
+    dist <- 72 + (design == "b")*12 + (weight == "28 lb")*-4 +
+      (design == "b")*(weight == "28 lb")*6 +
+      rnorm(n*4, mean = 0, sd = 10)
+    m <- lm(dist ~ design + weight + design:weight)
+    coef(summary(m))['designb:weight28 lb','Pr(>|t|)'] < 0.01})
+}
+
+# try samples sizes of 50, 100, 150
+results <- sapply(c(50,100,150), sim_model)
+apply(results, 2, mean)
+```
+
+We need about 15 times the sample size to detect the interaction with decent power! AGAIN, this is all one big thought experiment. We're making lots of assumptions. Hopefully they're reasonable and conservative assumptions.
+
+
