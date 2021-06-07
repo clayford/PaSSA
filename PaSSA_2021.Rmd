@@ -233,13 +233,8 @@ pwr.anova.test(k = 3, f = sd_means*sqrt(2/3)/sd_pop,
                sig.level = 0.05, power = 0.90)
 ```
 
-```{r}
-pout <- pwr.anova.test(k = 3, f = sd_means*sqrt(2/3)/sd_pop, 
-               sig.level = 0.05, power = 0.90)
-plot(pout)
-```
 
-While the `pwr.anova.test` function is a little more difficult to use because of the `f` argument, we might want to use it for the pwr packages plot method. Simply save the result and use it with `plot`.
+While the `pwr.anova.test` function is a little more difficult to use because of the `f` argument, we might want to use it for the pwr package's plot method. Simply save the result and use it with `plot`.
 
 ```{r}
 pout <- pwr.anova.test(k = 3, f = sd_means*sqrt(2/3)/sd_pop, 
@@ -247,9 +242,9 @@ pout <- pwr.anova.test(k = 3, f = sd_means*sqrt(2/3)/sd_pop,
 plot(pout)
 ```
 
-We can see that once the group size is larger than 30, there is little reason to make the sample bigger. AGAIN, assuming our estimated effects sizes are true.
+We can see that once the group size is larger than 30, there is little reason to make the sample bigger. AGAIN, assuming our estimated effect sizes are true.
 
-## Convention effect sizes
+## Conventional effect sizes
 
 Cohen proposed conventional effect sizes for each test called "small", "medium", and "large". These are controversial because they're vague. However they may be worth calculating to give you a ballpark range of sample sizes.
 
@@ -422,4 +417,18 @@ apply(results, 2, mean)
 
 We need about 15 times the sample size to detect the interaction with decent power! AGAIN, this is all one big thought experiment. We're making lots of assumptions. Hopefully they're reasonable and conservative assumptions.
 
+## Logistic regression?
+
+```{r}
+rout <- replicate(n = 1000, expr = {
+  x <- rbinom(n = 86, size = 1, prob = 0.2)
+  prop.test(x = sum(x), n = length(x), p = 0.2)$p.value < 0.05
+})
+mean(rout)
+```
+
+```{r}
+m <- glm(x ~ 1, family = binomial)
+plogis(coef(m))
+```
 
