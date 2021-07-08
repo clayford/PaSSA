@@ -29,16 +29,16 @@ QUESTIONS:
 
 ## What is Power?
 
-Power is a probability. It ranges from (0, 1). Power is the probability of correctly rejecting a false null hypothesis.
+Power is a _probability_. It ranges from (0, 1). Power is the probability of correctly rejecting a false null hypothesis.
 
 Returning to our example, we have two possibilities, or _hypotheses_:
 
 1. Percentage of people who place name tags on the left side of their chest is random (50%), the _null hypothesis_
-2. Percentage of people who place name tags on the left side of their chest is at least 75%, the _alternative hypothesis_
+2. Percentage of people who place name tags on the left side of their chest is greater than 50%, the _alternative hypothesis_
 
 Let's assume the alternative hypothesis is _correct_: at least 75% of people place name tags on the left side of their chest. Therefore we would like our hypothesis test to have a _high probability_, or _high power_, of returning the correct result: returning a p-value below 0.05.
 
-If our assumption is correct, a sufficiently large sample size should have a high probability of correctly rejecting the null hypothesis. So one approach is to sample as many people as possible. But that can be expensive and time-consuming. So we want to _find the smallest sample size that provides the power we desire_.
+If our assumption is correct, a sufficiently large sample size should have a high probability of correctly rejecting the null hypothesis. So one approach is to sample as many people as possible. But that can be expensive and time-consuming. So we usually want to _find the smallest sample size that provides the power we desire_.
 
 ## Power and sample size analysis for our experiment
 
@@ -60,7 +60,7 @@ Our answer is the line that begins with "n". Our minimal sample size to have 80%
 ## IMPORTANT POINTS
 
 - We haven't yet run the experiment! We're still in the planning stages.
-- We don't know if our hypothesized effect size (75%) is correct! We're just pretending it is.
+- We don't know if our hypothesized effect size (75%) is correct! We're just pretending it is. Hopefully we have good reason for proposing it.
 - A sample size of 23 does NOT guarantee we will reject the null! It simply gives an 80% chance of rejecting the null based on our assumption that the effect size is 75%!
 - We have a 20% chance of incorrectly failing to reject null, again based on our assumption that the effect size is 75%!
 - Accept and embrace the uncertainty in this power and sample size "analysis". It truly is a thought experiment!
@@ -77,7 +77,6 @@ What is the power of our experiment if we sample 30 people with a significance l
 
 ```{r}
 pwr.p.test(h = h, sig.level = 0.01, n = 30, alternative = "greater")
-
 ```
 
 What is the power of our experiment if we sample 50 people with a significance level of 0.01 and an assumed effect size of 65%?
@@ -99,13 +98,13 @@ pwr.p.test(h = ES.h(p1 = 0.65, p2 = 0.5), n = 50, sig.level = 0.01,
 
 If we conclude people prefer left when they actually don't I have made a _Type I error_. (Rejecting the null hypothesis in error) 
 
-If we conclude people have no preference when they really do prefer left I have made a _Type II error_. (Failing to reject null hypothesis in error)
-
-We usually never know if we have made these errors.
-
 Our tolerance for a Type I error is the significance level. Usually 0.05, 0.01 or lower.
 
+If we conclude people have no preference when they really do prefer left I have made a _Type II error_. (Failing to reject null hypothesis in error)
+
 Our tolerance for a Type II error is 1 - Power. Usually 0.20 or lower.
+
+We rarely (if ever) know if we have made these errors.
 
 
 ## Picking an effect sizes
@@ -153,7 +152,7 @@ When it comes to comparing proportions, the higher the ratio of one proportion t
 
 ## Two-sample t-test
 
-I'm interested in learning if there is a difference in the mean price of what male and female students pay at the library coffee shop. Let's say I randomly observe 30 male and 30 female students check out from the coffee shop and note their total purchase price. How powerful is this experiment if I want to detect a difference of 75 cents in either direction with 90% power?
+I'm interested in learning if there is a difference in the mean price of what male and female students pay at the library coffee shop. Let's say I randomly observe 30 male and 30 female students check out from the coffee shop and note their total purchase price. How powerful is this experiment if I want to detect a difference of 75 cents in either direction?
 
 The base R `power.t.test` makes this fairly simple to answer. The effect size (75 cents) is specified as `delta`. We also need to specify a hypothesized population standard deviation. One rule of thumb: take the difference between the maximum and minimum possible mean values and divide by 4 (or 6). Let's say the max is `$10` and min is `$1`. So our guess at a standard deviation is:
 
@@ -180,7 +179,7 @@ pwr.t.test(d = 0.75/2.25, sig.level = 0.05, power = 0.90)
 ## Paired t-test
 
 
-24 high school boys are put on a ultraheavy rope-jumping program. Does this decrease their 40-yard dash time (ie, make them faster)? We'll measure their 40 time _before_ the program and _after_. We'll use a _paired t-test_ to see if the difference in times is greater than 0 (before - after). These are not indepedent groups, so we can't use a 2-sample t-test. Assume the _standard deviation of the differences_ will be about 0.25. How powerful is the test to detect a difference of about 0.08 with 0.05 significance?
+24 high school boys are put on a ultraheavy rope-jumping program. Does this decrease their 40-yard dash time (ie, make them faster)? We'll measure their 40 time _before_ the program and _after_. We'll use a _paired t-test_ to see if the _difference_ in times is greater than 0 (before - after). These are not independent groups, so we can't use a 2-sample t-test. This also means we need to make an assumption about the _standard deviation of the differences_. Let's say it's 0.25. How powerful is the test to detect a difference of about 0.08 with 0.05 significance?
 
 Notice we need to specify `type = "paired"` and `alternative = "one.sided"`. Also notice the estimated standard deviation is on the differences, not the populations.
 
@@ -196,7 +195,7 @@ pwr.t.test(n = 24, d = 0.08/0.25, sig.level = 0.05,
            type = "paired", alternative = "greater")
 ```
 
-How many pairs do we need to sample to achieve at least 90% power, assuming out hypothesized effect size is correct?
+How many pairs do we need to sample to achieve at least 90% power, assuming our hypothesized effect size is correct?
 
 ```{r}
 power.t.test(power = 0.90, delta = 0.08, sd = 0.25, sig.level = 0.05, 
@@ -207,7 +206,7 @@ power.t.test(power = 0.90, delta = 0.08, sd = 0.25, sig.level = 0.05,
 
 ## Oneway ANOVA
 
-To test if more than two means are different we can use a Oneway _ANOVA_. The null hypothesis is none of the means are different. The alternative is at least one is different. By itself the ANOVA is not a very interesting statistical test. Rejecting the null should be followed by comparisons to see where and how big the differences are.
+To test if more than two means are different we can use a one-way _ANOVA_. The null hypothesis is none of the means are different. The alternative is at least one is different. By itself the ANOVA is not a very interesting statistical test. Rejecting the null should be followed by comparisons to see where and how big the differences are.
 
 I'm a web developer and I'm interested in 3 web site designs for a client. I'd like to know which design helps users find information fastest. I design an experiment where I have 3 groups of randomly selected people use one of the designs to find some piece of information and I record how long it takes. (All groups look for the same information.) How many people do I need in each group if I believe two of the designs will take 30 seconds and one will take 25 seconds? Assume population standard deviation is 5 seconds and that I desire power and significance levels of 0.90 and 0.05, respectively.
 
@@ -266,12 +265,12 @@ pwr.anova.test(k = 3, f = 0.1,
                sig.level = 0.05, power = 0.90)
 ```
 
-To detect a "small" effect in a oneway ANOVA with 3 groups, 90% power, and 0.05 significance level, we need about 423 subjects per group. This is a ballpark figure. It's meant to give us an _idea_ of the sample size we need.
+To detect a "small" effect in a one-way ANOVA with 3 groups, 90% power, and 0.05 significance level, we need about 423 subjects per group. This is a ballpark figure. It's meant to give us an _idea_ of the sample size we need.
 
 
 ## Using simulation to estimate power and sample size
 
-Research questions often require analyses more sophisticated than t-tests and oneway ANOVAs. It can be useful to simulate data with effects you want to detect and see how often you actually detect them. Basically we generate the data and analysis many, many times and get the proportion of times we reject the null hypothesis.
+Research questions often require analyses more sophisticated than t-tests and one-way ANOVAs. It can be useful to simulate data with effects you want to detect and see how often you actually detect them in an analysis. Basically we generate the data and analysis many, many times and get the proportion of times we reject the null hypothesis.
 
 This requires some knowledge of programming as well as statistics. Here's a quick example for a two-sample t-test. Recall the previous code for estimating power for two groups of size 30:
 
@@ -318,7 +317,7 @@ Notice we could also simulate power for different sample sizes and different pop
 
 ## Simulate a 2-way ANOVA
 
-Let's say we want to investigate different weights of paper and different designs of paper airplanes on the distance flown in inches. Perhaps we have two designs and two weights of paper. That's four combinations of levels. What power do we have to detect a difference of 12 inches for design "b" with a significance level of 0.01, assuming a sample size of 10 per group and a common standard deviation of 10 between the four groups? 
+Let's say we want to investigate different _weights_ of paper and different _designs_ of paper airplanes on the distance flown in inches. Perhaps we have two designs and two weights of paper. That's 2 x 2 = 4 combinations of levels. What power do we have to detect a difference of 12 inches for design "b" with a significance level of 0.01, assuming a sample size of 10 per group and a common standard deviation of 10 inches between the four groups? 
 
 To begin, let's just simulate one data set and one analysis.
 
@@ -331,7 +330,7 @@ table(design, weight)
 
 Now we can simulate our response according to the following:
 
-- design a, 20 lb paper: 72
+- design a, 20 lb paper: 72 inches of flight
 - design b, 20 lb paper: 72 + 12
 - design a, 28 lb paper: 72 + -4
 - design b, 28 lb paper: 72 + 12 + -4
@@ -339,7 +338,9 @@ Now we can simulate our response according to the following:
 These are known as _additive_ effects. The `rnorm` function at the end adds "noise" to the distance and is analogous to setting the standard deviation for each design/weight combination to 10.
 
 ```{r}
-dist <- 72 + (design == "b")*12 + (weight == "28 lb")*-4 + 
+dist <- 72 +              
+  (design == "b")*12 +    
+  (weight == "28 lb")*-4 +
   rnorm(n*4, mean = 0, sd = 10)
 ```
 
@@ -374,7 +375,9 @@ Now we simulate our response according to the following:
 To specify the interaction in `lm` we use the `:` operator (design:weight)
 
 ```{r}
-dist <- 72 + (design == "b")*12 + (weight == "28 lb")*-4 + 
+dist <- 72 + 
+  (design == "b")*12 + 
+  (weight == "28 lb")*-4 + 
   (design == "b")*(weight == "28 lb")*6 +
   rnorm(n*4, mean = 0, sd = 10)
 m <- lm(dist ~ design + weight + design:weight)
@@ -417,18 +420,62 @@ apply(results, 2, mean)
 
 We need about 15 times the sample size to detect the interaction with decent power! AGAIN, this is all one big thought experiment. We're making lots of assumptions. Hopefully they're reasonable and conservative assumptions.
 
-## Logistic regression?
+## Minimum sample size required for developing a multivariable prediction model
+
+A recent publication in the BMJ provides "guidance on how to calculate the sample size required to develop a clinical prediction model." The focus of the paper is on medical applications but the methods are applicable to any multivariable prediction model, say multiple regression or logistic regression.
+
+The article:
+Riley, RD, et al. Calculating the sample size required for developing a clinical prediction model. BMJ 2020;368:m441 
+https://doi.org/10.1136/bmj.m441 (Published 18 March 2020) 
+
+The authors created an R package called _pmsampsize_ to easily implement their method. It has one function called `pmsampsize`. It can be used to calculate sample sizes for linear models, logistic regression models, and survival analysis models. We'll cover linear models and logistic regression.
+
+### Linear models
+
+For a continuous outcome (ie, a number with decimals that can be negative and/or positive), we need to specify the following arguments:
+
+- type of prediction model (type = "c")
+- anticipated adjusted R-squared (rsquared)
+- anticipated number of model parameters _under consideration_ (parameters)
+- anticipated mean outcome value in population (intercept)
+- anticipated standard deviation of outcome value in population (sd)
+
+Example: Let's say we plan on building a linear model to predict GPA at end of freshman year for a typical college student. Based on data we'll have access to, we plan to entertain 15 possible parameters (ie, coefficients in a model). We'd like a model with an R-squared of about 0.2. We have reason to believe the overall mean GPA of all college freshman is 3.0 with a standard deviation of 0.3. What minimum sample size do we need based on these assumptions?
 
 ```{r}
-rout <- replicate(n = 1000, expr = {
-  x <- rbinom(n = 86, size = 1, prob = 0.2)
-  prop.test(x = sum(x), n = length(x), p = 0.2)$p.value < 0.05
-})
-mean(rout)
+library(pmsampsize)
+pmsampsize(type = "c", 
+           parameters = 15, 
+           rsquared = 0.2, 
+           intercept = 3.0, 
+           sd = 0.3)
 ```
 
+We're mainly interested in the _Final_ sample size. At least 515. The four criteria are documented in the help page for `pmsampsize`. The SPP is the estimated number of subjects we'll need per _predictor parameter_. A common rule of thumb is 10 subjects per predictor parameter. We see here that rule of thumb is not very accurate.
+
+NOTES:  
+- This does NOT mean the final model will have 15 predictors. It may just have 3 or 4. The 15 number is the maximum number of parameters the model might have.
+- 15 predictor _parameters_ does NOT mean 15 predictors. For example, a categorical variable with 4 levels will have 3 parameters. That one predictor counts as 3 parameters.
+- This is a _minimum_ sample size. If you can get more subjects, by all means get more!
+- This assumes the sample is representative of the target population!
+
+### Logistic regression
+
+For a binary outcome (eg, 1/0, yes/no, success/failure, etc), we need to specify the following arguments:
+
+- type of prediction model (type = "b")
+- anticipated Cox-Snell R-squared (rsquared)
+- anticipated number of model parameters _under consideration_ (parameters)
+- anticipated proportion of "successes" in population (prevalence)
+
+Example: let's say we want to build a model to predict the probability a college graduate gains full-time employment within six months of graduation. Based on data we'll have access to, we plan to entertain 18 possible parameters (ie, coefficients in a model). We'd like a model with a Cox-Snell R-squared of about 0.3. We have reason to believe the overall proportion to obtain employment is 0.70. What minimum sample size do we need based on these assumptions?
+
 ```{r}
-m <- glm(x ~ 1, family = binomial)
-plogis(coef(m))
+pmsampsize(type = "b", 
+           parameters = 18, 
+           rsquared = 0.3, 
+           prevalence = 0.70)
 ```
+
+It appears we need at least 444 subjects with about 70% (311) actually gaining employment if we want to build a predictive model from 18 candidate parameters that ultimately has a Cox-Snell R-squared of at least 0.3.
 
