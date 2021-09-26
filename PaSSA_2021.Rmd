@@ -1,9 +1,27 @@
 ---
 title: "Power and Sample Size Analysis"
+author: "Clay Ford, Statistical Research Consultant, UVA Library"
 output: html_notebook
 editor_options: 
   chunk_output_type: inline
 ---
+
+## Quick Intro to R Notebooks and R Markdown
+
+This is an R Markdown Notebook. When you execute code within the notebook, the results appear beneath the code. This file was created in RStudio by going to File...New File...R Notebook.
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing  *Ctrl+Shift+Enter* (Win/Linux) or *Cmd+Shift+Return* (Mac).  
+
+```{r}
+plot(cars)
+```
+
+To hide the output, click the Expand/Collapse output button. To clear results (or an error), click the "x". 
+
+You can also press *Ctrl+Enter* (Win/Linux) or *Cmd+Return* (Mac) to run one line of code at a time (instead of the entire chunk).
+
+Add a new R code chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I* (Win/Linux) or *Cmd+Option+I* (Mac).  
+
 
 ## Workshop agenda
 
@@ -36,13 +54,17 @@ Returning to our example, we have two possibilities, or _hypotheses_:
 1. Percentage of people who place name tags on the left side of their chest is random (50%), the _null hypothesis_
 2. Percentage of people who place name tags on the left side of their chest is greater than 50%, the _alternative hypothesis_
 
-Let's assume the alternative hypothesis is _correct_: at least 75% of people place name tags on the left side of their chest. Therefore we would like our hypothesis test to have a _high probability_, or _high power_, of returning the correct result: returning a p-value below 0.05.
+Let's assume the alternative hypothesis is _correct_. 
 
-If our assumption is correct, a sufficiently large sample size should have a high probability of correctly rejecting the null hypothesis. So one approach is to sample as many people as possible. But that can be expensive and time-consuming. So we usually want to _find the smallest sample size that provides the power we desire_.
+Further, let's assume at least 75% of people place name tags on the left side of their chest. This means we estimate an _effect size_ of 0.75 - 0.50 = 0.25.
+
+If our assumptions are true we would like our hypothesis test to have a _high probability_, or _high power_, of returning the correct result: getting a p-value below 0.05. To ensure high power we need a sufficiently large sample size. High power is usually considered to be at least _0.80_.
+
+One approach is to sample as many people as possible. But that can be expensive and time-consuming. So we usually want to _find the smallest sample size that provides the power we desire_. 
 
 ## Power and sample size analysis for our experiment
 
-Let's go ahead and calculate the sample size for our experiment. For this we'll use the pwr package. The `pwr.p.test` function can be used to calculate power or sample size for a one-sample proportion test.
+Let's go ahead and calculate the sample size for our simple experiment. For this we'll use the {pwr} package. The `pwr.p.test` function can be used to calculate power or sample size for a one-sample proportion test.
 
 Notice we first have to calculate the _effect size_ using the `ES.h` function. The `p1` argument is the alternative proportion, the `p2` argument is the null proportion. The `h` notation is due to Cohen (1988). It represents effect sizes for proportions.
 
@@ -55,7 +77,7 @@ pwr.p.test(h = h, sig.level = 0.05, power = 0.80,
            alternative = "greater")
 ```
 
-Our answer is the line that begins with "n". Our minimal sample size to have 80% power of rejecting the null at 0.05 is 23. Always round up. So if our alternative hypothesis is correct, we should aim to sample at least 23 people, if not more.
+Our answer is the line that begins with "n". Our minimal sample size to have 80% power of rejecting the null at 0.05 is 23. Always round up. So if our alternative hypothesis is correct, we should aim to sample _at least_ 23 people, if not more.
 
 ## IMPORTANT POINTS
 
@@ -63,28 +85,23 @@ Our answer is the line that begins with "n". Our minimal sample size to have 80%
 - We don't know if our hypothesized effect size (75%) is correct! We're just pretending it is. Hopefully we have good reason for proposing it.
 - A sample size of 23 does NOT guarantee we will reject the null! It simply gives an 80% chance of rejecting the null based on our assumption that the effect size is 75%!
 - We have a 20% chance of incorrectly failing to reject null, again based on our assumption that the effect size is 75%!
-- Accept and embrace the uncertainty in this power and sample size "analysis". It truly is a thought experiment!
+- Accept and embrace the uncertainty in this power and sample size "analysis". It truly is a thought experiment.
 
-## More power and sample size estimates for our experiment
+## CODE ALONG 1
 
-How large a sample do we need to achieve 90% power with a significance level of 0.01?
+Add new R code chunks by pressing *Ctrl+Alt+I* (Win/Linux) or *Cmd+Option+I* (Mac). 
 
-```{r}
-pwr.p.test(h = h, sig.level = 0.01, power = 0.90, alternative = "greater")
-```
+(1) How large a sample do we need to achieve 90% power with a significance level of 0.01?
 
-What is the power of our experiment if we sample 30 people with a significance level of 0.01?
 
-```{r}
-pwr.p.test(h = h, sig.level = 0.01, n = 30, alternative = "greater")
-```
 
-What is the power of our experiment if we sample 50 people with a significance level of 0.01 and an assumed effect size of 65%?
+(2) What is the power of our experiment if we sample 30 people with a significance level of 0.01?
 
-```{r}
-pwr.p.test(h = ES.h(p1 = 0.65, p2 = 0.5), n = 50, sig.level = 0.01, 
-           alternative = "greater")
-```
+
+
+(3) What is the power of our experiment if we sample 50 people with a significance level of 0.01 and an assumed effect size of 65%?
+
+
 
 
 ## Remember
@@ -104,7 +121,7 @@ If we conclude people have no preference when they really do prefer left I have 
 
 Our tolerance for a Type II error is 1 - Power. Usually 0.20 or lower.
 
-We rarely (if ever) know if we have made these errors.
+We rarely know if we have made these errors.
 
 
 ## Picking an effect sizes
@@ -124,13 +141,13 @@ This is "two-sided" alternative; one gender has higher proportion, I don't know 
 
 I'd like to detect a difference as small as 5%. That's my effect size.
 
-How many students do I need to sample in _each group_ if we want 80% power
+How many students do I need to sample in _each group_ if we want 90% power
 and a significance level of 0.05?
 
 We can either use `pwr.2p.test` or the base R `power.prop.test`. Notice we have to specify proportions that differ by 5%, and that the required sample size changes dramatically based on where these two proportions fall in the range from 0 to 1.
 
 ```{r}
-pwr.2p.test(h = ES.h(p1 = 0.20, p2 = 0.25), sig.level = 0.05, power = 0.8)
+pwr.2p.test(h = ES.h(p1 = 0.20, p2 = 0.25), sig.level = 0.05, power = 0.90)
 ```
 
 Notice that n is the number in each group! 
@@ -138,23 +155,30 @@ Notice that n is the number in each group!
 The base R function does not require us to use a separate effect size function.
 
 ```{r}
-power.prop.test(p1 = 0.20, p2 = 0.25, sig.level = 0.05, power = 0.80)
+power.prop.test(p1 = 0.20, p2 = 0.25, sig.level = 0.05, power = 0.90)
 ```
 
-What if we change the proportions to 0.10 and 0.15?
 
-```{r}
-power.prop.test(p1 = 0.10, p2 = 0.15, sig.level = 0.05, power = 0.80)
+## CODE ALONG 2
 
-```
+Add new R code chunks by pressing *Ctrl+Alt+I* (Win/Linux) or *Cmd+Option+I* (Mac). 
 
-When it comes to comparing proportions, the higher the ratio of one proportion to the other means a larger effect and hence a smaller sample size to achieve desired power.
+What sample size do we need for each group if assume proportions to be 0.10 and 0.15?
+
+
+
+
+
 
 ## Two-sample t-test
 
 I'm interested in learning if there is a difference in the mean price of what male and female students pay at the library coffee shop. Let's say I randomly observe 30 male and 30 female students check out from the coffee shop and note their total purchase price. How powerful is this experiment if I want to detect a difference of 75 cents in either direction?
 
-The base R `power.t.test` makes this fairly simple to answer. The effect size (75 cents) is specified as `delta`. We also need to specify a hypothesized population standard deviation. One rule of thumb: take the difference between the maximum and minimum possible mean values and divide by 4 (or 6). Let's say the max is `$10` and min is `$1`. So our guess at a standard deviation is:
+The base R `power.t.test` makes this fairly simple to answer. The effect size (75 cents) is specified as `delta`. We also need to specify a hypothesized population standard deviation. One rule of thumb: 
+
+> take the difference between the maximum and minimum possible mean values and divide by 4 (or 6). 
+
+Let's say the max is `$10` and min is `$1`. So our guess at a standard deviation is:
 
 (10 - 1)/4 = 2.25
 
@@ -170,11 +194,21 @@ How many should we sample for a power of 90%?
 power.t.test(delta = 0.75, sd = 2.25, sig.level = 0.05, power = 0.90)
 ```
 
-The pwr package provides the `pwr.t.test` function. It's a little more difficult to use because we have to specify the effect size using the `d` argument. It's simply delta divided by the standard deviation.
+The {pwr} package provides the `pwr.t.test` function. It's a little more difficult to use because we have to specify the effect size using the `d` argument. It's simply delta divided by the standard deviation.
 
 ```{r}
 pwr.t.test(d = 0.75/2.25, sig.level = 0.05, power = 0.90)
 ```
+
+
+## CODE ALONG 3
+
+Add new R code chunks by pressing *Ctrl+Alt+I* (Win/Linux) or *Cmd+Option+I* (Mac). 
+
+How many students should we sample for a power of 99% and a significance level of 0.001?
+
+
+
 
 ## Paired t-test
 
@@ -195,16 +229,21 @@ pwr.t.test(n = 24, d = 0.08/0.25, sig.level = 0.05,
            type = "paired", alternative = "greater")
 ```
 
-How many pairs do we need to sample to achieve at least 90% power, assuming our hypothesized effect size is correct?
+
+## CODE ALONG 4
+
+Add new R code chunks by pressing *Ctrl+Alt+I* (Win/Linux) or *Cmd+Option+I* (Mac). 
+
+How many pairs do we need to sample to achieve at least 95% power with a significance level of 0.01, assuming our hypothesized effect size is correct?
 
 ```{r}
-power.t.test(power = 0.90, delta = 0.08, sd = 0.25, sig.level = 0.05, 
+power.t.test(power = 0.95, delta = 0.08, sd = 0.25, sig.level = 0.01, 
              type = "paired", alternative = "one.sided")
 
 ```
 
 
-## Oneway ANOVA
+## One-way ANOVA
 
 To test if more than two means are different we can use a one-way _ANOVA_. The null hypothesis is none of the means are different. The alternative is at least one is different. By itself the ANOVA is not a very interesting statistical test. Rejecting the null should be followed by comparisons to see where and how big the differences are.
 
@@ -223,7 +262,7 @@ power.anova.test(groups = 3, between.var = var(c(30,30,25)),
                  within.var = 5^2, sig.level = 0.05, power = 0.90)
 ```
 
-The pwr package provides the `pwr.anova.test` function which requires you to once again specify an effect size, this time using the `f` argument. The effect size `f` is the _standard deviation of the means divided by the common standard deviation of the populations_, each assuming a denominator of `k` instead of `k-1`. To replicate the results of `power.anova.test` we need to multiply the standard deviation of the means by `sqrt(k-1/k)`.
+The {pwr} package provides the `pwr.anova.test` function which requires you to once again specify an effect size, this time using the `f` argument. The effect size `f` is the _standard deviation of the means divided by the common standard deviation of the populations_, each assuming a denominator of `k` instead of `k-1`. To replicate the results of `power.anova.test` we need to multiply the standard deviation of the means by `sqrt(k-1/k)`.
 
 ```{r}
 sd_means <- sd(c(30,30,25))
@@ -233,7 +272,7 @@ pwr.anova.test(k = 3, f = sd_means*sqrt(2/3)/sd_pop,
 ```
 
 
-While the `pwr.anova.test` function is a little more difficult to use because of the `f` argument, we might want to use it for the pwr package's plot method. Simply save the result and use it with `plot`.
+While the `pwr.anova.test` function is a little more difficult to use because of the `f` argument, we might want to use it for the {pwr} package's plot method. Simply save the result and use it with `plot`.
 
 ```{r}
 pout <- pwr.anova.test(k = 3, f = sd_means*sqrt(2/3)/sd_pop, 
@@ -242,6 +281,19 @@ plot(pout)
 ```
 
 We can see that once the group size is larger than 30, there is little reason to make the sample bigger. AGAIN, assuming our estimated effect sizes are true.
+
+## CODE ALONG 5
+
+Add new R code chunks by pressing *Ctrl+Alt+I* (Win/Linux) or *Cmd+Option+I* (Mac). 
+
+How many people do I need in each group if I believe two of the designs will take 60 seconds and one will take 45 seconds? Assume population standard deviation is 10 seconds and that I desire power and significance levels of 0.95 and 0.01, respectively.
+
+
+```{r}
+power.anova.test(groups = 3, between.var = var(c(60, 60, 45)), 
+                 within.var = 10^2, sig.level = 0.01, power = 0.95)
+```
+
 
 ## Conventional effect sizes
 
@@ -418,7 +470,7 @@ results <- sapply(c(50,100,150), sim_model)
 apply(results, 2, mean)
 ```
 
-We need about 15 times the sample size to detect the interaction with decent power! AGAIN, this is all one big thought experiment. We're making lots of assumptions. Hopefully they're reasonable and conservative assumptions.
+We need about 15 times the sample size to detect the interaction with decent power! Again, this is all one big thought experiment. We're making lots of assumptions. Hopefully they're reasonable and conservative assumptions.
 
 ## Minimum sample size required for developing a multivariable prediction model
 
@@ -479,3 +531,6 @@ pmsampsize(type = "b",
 
 It appears we need at least 444 subjects with about 70% (311) actually gaining employment if we want to build a predictive model from 18 candidate parameters that ultimately has a Cox-Snell R-squared of at least 0.3.
 
+## We're done!
+
+If you would like to talk more about statistics or need statistical help with your research, I would love to hear from you: `clayford@virginia.edu` or `statlab@virginia.edu`
