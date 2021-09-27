@@ -345,31 +345,43 @@ Now we repeat this 1000 times and see what proportion of times we get a p-value 
 ```{r}
 result <- replicate(n = 1000, expr = 
                       {x1 <- rnorm(n = 30, mean = 10.00, sd = 2.25)
-                      x2 <- rnorm(n = 30, mean = 10.75, sd = 2.25)
-                      t.test(x1, x2, var.equal = TRUE)$p.value < 0.05})
+                       x2 <- rnorm(n = 30, mean = 10.75, sd = 2.25)
+                       t.test(x1, x2, var.equal = TRUE)$p.value < 0.05})
 mean(result)
 ```
 
 Your result will differ slightly from mine due to sampling variation, but the results will be similar to what we calculated with the `power.t.test` function.
 
-The power is quite low. We may want to try different sample sizes. With a little extra work we can program that as well. One way is to create a function out of the previous chunk of code and allow the sample size to be an argument. Then we use `sapply` to _apply_ the function to various sample sizes. The "s" in `sapply` means to "simplify" the output from a list to a matrix. Then we _apply_ the `mean` function to the columns of the matrix of results.
+The power is quite low. We may want to try different sample sizes. With a little extra work we can program that as well. One way is to create a function out of the previous chunk of code and allow the sample size to be an argument. 
 
 ```{r}
 sim_ttest <- function(n){
-  replicate(n = 1000, expr = 
+  result <- replicate(n = 1000, expr = 
             {x1 <- rnorm(n = n, mean = 10.00, sd = 2.25)
-            x2 <- rnorm(n = n, mean = 10.75, sd = 2.25)
-            t.test(x1, x2, var.equal = TRUE)$p.value < 0.05})
-          }
-result <- sapply(c(50, 75, 100, 150), sim_ttest)
-apply(result, 2, mean)
+             x2 <- rnorm(n = n, mean = 10.75, sd = 2.25)
+             t.test(x1, x2, var.equal = TRUE)$p.value < 0.05})
+  mean(result)
+  }
 ```
 
-Notice we could also simulate power for different sample sizes and different population standard deviations. 
+Test the function with n = 50
+
+```{r}
+sim_ttest(n = 50)
+```
+
+Now "apply" the function to multiple sample sizes. The "s" in "sapply" means to "simply" the resulting data structure (if possible). In this case it simplifies it to a vector.
+
+```{r}
+sapply(c(50, 75, 100, 150), sim_ttest)
+```
+
+We could modify our sim_ttest to take different standard deviation values, different p-value cutoffs, and different means.
+
 
 ## Simulate a 2-way ANOVA
 
-Let's say we want to investigate different _weights_ of paper and different _designs_ of paper airplanes on the distance flown in inches. Perhaps we have two designs and two weights of paper. That's 2 x 2 = 4 combinations of levels. What power do we have to detect a difference of 12 inches for design "b" with a significance level of 0.01, assuming a sample size of 10 per group and a common standard deviation of 10 inches between the four groups? 
+Let's say we want to investigate different _weights_ of paper and different _designs_ of paper airplanes on the distance flown in inches. Perhaps we have two designs and two weights of paper. That's 2 x 2 = 4 combinations of paper airplane designs. What power do we have to detect a difference of 12 inches for design "b" with a significance level of 0.01, assuming a sample size of 10 per group and a common standard deviation of 10 inches between the four groups? 
 
 To begin, let's just simulate one data set and one analysis.
 
@@ -387,7 +399,9 @@ Now we can simulate our response according to the following:
 - design a, 28 lb paper: 72 + -4
 - design b, 28 lb paper: 72 + 12 + -4
 
-These are known as _additive_ effects. The `rnorm` function at the end adds "noise" to the distance and is analogous to setting the standard deviation for each design/weight combination to 10.
+These are known as _additive_ effects. The effect of design b is to ADD 12 inches to expected flight distance. The effect of 28 lb paper is to ADD -4 inches to expected flight distance.
+
+The `rnorm` function at the end adds "noise" to the distance and is analogous to setting the standard deviation for each design/weight combination to 10.
 
 ```{r}
 dist <- 72 +              
@@ -400,6 +414,12 @@ And finally run the analysis using the `lm` function.
 
 ```{r}
 m <- lm(dist ~ design + weight)
+summary(m)
+```
+
+We can extract the hypothesis test for designb and check to see if it's less than 0.01 as follows:
+
+```{r}
 coef(summary(m))['designb','Pr(>|t|)'] < 0.01
 ```
 
@@ -407,17 +427,22 @@ Now repeat 1000 times:
 
 ```{r}
 results <- replicate(1000, expr = {
-  dist <- 72 + (design == "b")*12 + (weight == "28 lb")*-4 + 
-  rnorm(n*4, mean = 0, sd = 10)
+  dist <- 72 + (design == "b")*12 + 
+    (weight == "28 lb")*-4 + 
+    rnorm(n*4, mean = 0, sd = 10)
   m <- lm(dist ~ design + weight)
   coef(summary(m))['designb','Pr(>|t|)'] < 0.01
 })
 mean(results)
 ```
 
-What if we wanted to detect an interaction between design and weight? Let's say it would be of interest if the interaction was 6 inches. That is, the effect of design changes 6 inches depending on weight.
+That's fairly high power. _If our assumptions are correct_, 10 observations each of the four different airplane deigns provides a high probability of correctly rejecting the null of no design effect at a significance level of 0.01. 
 
-Now we simulate our response according to the following:
+What if we wanted to detect an _interaction_ between design and weight? Interactions imply the effects are NOT additive. The effect of design depends on weight and vice versa.
+
+Let's say it would be of interest if the interaction was 6 inches. For example, the effect of design b is 12 inches for 20 lb paper, but 12 + 6 = 18 inches for 28 lb paper. 
+
+We might simulate our response according to the following:
 
 - design a, 20 lb paper: 72
 - design b, 20 lb paper: 72 + 12
@@ -455,7 +480,7 @@ Let's turn this into a function so we can easily try different sample sizes.
 
 ```{r}
 sim_model <- function(n){
-  replicate(n = 1000, expr = {
+  results <- replicate(n = 1000, expr = {
     design <- rep(c("a","b"), each = n*2)
     weight <- rep(c("20 lb","28 lb"), times = n*2)
     dist <- 72 + (design == "b")*12 + (weight == "28 lb")*-4 +
@@ -463,14 +488,15 @@ sim_model <- function(n){
       rnorm(n*4, mean = 0, sd = 10)
     m <- lm(dist ~ design + weight + design:weight)
     coef(summary(m))['designb:weight28 lb','Pr(>|t|)'] < 0.01})
+  mean(results)
 }
 
 # try samples sizes of 50, 100, 150
-results <- sapply(c(50,100,150), sim_model)
-apply(results, 2, mean)
+sapply(c(50,100,150), sim_model)
+
 ```
 
-We need about 15 times the sample size to detect the interaction with decent power! Again, this is all one big thought experiment. We're making lots of assumptions. Hopefully they're reasonable and conservative assumptions.
+We need about 15 times the sample size (150 versus 10) to detect the interaction with decent power! Again, this is all one big thought experiment. We're making lots of assumptions. Hopefully they're reasonable and conservative assumptions.
 
 ## Minimum sample size required for developing a multivariable prediction model
 
@@ -480,14 +506,14 @@ The article:
 Riley, RD, et al. Calculating the sample size required for developing a clinical prediction model. BMJ 2020;368:m441 
 https://doi.org/10.1136/bmj.m441 (Published 18 March 2020) 
 
-The authors created an R package called _pmsampsize_ to easily implement their method. It has one function called `pmsampsize`. It can be used to calculate sample sizes for linear models, logistic regression models, and survival analysis models. We'll cover linear models and logistic regression.
+The authors created an R package called {pmsampsize} to easily implement their method. It has one function called `pmsampsize`. It can be used to calculate sample sizes for linear models, logistic regression models, and survival analysis models. We'll cover linear models and logistic regression.
 
 ### Linear models
 
 For a continuous outcome (ie, a number with decimals that can be negative and/or positive), we need to specify the following arguments:
 
-- type of prediction model (type = "c")
-- anticipated adjusted R-squared (rsquared)
+- type of prediction model (`type = "c"`)
+- anticipated adjusted R-squared (`rsquared`)
 - anticipated number of model parameters _under consideration_ (parameters)
 - anticipated mean outcome value in population (intercept)
 - anticipated standard deviation of outcome value in population (sd)
@@ -503,7 +529,7 @@ pmsampsize(type = "c",
            sd = 0.3)
 ```
 
-We're mainly interested in the _Final_ sample size. At least 515. The four criteria are documented in the help page for `pmsampsize`. The SPP is the estimated number of subjects we'll need per _predictor parameter_. A common rule of thumb is 10 subjects per predictor parameter. We see here that rule of thumb is not very accurate.
+We're mainly interested in the _Final_ sample size. At least 515. The four criteria are documented in the help page for `pmsampsize`. The SPP is the estimated number of subjects we'll need per _predictor parameter_. A common rule of thumb has been 10 subjects per predictor parameter. We see here that rule of thumb is not very accurate.
 
 NOTES:  
 - This does NOT mean the final model will have 15 predictors. It may just have 3 or 4. The 15 number is the maximum number of parameters the model might have.
@@ -529,8 +555,21 @@ pmsampsize(type = "b",
            prevalence = 0.70)
 ```
 
-It appears we need at least 444 subjects with about 70% (311) actually gaining employment if we want to build a predictive model from 18 candidate parameters that ultimately has a Cox-Snell R-squared of at least 0.3.
+It appears we need at least 444 subjects with about 70% (311) actually gaining employment if we want to build a predictive model from 18 candidate parameters that ultimately has a Cox-Snell R-squared of at least 0.3. The EPP is the estimated _events per candidate predictor parameter_.
 
 ## We're done!
 
 If you would like to talk more about statistics or need statistical help with your research, I would love to hear from you: `clayford@virginia.edu` or `statlab@virginia.edu`
+
+## References
+
+- Champely, S. (2020). pwr: Basic Functions for Power Analysis. R package version 1.3-0. https://CRAN.R-project.org/package=pwr
+- Cohen, J. (1988). _Statistical power analysis for the behavioral sciences (2nd ed.)_. Hillsdale, NJ: Lawrence Erlbaum.
+- Riley, RD, et al. Calculating the sample size required for developing a clinical prediction model. BMJ 2020;368:m441 
+https://doi.org/10.1136/bmj.m441 (Published 18 March 2020) 
+- Joie Ensor, Emma C. Martin and Richard D. Riley (2021). pmsampsize:
+  Calculates the Minimum Sample Size Required for Developing a
+  Multivariable Prediction Model. R package version 1.1.0.
+  https://CRAN.R-project.org/package=pmsampsize
+- Hogg, R and Tanis, E. (2006). _Probability and Statistical Inference (7th ed.)_. Pearson. (Ch. 9) 
+- Dalgaard, P. (2008). _Introductory Statistics with R_. Springer. 
