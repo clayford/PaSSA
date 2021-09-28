@@ -29,6 +29,7 @@ Add a new R code chunk by clicking the *Insert Chunk* button on the toolbar or b
 - When and why to calculate power and sample size for a study
 - How to do it for various statistical tests in R
 - Intro to using simulation for estimating power and sample size
+- Sample size estimation for multivariable prediction models
 
 ## Hello, my name is...
 
