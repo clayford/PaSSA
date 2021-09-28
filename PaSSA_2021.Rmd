@@ -163,7 +163,7 @@ power.prop.test(p1 = 0.20, p2 = 0.25, sig.level = 0.05, power = 0.90)
 
 Add new R code chunks by pressing *Ctrl+Alt+I* (Win/Linux) or *Cmd+Option+I* (Mac). 
 
-What sample size do we need for each group if assume proportions to be 0.10 and 0.15?
+What sample size do we need for each group if assume proportions to be 0.10 and 0.15? Again assume we desire power to be 0.90 and a significance level of 0.05.
 
 
 
@@ -236,11 +236,8 @@ Add new R code chunks by pressing *Ctrl+Alt+I* (Win/Linux) or *Cmd+Option+I* (Ma
 
 How many pairs do we need to sample to achieve at least 95% power with a significance level of 0.01, assuming our hypothesized effect size is correct?
 
-```{r}
-power.t.test(power = 0.95, delta = 0.08, sd = 0.25, sig.level = 0.01, 
-             type = "paired", alternative = "one.sided")
 
-```
+
 
 
 ## One-way ANOVA
@@ -289,10 +286,6 @@ Add new R code chunks by pressing *Ctrl+Alt+I* (Win/Linux) or *Cmd+Option+I* (Ma
 How many people do I need in each group if I believe two of the designs will take 60 seconds and one will take 45 seconds? Assume population standard deviation is 10 seconds and that I desire power and significance levels of 0.95 and 0.01, respectively.
 
 
-```{r}
-power.anova.test(groups = 3, between.var = var(c(60, 60, 45)), 
-                 within.var = 10^2, sig.level = 0.01, power = 0.95)
-```
 
 
 ## Conventional effect sizes
@@ -437,6 +430,8 @@ mean(results)
 ```
 
 That's fairly high power. _If our assumptions are correct_, 10 observations each of the four different airplane deigns provides a high probability of correctly rejecting the null of no design effect at a significance level of 0.01. 
+
+## Simulate a 2-way ANOVA with an interaction
 
 What if we wanted to detect an _interaction_ between design and weight? Interactions imply the effects are NOT additive. The effect of design depends on weight and vice versa.
 

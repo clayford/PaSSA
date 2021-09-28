@@ -4,7 +4,7 @@ author: "Clay Ford"
 output: pdf_document
 ---
 
-The `pwr` package provides basic functions for power and sameple size analysis as described in the book _Statistical Power Analysis for the Behavioral Sciences_ (2nd ed.) by Jacob Cohen. 
+The `pwr` package provides basic functions for power and sample size analysis as described in the book _Statistical Power Analysis for the Behavioral Sciences_ (2nd ed.) by Jacob Cohen. 
 
 ```{r}
 library(pwr)
@@ -58,12 +58,7 @@ pwr.p.test(h = 0.2, sig.level = 0.05, power = 0.8, alternative = "two.sided")
 
 ### two-sample test for proportions
 
-I randomly sample male and female UVa undergrad students
-and ask them if they consume alcohol at least once a week. My null hypothesis
-is no difference in the proportion that answer yes. My alternative hypothesis
-is that there is a difference. (two-sided; one gender has higher proportion, I
-don't know which.) I'd like to detect a difference as small as 5%. How many
-students do I need to sample in each group if we want 80% power and 5% chance
+I randomly sample male and female UVA undergrad students and ask them if they consume alcohol at least once a week. My null hypothesis is no difference in the proportion that answer yes. My alternative hypothesis is that there is a difference. (two-sided; one gender has higher proportion, I don't know which.) I'd like to detect a difference as small as 5%. How many students do I need to sample in each group if we want 80% power and 5% chance
 of Type 1 error?
 
 ```{r eval=FALSE}
@@ -78,7 +73,7 @@ pwr.2p.test(h = 0.2, sig.level = 0.05, power = .80)
 
 ### two-sample test for proportions, unequal sample sizes
 
-I randomly sample male and female UVa undergrad students
+I randomly sample male and female UVA undergrad students
 and ask them if they consume alcohol at least once a week. My null hypothesis
 is no difference in the proportion that answer yes. My alternative hypothesis
 is that there is a difference. (two-sided; one gender has higher proportion, I
@@ -189,20 +184,14 @@ pwr.t2n.test(n1 = 28, n2 = 35, d = 0.5)
 ```
 
 
-Find n1 sample size when other group has 35, desired power is 0.80, effect 
-size is 0.5 and significance level is 0.05:
+Find n1 sample size when other group has 35, desired power is 0.80, effect size is 0.5 and significance level is 0.05:
 ```{r eval=FALSE}
 pwr.t2n.test(n2 = 35, d = 0.5, power = 0.8)
 ```
 
 ### chi-squared tests 
 
-(From Cohen, example 7.1) A market researcher is seeking to determine
-preference among 4 package designs. He arranges to have a panel of 100 
-consumers pick their favorite design. He wants to perform a chi-square goodness of fit test against the 
-null of equal preference (25% for each design) with a significance level of 
-0.05. What's the power of the test if 3/8 of the population actually prefers 
-one of the designs and the remaining 5/8 are split over the other 3 designs?
+(From Cohen, example 7.1) A market researcher is seeking to determine preference among 4 package designs. He arranges to have a panel of 100  consumers pick their favorite design. He wants to perform a chi-square goodness of fit test against the  null of equal preference (25% for each design) with a significance level of  0.05. What's the power of the test if 3/8 of the population actually prefers  one of the designs and the remaining 5/8 are split over the other 3 designs?
 
 ```{r eval=FALSE}
 # Goodness of Fit
@@ -218,13 +207,7 @@ pwr.chisq.test(w=ES.w1(P0,P1), df=(4-1), power=0.8, sig.level = 0.05)
 
 ```
 
-I want to see if there's an association between gender and flossing
-teeth among UVa students. I randomly sample 100 students (male and female) and
-ask whether or not they floss daily. I want to carry out a chi-square test of 
-association to determine if there's an association between these two 
-variables. As usual I set my significance level to 0.05. To determine effect 
-size I need to propose an alternative hypothesis, which in this case is a 
-table of proportions.
+I want to see if there's an association between gender and flossing teeth among UVA students. I randomly sample 100 students (male and female) and ask whether or not they floss daily. I want to carry out a chi-square test of  association to determine if there's an association between these two variables. As usual I set my significance level to 0.05. To determine effect size I need to propose an alternative hypothesis, which in this case is a table of proportions.
 
 ```{r eval=FALSE}
 # test of association
@@ -243,13 +226,8 @@ pwr.chisq.test(w = 0.1, power = 0.9, df = 1, sig.level = 0.05)
 
 ### correlation test
 
-Let's say I'm a web developer and I want to conduct an experiment with one of 
-my sites. I want to randomly select a group of people, ranging in age from 18 
-- 65, and time them how long it takes them to complete a task, say locate some
-piece of information. I suspect there may be a "small" positive linear
-relationship between time it takes to complete the task and age. How many
-subjects do I need to detect this relationship with 80% power and the usual
-0.05 significance level?
+Let's say I'm a web developer and I want to conduct an experiment with one of my sites. I want to randomly select a group of people, ranging in age from 18 
+- 65, and time them how long it takes them to complete a task, say locate some piece of information. I suspect there may be a "small" positive linear relationship between time it takes to complete the task and age. How many subjects do I need to detect this relationship with 80% power and the usual 0.05 significance level?
 
 ```{r eval=FALSE}
 # "small" effect is 0.1
@@ -280,10 +258,7 @@ What's the power of my test to detect a medium effect if I get 50 for each group
 pwr.anova.test(k = 3, f = 0.25, sig.level = 0.05, n = 50)
 ```
 
-How many people do I need in each group
-if I believe two of the designs will take 30 seconds and one will take 25
-seconds? Assume population standard deviation is 5 and that I desire power
-and significance levels of 0.8 and 0.05. Using `power.anova.test`:
+How many people do I need in each group if I believe two of the designs will take 30 seconds and one will take 25 seconds? Assume population standard deviation is 5 and that I desire power and significance levels of 0.8 and 0.05. Using `power.anova.test`:
 
 ```{r eval=FALSE}
 power.anova.test(groups = 3, between.var = var(c(30, 30, 25)), 
@@ -308,9 +283,7 @@ Let's say I'm hired to survey a company's workforce about job
 satisfaction. I ask employees to rate their satisfaction on a scale from 1 
 (hating life) to 10 (loving life). I know there will be variability in the 
 answers, but I think two variables that will explain this variability are 
-salary and gender. In fact I think it will explain at least 30% ($R{^2} = 0.30$) of
-the variance. How powerful is my "experiment" if I randomly recruit 40
-employees and accept a 0.05 significance level?
+salary and gender. In fact I think it will explain at least 30% ($R{^2} = 0.30$) of the variance. How powerful is my "experiment" if I randomly recruit 40 employees and accept a 0.05 significance level?
 
 Two predictors, so u = 3. 
 40 employees, so v = 40 - 3 - 1. 
@@ -321,9 +294,7 @@ pwr.f2.test(u = 3, v = 40 - 3 - 1, f2 = 0.3/(1 - 0.3), sig.level = 0.05)
 
 ```
 
-How many employees do I need to survey if I want to be able to detect at least
-30% explained variance ($R^{2} = 0.30$) with 80% power and the usual 0.05
-significance level? We have to find v and then derive n.
+How many employees do I need to survey if I want to be able to detect at least 30% explained variance ($R^{2} = 0.30$) with 80% power and the usual 0.05 significance level? We have to find v and then derive n.
 
 ```{r eval=FALSE}
 pwr.f2.test(u = 2, f2 = 0.3/(1 - 0.3), sig.level = 0.05, power = 0.8)
@@ -339,7 +310,7 @@ that takes the value 1 if an employee has his/her own office, and 0 otherwise. I
 $$ f^{2} = \frac{0.35 - 0.30}{1 - 0.35}$$
 
 How many employees would we need to survey to identify the office
-contribution to variance explained with 90% power and a signficance level of
+contribution to variance explained with 90% power and a significance level of
 0.05?
 
 ```{r eval=FALSE}
