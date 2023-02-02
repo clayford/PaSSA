@@ -48,7 +48,7 @@ QUESTIONS:
 
 ## What is Power?
 
-Power is a _probability_. It ranges from (0, 1). Power is the probability of correctly rejecting a false null hypothesis.
+Power is a _probability_. It ranges from [0, 1]. Power is the probability of correctly rejecting a false null hypothesis.
 
 Returning to our example, we have two possibilities, or _hypotheses_:
 
@@ -78,14 +78,14 @@ pwr.p.test(h = h, sig.level = 0.05, power = 0.80,
            alternative = "greater")
 ```
 
-Our answer is the line that begins with "n". Our minimal sample size to have 80% power of rejecting the null at 0.05 is 23. Always round up. So if our alternative hypothesis is correct, we should aim to sample _at least_ 23 people, if not more.
+Our answer is the line that begins with "n". Our minimal sample size to have 80% power of rejecting the null at 0.05 is 23. Always round up. So _if our alternative hypothesis is correct_, we should aim to sample _at least_ 23 people, if not more.
 
 ## IMPORTANT POINTS
 
-- We haven't yet run the experiment! We're still in the planning stages.
-- We don't know if our hypothesized effect size (75%) is correct! We're just pretending it is. Hopefully we have good reason for proposing it.
-- A sample size of 23 does NOT guarantee we will reject the null! It simply gives an 80% chance of rejecting the null based on our assumption that the effect size is 75%!
-- We have a 20% chance of incorrectly failing to reject null, again based on our assumption that the effect size is 75%!
+- We haven't yet run the experiment. We're still in the planning stages.
+- We don't know if our hypothesized effect size (75%) is correct. We're just pretending it is. Hopefully we have good reason for proposing it.
+- A sample size of 23 does NOT guarantee we will "get a significant result"! It simply gives an 80% chance of rejecting the null based on our assumption that the effect size is 75%.
+- We have a 20% chance of incorrectly failing to reject null, again based on our assumption that the effect size is 75%.
 - Accept and embrace the uncertainty in this power and sample size "analysis". It truly is a thought experiment.
 
 ## CODE ALONG 1
@@ -114,18 +114,18 @@ Add new R code chunks by pressing *Ctrl+Alt+I* (Win/Linux) or *Cmd+Option+I* (Ma
 
 ## Type I and Type II errors
 
-If we conclude people prefer left when they actually don't I have made a _Type I error_. (Rejecting the null hypothesis in error) 
+If we conclude people prefer to put name tags on the left side of their chest when they actually don't we have made a _Type I error_. (Rejecting the null hypothesis in error) 
 
 Our tolerance for a Type I error is the significance level. Usually 0.05, 0.01 or lower.
 
-If we conclude people have no preference when they really do prefer left I have made a _Type II error_. (Failing to reject null hypothesis in error)
+If we conclude people have no preference for which side of the chest they place their name tag when they really do prefer left we have made a _Type II error_. (Failing to reject null hypothesis in error)
 
 Our tolerance for a Type II error is 1 - Power. Usually 0.20 or lower.
 
 We rarely know if we have made these errors.
 
 
-## Picking an effect sizes
+## Picking an effect size
 
 Hypothesizing realistic and meaningful effect sizes is the most important part of power and sample size analysis. This requires subject matter expertise. A rule of thumb is to pick the _smallest effect you don't want to miss_. Or stated another way, pick the smallest effect that would be worth reporting or that would "make news".
 
@@ -138,14 +138,13 @@ Let's say I want to randomly sample male and female UVA undergrad students and a
 - null hypothesis: no difference in the proportion that answer yes. 
 - alternative hypothesis: there is a difference
 
-This is "two-sided" alternative; one gender has higher proportion, I don't know which.
+This is "two-sided" alternative; one sex has higher proportion, I don't know which.
 
 I'd like to detect a difference as small as 5%. That's my effect size.
 
-How many students do I need to sample in _each group_ if we want 90% power
-and a significance level of 0.05?
+How many students do I need to sample in _each group_ if we want 90% power and a significance level of 0.05?
 
-We can either use `pwr.2p.test` or the base R `power.prop.test`. Notice we have to specify proportions that differ by 5%, and that the required sample size changes dramatically based on where these two proportions fall in the range from 0 to 1.
+We can either use the `pwr.2p.test()` function from the pwr package or use the base R `power.prop.test()` function. Notice we have to specify proportions that differ by 5%, and that the required sample size changes dramatically based on where these two proportions fall in the range from 0 to 1.
 
 ```{r}
 pwr.2p.test(h = ES.h(p1 = 0.20, p2 = 0.25), sig.level = 0.05, power = 0.90)
@@ -175,11 +174,11 @@ What sample size do we need for each group if assume proportions to be 0.10 and 
 
 I'm interested in learning if there is a difference in the mean price of what male and female students pay at the library coffee shop. Let's say I randomly observe 30 male and 30 female students check out from the coffee shop and note their total purchase price. How powerful is this experiment if I want to detect a difference of 75 cents in either direction?
 
-The base R `power.t.test` makes this fairly simple to answer. The effect size (75 cents) is specified as `delta`. We also need to specify a hypothesized population standard deviation. One rule of thumb: 
+The base R `power.t.test()` function makes this fairly simple to answer. The effect size (75 cents) is specified as `delta`. We also need to specify a hypothesized population standard deviation. One rule of thumb: 
 
 > take the difference between the maximum and minimum possible mean values and divide by 4 (or 6). 
 
-Let's say the max is `$10` and min is `$1`. So our guess at a standard deviation is:
+Let's say the maximum purchase price is `$10` and minimum is `$1`. So our guess at a standard deviation is:
 
 (10 - 1)/4 = 2.25
 
@@ -187,9 +186,9 @@ Let's say the max is `$10` and min is `$1`. So our guess at a standard deviation
 power.t.test(delta = 0.75, sd = 2.25, sig.level = 0.05, n = 30)
 ```
 
-This experiment is not very powerful. If 75 cents really is the difference in the means, there is only about 25 percent chance we'll reject the null hypothesis with a sample size of 30 per group.
+This experiment is not very powerful. If 75 cents really is the difference in the means, there is only about a probability of 0.25 we'll reject the null hypothesis with a sample size of 30 per group.
 
-How many should we sample for a power of 90%?
+How many should we sample for a power of 0.90?
 
 ```{r}
 power.t.test(delta = 0.75, sd = 2.25, sig.level = 0.05, power = 0.90)
@@ -206,7 +205,7 @@ pwr.t.test(d = 0.75/2.25, sig.level = 0.05, power = 0.90)
 
 Add new R code chunks by pressing *Ctrl+Alt+I* (Win/Linux) or *Cmd+Option+I* (Mac). 
 
-How many students should we sample for a power of 99% and a significance level of 0.001?
+How many students should we sample for a power of 0.99 and a significance level of 0.001?
 
 
 
@@ -235,7 +234,7 @@ pwr.t.test(n = 24, d = 0.08/0.25, sig.level = 0.05,
 
 Add new R code chunks by pressing *Ctrl+Alt+I* (Win/Linux) or *Cmd+Option+I* (Mac). 
 
-How many pairs do we need to sample to achieve at least 95% power with a significance level of 0.01, assuming our hypothesized effect size is correct?
+How many pairs do we need to sample to achieve at least 0.95 power with a significance level of 0.01, assuming our hypothesized effect size is correct?
 
 
 
@@ -311,7 +310,7 @@ pwr.anova.test(k = 3, f = 0.1,
                sig.level = 0.05, power = 0.90)
 ```
 
-To detect a "small" effect in a one-way ANOVA with 3 groups, 90% power, and 0.05 significance level, we need about 423 subjects per group. This is a ballpark figure. It's meant to give us an _idea_ of the sample size we need.
+To detect a "small" effect in a one-way ANOVA with 3 groups, 0.90 power, and 0.05 significance level, we need about 423 subjects per group. This is a ballpark figure. It's meant to give us an _idea_ of the sample size we need.
 
 
 ## Using simulation to estimate power and sample size
@@ -386,7 +385,7 @@ weight <- rep(c("20 lb","28 lb"), times = n*2)
 table(design, weight)
 ```
 
-Now we can simulate our response according to the following:
+Now let's simulate our response (distance flown) according to the following effects:
 
 - design a, 20 lb paper: 72 inches of flight
 - design b, 20 lb paper: 72 + 12
@@ -436,7 +435,7 @@ That's fairly high power. _If our assumptions are correct_, 10 observations each
 
 What if we wanted to detect an _interaction_ between design and weight? Interactions imply the effects are NOT additive. The effect of design depends on weight and vice versa.
 
-Let's say it would be of interest if the interaction was 6 inches. For example, the effect of design b is 12 inches for 20 lb paper, but 12 + 6 = 18 inches for 28 lb paper. 
+Let's say it would be of interest if the interaction was 6 inches at a significance level of 0.01. For example, the effect of design b is 12 inches for 20 lb paper, but 12 + 6 = 18 inches for 28 lb paper. 
 
 We might simulate our response according to the following:
 
@@ -457,7 +456,7 @@ m <- lm(dist ~ design + weight + design:weight)
 coef(summary(m))['designb:weight28 lb','Pr(>|t|)'] < 0.01
 ```
 
-Let's run it 1000 times and see what proportion of times we _detect_ the interaction:
+Let's run it 1000 times and see what proportion of times we _detect_ the interaction at the significance level 0.01:
 
 ```{r}
 results <- replicate(1000, expr = {
@@ -537,8 +536,8 @@ NOTES:
 
 For a binary outcome (eg, 1/0, yes/no, success/failure, etc), we need to specify the following arguments:
 
-- type of prediction model (type = "b")
-- anticipated Cox-Snell R-squared (rsquared)
+- type of prediction model (`type = "b"`)
+- anticipated Cox-Snell R-squared (`rsquared`)
 - anticipated number of model parameters _under consideration_ (parameters)
 - anticipated proportion of "successes" in population (prevalence)
 
