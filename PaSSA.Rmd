@@ -59,7 +59,7 @@ Let's assume the alternative hypothesis is _correct_.
 
 Further, let's assume at least 75% of people place name tags on the left side of their chest. This means we estimate an _effect size_ of 0.75 - 0.50 = 0.25.
 
-If our assumptions are true we would like our hypothesis test to have a _high probability_, or _high power_, of returning the correct result: getting a p-value below 0.05. To ensure high power we need a sufficiently large sample size. High power is usually considered to be at least _0.80_.
+If our assumptions are true we would like our hypothesis test to have a _high probability_, or _high power_, of returning the correct result (ie, a p-value below 0.05). To ensure high power we need a sufficiently large sample size. High power is usually considered to be at least _0.80_, if not higher.
 
 One approach is to sample as many people as possible. But that can be expensive and time-consuming. So we usually want to _find the smallest sample size that provides the power we desire_. 
 
@@ -84,15 +84,15 @@ Our answer is the line that begins with "n". Our minimal sample size to have 80%
 
 - We haven't yet run the experiment. We're still in the planning stages.
 - We don't know if our hypothesized effect size (75%) is correct. We're just pretending it is. Hopefully we have good reason for proposing it.
-- A sample size of 23 does NOT guarantee we will "get a significant result"! It simply gives an 80% chance of rejecting the null based on our assumption that the effect size is 75%.
-- We have a 20% chance of incorrectly failing to reject null, again based on our assumption that the effect size is 75%.
+- A sample size of 23 does NOT guarantee we will "get a significant result"! It simply provides probability of 0.80 of rejecting the null based on our assumption that the effect size is 75%.
+- We have probability of 0.2 of incorrectly failing to reject null, again based on our assumption that the effect size is 75%.
 - Accept and embrace the uncertainty in this power and sample size "analysis". It truly is a thought experiment.
 
 ## CODE ALONG 1
 
 Add new R code chunks by pressing *Ctrl+Alt+I* (Win/Linux) or *Cmd+Option+I* (Mac). 
 
-(1) How large a sample do we need to achieve 90% power with a significance level of 0.01?
+(1) How large a sample do we need to achieve 0.90 power with a significance level of 0.01?
 
 
 
@@ -120,7 +120,7 @@ Our tolerance for a Type I error is the significance level. Usually 0.05, 0.01 o
 
 If we conclude people have no preference for which side of the chest they place their name tag when they really do prefer left we have made a _Type II error_. (Failing to reject null hypothesis in error)
 
-Our tolerance for a Type II error is 1 - Power. Usually 0.20 or lower.
+Our tolerance for a Type II error is 1 - Power. 
 
 We rarely know if we have made these errors.
 
@@ -133,7 +133,7 @@ Cohen defines "effect size" as "the degree to which the null hypothesis is false
 
 ## Two-sample proportion test
 
-Let's say I want to randomly sample male and female UVA undergrad students and ask them if they consume alcohol at least once a week. 
+Let's say I randomly sample male and female UVA undergrad students and ask them if they consume alcohol at least once a week. 
 
 - null hypothesis: no difference in the proportion that answer yes. 
 - alternative hypothesis: there is a difference
@@ -142,9 +142,9 @@ This is "two-sided" alternative; one sex has higher proportion, I don't know whi
 
 I'd like to detect a difference as small as 5%. That's my effect size.
 
-How many students do I need to sample in _each group_ if we want 90% power and a significance level of 0.05?
+How many students do I need to sample in _each group_ if we want 0.90 power and a significance level of 0.05?
 
-We can either use the `pwr.2p.test()` function from the pwr package or use the base R `power.prop.test()` function. Notice we have to specify proportions that differ by 5%, and that the required sample size changes dramatically based on where these two proportions fall in the range from 0 to 1.
+We can either use the `pwr.2p.test()` function from the {pwr} package or use the base R `power.prop.test()` function. Notice we have to specify proportions that differ by 5%, and that the required sample size _changes dramatically_ based on where these two proportions fall in the range from 0 to 1.
 
 ```{r}
 pwr.2p.test(h = ES.h(p1 = 0.20, p2 = 0.25), sig.level = 0.05, power = 0.90)
@@ -194,7 +194,7 @@ How many should we sample for a power of 0.90?
 power.t.test(delta = 0.75, sd = 2.25, sig.level = 0.05, power = 0.90)
 ```
 
-The {pwr} package provides the `pwr.t.test` function. It's a little more difficult to use because we have to specify the effect size using the `d` argument. It's simply delta divided by the standard deviation.
+The {pwr} package provides the `pwr.t.test()` function. It's a little more difficult to use because we have to specify the effect size using the `d` argument. It's simply delta divided by the standard deviation.
 
 ```{r}
 pwr.t.test(d = 0.75/2.25, sig.level = 0.05, power = 0.90)
@@ -222,7 +222,7 @@ power.t.test(n = 24, delta = 0.08, sd = 0.25, sig.level = 0.05,
              type = "paired", alternative = "one.sided")
 ```
 
-Using the `pwr.t.test` function we have to specify `type = "paired"` and `alternative = "greater"`.
+Using the `pwr.t.test()` function we have to specify `type = "paired"` and `alternative = "greater"`.
 
 ```{r}
 pwr.t.test(n = 24, d = 0.08/0.25, sig.level = 0.05, 
@@ -246,7 +246,7 @@ To test if more than two means are different we can use a one-way _ANOVA_. The n
 
 I'm a web developer and I'm interested in 3 web site designs for a client. I'd like to know which design helps users find information fastest. I design an experiment where I have 3 groups of randomly selected people use one of the designs to find some piece of information and I record how long it takes. (All groups look for the same information.) How many people do I need in each group if I believe two of the designs will take 30 seconds and one will take 25 seconds? Assume population standard deviation is 5 seconds and that I desire power and significance levels of 0.90 and 0.05, respectively.
 
-The base R `power.anova.test` function requires you to specify...
+The base R `power.anova.test()` function requires you to specify...
 
 - the number of `groups` you plan to compare
 - the hypothesized between-group variance (`between.var`)
@@ -259,7 +259,7 @@ power.anova.test(groups = 3, between.var = var(c(30,30,25)),
                  within.var = 5^2, sig.level = 0.05, power = 0.90)
 ```
 
-The {pwr} package provides the `pwr.anova.test` function which requires you to once again specify an effect size, this time using the `f` argument. The effect size `f` is the _standard deviation of the means divided by the common standard deviation of the populations_, each assuming a denominator of `k` instead of `k-1`. To replicate the results of `power.anova.test` we need to multiply the standard deviation of the means by `sqrt(k-1/k)`.
+The {pwr} package provides the `pwr.anova.test()` function which requires you to once again specify an effect size, this time using the `f` argument. The effect size `f` is the _standard deviation of the means divided by the common standard deviation of the populations_, each assuming a denominator of `k` instead of `k-1`. To replicate the results of `power.anova.test` we need to multiply the standard deviation of the means by `sqrt(k-1/k)`.
 
 ```{r}
 sd_means <- sd(c(30,30,25))
@@ -269,7 +269,7 @@ pwr.anova.test(k = 3, f = sd_means*sqrt(2/3)/sd_pop,
 ```
 
 
-While the `pwr.anova.test` function is a little more difficult to use because of the `f` argument, we might want to use it for the {pwr} package's plot method. Simply save the result and use it with `plot`.
+While the `pwr.anova.test()` function is a little more difficult to use because of the `f` argument, we might want to use it for the {pwr} package's plot method. Simply save the result and use it with `plot`.
 
 ```{r}
 pout <- pwr.anova.test(k = 3, f = sd_means*sqrt(2/3)/sd_pop, 
@@ -290,7 +290,7 @@ How many people do I need in each group if I believe two of the designs will tak
 
 ## Conventional effect sizes
 
-Cohen proposed conventional effect sizes for each test called "small", "medium", and "large". These are controversial because they're vague. However they may be worth calculating to give you a ballpark range of sample sizes.
+Cohen proposed conventional effect sizes for each test called "small", "medium", and "large". These are controversial because they're vague. However, they may be worth calculating to give you a ballpark range of sample sizes.
 
 The `cohen.ES` function returns an effect size for a given `test` and `size`.
 
@@ -310,12 +310,12 @@ pwr.anova.test(k = 3, f = 0.1,
                sig.level = 0.05, power = 0.90)
 ```
 
-To detect a "small" effect in a one-way ANOVA with 3 groups, 0.90 power, and 0.05 significance level, we need about 423 subjects per group. This is a ballpark figure. It's meant to give us an _idea_ of the sample size we need.
+To detect a "small" effect in a one-way ANOVA with 3 groups, 0.90 power, and 0.05 significance level, we need about 423 subjects per group. This is a ballpark figure. It's meant to give us an idea of the sample size we need.
 
 
 ## Using simulation to estimate power and sample size
 
-Research questions often require analyses more sophisticated than t-tests and one-way ANOVAs. It can be useful to simulate data with effects you want to detect and see how often you actually detect them in an analysis. Basically we generate the data and analysis many, many times and get the proportion of times we reject the null hypothesis.
+Research questions often require analyses more sophisticated than t-tests and one-way ANOVAs. It can be useful to simulate data with effects you want to detect and see how often you actually detect them in an analysis. Basically we generate the data and analysis many, many times and calculate the proportion of times we reject the null hypothesis.
 
 This requires some knowledge of programming as well as statistics. Here's a quick example for a two-sample t-test. Recall the previous code for estimating power for two groups of size 30:
 
@@ -333,7 +333,7 @@ t.test(x1, x2, var.equal = TRUE)
 t.test(x1, x2, var.equal = TRUE)$p.value < 0.05
 ```
 
-Now we repeat this 1000 times and see what proportion of times we get a p-value below our significance level. We can do this with the `replicate` function in base R. Notice we simply wrap our previous code in curly braces `{}` to create an _expression_. The result is a vector of TRUE/FALSE values. The mean of a TRUE/FALSE vector is the proportion of TRUEs.
+Now we repeat this 1000 times and see what proportion of times we get a p-value below our significance level. We can do this with the `replicate()` function in base R. Notice we simply wrap our previous code in curly braces `{}` to create an _expression_. The result is a vector of TRUE/FALSE values. The mean of a TRUE/FALSE vector is the proportion of TRUEs.
 
 ```{r}
 result <- replicate(n = 1000, expr = 
@@ -524,7 +524,7 @@ pmsampsize(type = "c",
            sd = 0.3)
 ```
 
-We're mainly interested in the _Final_ sample size. At least 515. The four criteria are documented in the help page for `pmsampsize`. The SPP is the estimated number of subjects we'll need per _predictor parameter_. A common rule of thumb has been 10 subjects per predictor parameter. We see here that rule of thumb is not very accurate.
+We're mainly interested in the _Final_ sample size. At least 515. The four criteria are documented in the help page for `pmsampsize()`. The SPP is the estimated number of subjects we'll need per _predictor parameter_. A common rule of thumb has been 10 subjects per predictor parameter. We see here that rule of thumb is not very accurate.
 
 NOTES:  
 - This does NOT mean the final model will have 15 predictors. It may just have 3 or 4. The 15 number is the maximum number of parameters the model might have.
