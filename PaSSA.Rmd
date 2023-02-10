@@ -213,7 +213,7 @@ How many students should we sample for a power of 0.99 and a significance level 
 ## Paired t-test
 
 
-24 high school boys are put on a ultraheavy rope-jumping program. Does this decrease their 40-yard dash time (ie, make them faster)? We'll measure their 40 time _before_ the program and _after_. We'll use a _paired t-test_ to see if the _difference_ in times is greater than 0 (before - after). These are not independent groups, so we can't use a 2-sample t-test. This also means we need to make an assumption about the _standard deviation of the differences_. Let's say it's 0.25. How powerful is the test to detect a difference of about 0.08 with 0.05 significance?
+24 high school boys are put on a ultraheavy rope-jumping program. Does this decrease their 40-yard dash time (ie, make them faster)? We'll measure their 40 time _before_ the program and _after_. We'll use a _paired t-test_ to see if the _difference_ in times is greater than 0 (before - after). These are not independent groups, so we can't use a 2-sample t-test. This also means we need to make an assumption about the _standard deviation of the differences_. Let's say it's about 0.25 seconds based on our rule of thumb above: (1 - 0)/4 = 0.25, where 1 second is the maximum difference in times and 0 is no difference in times. How powerful is the test to detect a difference of about 0.08 seconds with 0.05 significance?
 
 Notice we need to specify `type = "paired"` and `alternative = "one.sided"`. Also notice the estimated standard deviation is on the differences, not the populations.
 
@@ -250,16 +250,16 @@ The base R `power.anova.test()` function requires you to specify...
 
 - the number of `groups` you plan to compare
 - the hypothesized between-group variance (`between.var`)
-- the hypothesized within-group variance (`within.var`), which we assume is the same for all groups.
+- the hypothesized within-group variance (`within.var`), which we assume is the same for all groups. (pretty strong assumption!)
 
-Notice we need to specify _variance_, not standard deviation
+Notice we need to specify _variance_, not standard deviation. We use the `var()` function to calculate the between-group variances and square 5 to get the within-group variance.
 
 ```{r}
 power.anova.test(groups = 3, between.var = var(c(30,30,25)), 
                  within.var = 5^2, sig.level = 0.05, power = 0.90)
 ```
 
-The {pwr} package provides the `pwr.anova.test()` function which requires you to once again specify an effect size, this time using the `f` argument. The effect size `f` is the _standard deviation of the means divided by the common standard deviation of the populations_, each assuming a denominator of `k` instead of `k-1`. To replicate the results of `power.anova.test` we need to multiply the standard deviation of the means by `sqrt(k-1/k)`.
+The {pwr} package provides the `pwr.anova.test()` function which requires you to once again specify an effect size, this time using the `f` argument. The effect size `f` is the _standard deviation of the means divided by the common standard deviation of the populations_, each assuming a denominator of `k` instead of `k-1`. To replicate the results of `power.anova.test` we need to multiply the standard deviation of the means by `sqrt((k-1)/k)`. Now we use `sd()` to find the standard deviation of the between-group means.
 
 ```{r}
 sd_means <- sd(c(30,30,25))
@@ -269,7 +269,7 @@ pwr.anova.test(k = 3, f = sd_means*sqrt(2/3)/sd_pop,
 ```
 
 
-While the `pwr.anova.test()` function is a little more difficult to use because of the `f` argument, we might want to use it for the {pwr} package's plot method. Simply save the result and use it with `plot`.
+While the `pwr.anova.test()` function is a little more difficult to use because of the `f` argument, we might want to use it for the {pwr} package's plot method. Simply save the result and use it with `plot()`.
 
 ```{r}
 pout <- pwr.anova.test(k = 3, f = sd_means*sqrt(2/3)/sd_pop, 
@@ -343,11 +343,12 @@ result <- replicate(n = 1000, expr =
 mean(result)
 ```
 
-Your result will differ slightly from mine due to sampling variation, but the results will be similar to what we calculated with the `power.t.test` function.
+Your result will differ slightly from mine due to sampling variation, but the results will be similar to what we calculated with the `power.t.test()` function.
 
 The power is quite low. We may want to try different sample sizes. With a little extra work we can program that as well. One way is to create a function out of the previous chunk of code and allow the sample size to be an argument. 
 
 ```{r}
+# n = sample size
 sim_ttest <- function(n){
   result <- replicate(n = 1000, expr = 
             {x1 <- rnorm(n = n, mean = 10.00, sd = 2.25)
@@ -394,7 +395,7 @@ Now let's simulate our response (distance flown) according to the following effe
 
 These are known as _additive_ effects. The effect of design b is to ADD 12 inches to expected flight distance. The effect of 28 lb paper is to ADD -4 inches to expected flight distance.
 
-The `rnorm` function at the end adds "noise" to the distance and is analogous to setting the standard deviation for each design/weight combination to 10.
+The `rnorm()` function at the end adds "noise" to the distance and is analogous to setting the standard deviation for each design/weight combination to 10 (ie, constant variance in each group).
 
 ```{r}
 dist <- 72 +              
@@ -460,7 +461,8 @@ Let's run it 1000 times and see what proportion of times we _detect_ the interac
 
 ```{r}
 results <- replicate(1000, expr = {
-  dist <- 72 + (design == "b")*12 + (weight == "28 lb")*-4 +
+  dist <- 72 + (design == "b")*12 + 
+    (weight == "28 lb")*-4 +
     (design == "b")*(weight == "28 lb")*6 +
     rnorm(n*4, mean = 0, sd = 10)
   m <- lm(dist ~ design + weight + design:weight)
@@ -495,19 +497,19 @@ We need about 15 times the sample size (150 versus 10) to detect the interaction
 
 ## Minimum sample size required for developing a multivariable prediction model
 
-A recent publication in the BMJ provides "guidance on how to calculate the sample size required to develop a clinical prediction model." The focus of the paper is on medical applications but the methods are applicable to any multivariable prediction model, say multiple regression or logistic regression.
+A recent publication in the BMJ provides "guidance on how to calculate the sample size required to develop a clinical prediction model." The focus of the paper is on medical applications but the methods are applicable to any statistical analysis involving the _development_ of a linear model. That is, you intend to model an outcome as a function of various candidate predictor variables, only some of which you may end up using.
 
 The article:
 Riley, RD, et al. Calculating the sample size required for developing a clinical prediction model. BMJ 2020;368:m441 
 https://doi.org/10.1136/bmj.m441 (Published 18 March 2020) 
 
-The authors created an R package called {pmsampsize} to easily implement their method. It has one function called `pmsampsize`. It can be used to calculate sample sizes for linear models, logistic regression models, and survival analysis models. We'll cover linear models and logistic regression.
+The authors created an R package called {pmsampsize} to easily implement their method. It has one function called `pmsampsize()`. It can be used to calculate sample sizes for linear models with continuous outcomes, logistic regression models, and survival analysis models. We'll cover linear models and logistic regression.
 
 ### Linear models
 
-For a continuous outcome (ie, a number with decimals that can be negative and/or positive), we need to specify the following arguments:
+For a continuous outcome (ie, a number possibly with decimals that can be negative and/or positive), we need to specify the following arguments:
 
-- type of prediction model (`type = "c"`)
+- type of prediction model: continuous outcome (`type = "c"`)
 - anticipated adjusted R-squared (`rsquared`)
 - anticipated number of model parameters _under consideration_ (parameters)
 - anticipated mean outcome value in population (intercept)
@@ -536,21 +538,36 @@ NOTES:
 
 For a binary outcome (eg, 1/0, yes/no, success/failure, etc), we need to specify the following arguments:
 
-- type of prediction model (`type = "b"`)
+- type of prediction model: binary outcome (`type = "b"`)
 - anticipated Cox-Snell R-squared (`rsquared`)
 - anticipated number of model parameters _under consideration_ (parameters)
 - anticipated proportion of "successes" in population (prevalence)
 
-Example: let's say we want to build a model to predict the probability a college graduate gains full-time employment within six months of graduation. Based on data we'll have access to, we plan to entertain 18 possible parameters (ie, coefficients in a model). We'd like a model with a Cox-Snell R-squared of about 0.3. We have reason to believe the overall proportion to obtain employment is 0.70. What minimum sample size do we need based on these assumptions?
+Cox-Snell R-squared is a "generalized" R-squared measure of model performance. Unfortunately, unlike the traditional R-squared often used with linear models, the Cox-Snell R-squared has an upper bound _less than 1_. The maximum value is dictated by the overall outcome proportion in the observed data. Th following table provides some common outcome proportions and associated maximum Cox-Snell R-squared values:
+
+```
+outcome       maximum
+proportion    C-S R-squared
+---------------------------
+0.5           0.75
+0.4           0.74
+0.3           0.71
+0.2           0.63
+0.1           0.48
+0.05          0.33
+0.01          0.11
+```
+
+Example: let's say we want to build a model to predict the probability a college graduate gains full-time employment within six months of graduation. Based on data we'll have access to, we plan to entertain 18 possible parameters (ie, coefficients in a model). We have reason to believe the overall proportion to obtain employment within 6 months is about 0.50. We'd like a model with a Cox-Snell R-squared of about 0.3. What minimum sample size do we need based on these assumptions?
 
 ```{r}
 pmsampsize(type = "b", 
            parameters = 18, 
            rsquared = 0.3, 
-           prevalence = 0.70)
+           prevalence = 0.50)
 ```
 
-It appears we need at least 444 subjects with about 70% (311) actually gaining employment if we want to build a predictive model from 18 candidate parameters that ultimately has a Cox-Snell R-squared of at least 0.3. The EPP is the estimated _events per candidate predictor parameter_.
+It appears we need at least 444 subjects with about 50% (222) actually gaining employment if we want to build a predictive model from 18 candidate parameters that ultimately has a Cox-Snell R-squared of at least 0.3. The EPP is the estimated _events per candidate predictor parameter_. Notice the ouptut includes the maximum Cox-Snell R-squared value.
 
 ## We're done!
 
@@ -567,4 +584,5 @@ https://doi.org/10.1136/bmj.m441 (Published 18 March 2020)
   Multivariable Prediction Model. R package version 1.1.0.
   https://CRAN.R-project.org/package=pmsampsize
 - Hogg, R and Tanis, E. (2006). _Probability and Statistical Inference (7th ed.)_. Pearson. (Ch. 9) 
-- Dalgaard, P. (2008). _Introductory Statistics with R_. Springer. 
+- Dalgaard, P. (2008). _Introductory Statistics with R_. Springer.
+- Allison, p. (2013) What’s the Best R-Squared for Logistic Regression?. https://statisticalhorizons.com/r2logistic/ (Accessed 2023-02-10)
