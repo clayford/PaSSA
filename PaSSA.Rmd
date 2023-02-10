@@ -543,7 +543,7 @@ For a binary outcome (eg, 1/0, yes/no, success/failure, etc), we need to specify
 - anticipated number of model parameters _under consideration_ (parameters)
 - anticipated proportion of "successes" in population (prevalence)
 
-Cox-Snell R-squared is a "generalized" R-squared measure of model performance. Unfortunately, unlike the traditional R-squared often used with linear models, the Cox-Snell R-squared has an upper bound _less than 1_. The maximum value is dictated by the overall outcome proportion in the observed data. Th following table provides some common outcome proportions and associated maximum Cox-Snell R-squared values:
+Cox-Snell R-squared is a "generalized" R-squared measure of model performance. Unfortunately, unlike the traditional R-squared often used with linear models, the Cox-Snell R-squared can have an upper bound _less than 1_. The maximum value is dictated by the overall outcome proportion in the observed data. The following table provides some common outcome proportions and associated maximum Cox-Snell R-squared values:
 
 ```
 outcome       maximum
@@ -557,6 +557,7 @@ proportion    C-S R-squared
 0.05          0.33
 0.01          0.11
 ```
+Thus a model with good performance could have a small Cox-Snell R-squared. See Paul Allison's post on Statistical Horizons for more information and alternatives: https://statisticalhorizons.com/r2logistic/
 
 Example: let's say we want to build a model to predict the probability a college graduate gains full-time employment within six months of graduation. Based on data we'll have access to, we plan to entertain 18 possible parameters (ie, coefficients in a model). We have reason to believe the overall proportion to obtain employment within 6 months is about 0.50. We'd like a model with a Cox-Snell R-squared of about 0.3. What minimum sample size do we need based on these assumptions?
 
@@ -567,11 +568,11 @@ pmsampsize(type = "b",
            prevalence = 0.50)
 ```
 
-It appears we need at least 444 subjects with about 50% (222) actually gaining employment if we want to build a predictive model from 18 candidate parameters that ultimately has a Cox-Snell R-squared of at least 0.3. The EPP is the estimated _events per candidate predictor parameter_. Notice the ouptut includes the maximum Cox-Snell R-squared value.
+It appears we need at least 444 subjects with about 50% (222) actually gaining employment if we want to build a predictive model from 18 candidate parameters that ultimately has a Cox-Snell R-squared of at least 0.3. The EPP is the estimated _events per candidate predictor parameter_. Notice the output indicates that the maximum Cox-Snell R-squared value is 0.75.
 
 ## We're done!
 
-If you would like to talk more about statistics or need statistical help with your research, I would love to hear from you: `clayford@virginia.edu` or `statlab@virginia.edu`
+If you would like to talk more about statistics or need statistical help with your research, we would love to hear from you: `clayford@virginia.edu` or `statlab@virginia.edu`
 
 ## References
 
