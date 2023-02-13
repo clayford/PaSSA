@@ -67,7 +67,21 @@ One approach is to sample as many people as possible. But that can be expensive 
 
 Let's go ahead and calculate the sample size for our simple experiment. For this we'll use the {pwr} package. The `pwr.p.test` function can be used to calculate power or sample size for a one-sample proportion test.
 
-Notice we first have to calculate the _effect size_ using the `ES.h` function. The `p1` argument is the alternative proportion, the `p2` argument is the null proportion. The `h` notation is due to Cohen (1988). It represents effect sizes for proportions.
+Notice we first have to calculate a _transformed effect size_ using the `ES.h()` function. The `p1` argument is the alternative proportion (0.75), the `p2` argument is the null proportion (0.50). The `h` notation is due to Cohen (1988). It represents effect sizes for proportions.
+
+The reason we have to transform the effect size for proportions is to distinguish between _absolute_ and _relative_ differences.
+
+Notice the _absolute differences_ in these proportions are equivalent:
+
+0.75 - 0.50 = 0.25
+0.26 - 0.01 = 0.25
+
+But notice the _relative differences_ are very different:
+
+0.75/0.50 = 1.5  (ie, 0.75 is 1.5 times greater than 0.50)
+0.26/0.01 = 26   (ie, 0.26 is 26 times greater than 0.01)
+
+The `ES.h()` function transforms the absolute difference into an effect size that takes the relative difference into account.
 
 Since we want sample size, we _leave it out of the function_. We specify our desired power (0.80); our significance level (0.05) which is the threshold we cross for "rejecting" the null; and the alternative ("greater") which says we think the alternative hypothesis is _greater than that null_.
 
@@ -83,9 +97,9 @@ Our answer is the line that begins with "n". Our minimal sample size to have 80%
 ## IMPORTANT POINTS
 
 - We haven't yet run the experiment. We're still in the planning stages.
-- We don't know if our hypothesized effect size (75%) is correct. We're just pretending it is. Hopefully we have good reason for proposing it.
-- A sample size of 23 does NOT guarantee we will "get a significant result"! It simply provides probability of 0.80 of rejecting the null based on our assumption that the effect size is 75%.
-- We have probability of 0.2 of incorrectly failing to reject null, again based on our assumption that the effect size is 75%.
+- We don't know if our hypothesized effect size is correct (0.75 - 0.50 = 0.25). We're just pretending it is. Hopefully we have good reason for proposing it.
+- A sample size of 23 does NOT guarantee we will "get a significant result"! It simply provides probability of 0.80 of rejecting the null based on our assumption that the effect size is 0.75 - 0.50 = 0.25.
+- We have probability of 0.2 of incorrectly failing to reject null, again based on our assumption that the effect size is 0.75 - 0.50 = 0.25.
 - Accept and embrace the uncertainty in this power and sample size "analysis". It truly is a thought experiment.
 
 ## CODE ALONG 1
@@ -129,7 +143,7 @@ We rarely know if we have made these errors.
 
 Hypothesizing realistic and meaningful effect sizes is the most important part of power and sample size analysis. This requires subject matter expertise. A rule of thumb is to pick the _smallest effect you don't want to miss_. Or stated another way, pick the smallest effect that would be worth reporting or that would "make news".
 
-Cohen defines "effect size" as "the degree to which the null hypothesis is false." Example: If our null is 50%, and the alternative 75%, the effect size is 25%. 
+Cohen defines "effect size" as "the degree to which the null hypothesis is false." Example: If our null is 0.50, and the alternative 0.75, the effect size is 0.25. 
 
 ## Two-sample proportion test
 
@@ -174,11 +188,11 @@ What sample size do we need for each group if assume proportions to be 0.10 and 
 
 I'm interested in learning if there is a difference in the mean price of what male and female students pay at the library coffee shop. Let's say I randomly observe 30 male and 30 female students check out from the coffee shop and note their total purchase price. How powerful is this experiment if I want to detect a difference of 75 cents in either direction?
 
-The base R `power.t.test()` function makes this fairly simple to answer. The effect size (75 cents) is specified as `delta`. We also need to specify a hypothesized population standard deviation. One rule of thumb: 
+The base R `power.t.test()` function makes this fairly simple to answer. The effect size (75 cents) is specified as `delta`. We also need to specify a _hypothesized population standard deviation_ as `sd`. Imagine we have access to the population of all possible purchase prices ever observed and we calculate the standard deviation of those values. We'd like to do that, but can't. So we need to _estimate_ the standard deviation of that population. One rule of thumb to use if we have no subject matter expertise to guide us: 
 
-> take the difference between the maximum and minimum possible mean values and divide by 4 (or 6). 
+> take the difference between the maximum and minimum possible values and divide by 4 (or 6). 
 
-Let's say the maximum purchase price is `$10` and minimum is `$1`. So our guess at a standard deviation is:
+Let's say the maximum purchase price is `$10` and minimum price is `$1`. So our conservative guess at a standard deviation is:
 
 (10 - 1)/4 = 2.25
 
@@ -364,7 +378,7 @@ Test the function with n = 50
 sim_ttest(n = 50)
 ```
 
-Now "apply" the function to multiple sample sizes. The "s" in "sapply" means to "simply" the resulting data structure (if possible). In this case it simplifies it to a vector.
+Now "apply" the function to multiple sample sizes. The "s" in "sapply" means to "simplify" the resulting data structure (if possible). In this case it simplifies it to a vector.
 
 ```{r}
 sapply(c(50, 75, 100, 150), sim_ttest)
