@@ -143,7 +143,7 @@ We rarely know if we have made these errors.
 
 Hypothesizing realistic and meaningful effect sizes is the most important part of power and sample size analysis. This requires subject matter expertise. A rule of thumb is to pick the _smallest effect you don't want to miss_. Or stated another way, pick the smallest effect that would be worth reporting or that would "make news".
 
-Cohen defines "effect size" as "the degree to which the null hypothesis is false." Example: If our null is 0.50, and the alternative 0.75, the effect size is 0.25. 
+Cohen defines "effect size" as "the degree to which the null hypothesis is false." Example: If our null is 0.50, and the alternative 0.75, the absolute effect size is 0.25. 
 
 ## Two-sample proportion test
 
@@ -170,6 +170,16 @@ The base R function does not require us to use a separate effect size function.
 
 ```{r}
 power.prop.test(p1 = 0.20, p2 = 0.25, sig.level = 0.05, power = 0.90)
+```
+
+When we consider proportions closer to 0 or 1, the sample size required decreases because the relative difference in proportions is bigger.
+
+```{r}
+pwr.2p.test(h = ES.h(p1 = 0.05, p2 = 0.10), sig.level = 0.05, power = 0.90)
+```
+
+```{r}
+power.prop.test(p1 = 0.05, p2 = 0.10, sig.level = 0.05, power = 0.90)
 ```
 
 
@@ -509,6 +519,18 @@ sapply(c(50,100,150), sim_model)
 
 We need about 15 times the sample size (150 versus 10) to detect the interaction with decent power! Again, this is all one big thought experiment. We're making lots of assumptions. Hopefully they're reasonable and conservative assumptions.
 
+## Post-hoc power analysis: don't do it
+
+Sometimes reviewers or editors will ask authors to perform a "post-hoc power calculation" if a study fails to produce statistically significant results. This means using the observed data and sample size to estimate power. The idea is to determine if the study sample size was too small to detect an effect. However, post-hoc power calculated using the study data is just the p-value reported a different way. It doesn't tell you anything new.
+
+I wrote a StatLab article illustrating this: 
+https://data.library.virginia.edu/post-hoc-power-calculations-are-not-useful/
+
+See also:
+The Abuse of Power: The Pervasive Fallacy of Power Calculations for Data Analysis (Hoenig and Heisey, 2001)
+https://www.vims.edu/people/hoenig_jm/pubs/hoenig2.pdf
+
+
 ## Minimum sample size required for developing a multivariable prediction model
 
 A recent publication in the BMJ provides "guidance on how to calculate the sample size required to develop a clinical prediction model." The focus of the paper is on medical applications but the methods are applicable to any statistical analysis involving the _development_ of a linear model. That is, you intend to model an outcome as a function of various candidate predictor variables, only some of which you may end up using.
@@ -592,6 +614,7 @@ If you would like to talk more about statistics or need statistical help with yo
 
 - Champely, S. (2020). pwr: Basic Functions for Power Analysis. R package version 1.3-0. https://CRAN.R-project.org/package=pwr
 - Cohen, J. (1988). _Statistical power analysis for the behavioral sciences (2nd ed.)_. Hillsdale, NJ: Lawrence Erlbaum.
+- Hoenig JM, Heisey DM. The abuse of power: the pervasive fallacy of power calculations for data analysis. Am Stat. 2001; 55:19-24.
 - Riley, RD, et al. Calculating the sample size required for developing a clinical prediction model. BMJ 2020;368:m441 
 https://doi.org/10.1136/bmj.m441 (Published 18 March 2020) 
 - Joie Ensor, Emma C. Martin and Richard D. Riley (2021). pmsampsize:
