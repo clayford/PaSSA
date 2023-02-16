@@ -202,6 +202,8 @@ The base R `power.t.test()` function makes this fairly simple to answer. The eff
 
 > take the difference between the maximum and minimum possible values and divide by 4 (or 6). 
 
+The rationale behind this rule of thumb is that the range (max - min) of a lot of data is usually equal to about 4SD or 6SD. So 1/4 or 1/6 of the range provides an approximation for the standard deviation. The 1/4 estimate is larger and therefore more conservative. This provides a little extra assurance that we’ll either estimate a big enough sample size or make a more modest estimate of power.
+
 Let's say the maximum purchase price is `$10` and minimum price is `$1`. So our conservative guess at a standard deviation is:
 
 (10 - 1)/4 = 2.25
@@ -605,6 +607,8 @@ pmsampsize(type = "b",
 ```
 
 It appears we need at least 444 subjects with about 50% (222) actually gaining employment if we want to build a predictive model from 18 candidate parameters that ultimately has a Cox-Snell R-squared of at least 0.3. The EPP is the estimated _events per candidate predictor parameter_. Notice the output indicates that the maximum Cox-Snell R-squared value is 0.75.
+
+
 
 ## We're done!
 
