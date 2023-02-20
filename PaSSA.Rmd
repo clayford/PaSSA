@@ -114,8 +114,7 @@ Add new R code chunks by pressing *Ctrl+Alt+I* (Win/Linux) or *Cmd+Option+I* (Ma
 
 
 
-(3) What is the power of our experiment if we sample 50 people with a significance level of 0.01 and an assumed effect size of 65%?
-
+(3) What is the power of our experiment if we sample 50 people with a significance level of 0.01 and an assumed effect size of 65% - 50% = 15%?
 
 
 
@@ -188,9 +187,6 @@ power.prop.test(p1 = 0.05, p2 = 0.10, sig.level = 0.05, power = 0.90)
 Add new R code chunks by pressing *Ctrl+Alt+I* (Win/Linux) or *Cmd+Option+I* (Mac). 
 
 What sample size do we need for each group if assume proportions to be 0.10 and 0.15? Again assume we desire power to be 0.90 and a significance level of 0.05.
-
-
-
 
 
 
@@ -310,7 +306,6 @@ We can see that once the group size is larger than 30, there is little reason to
 Add new R code chunks by pressing *Ctrl+Alt+I* (Win/Linux) or *Cmd+Option+I* (Mac). 
 
 How many people do I need in each group if I believe two of the designs will take 60 seconds and one will take 45 seconds? Assume population standard deviation is 10 seconds and that I desire power and significance levels of 0.95 and 0.01, respectively.
-
 
 
 

@@ -1,0 +1,66 @@
+Power and Sample Size workshop answers
+
+## CODE ALONG 1
+
+
+(1) How large a sample do we need to achieve 0.90 power with a significance level of 0.01?
+
+```{r}
+pwr.p.test(h = ES.h(p1 = 0.5, p2 = 0.75), sig.level = 0.01, power = 0.9, alternative = "greater")
+```
+
+
+(2) What is the power of our experiment if we sample 30 people with a significance level of 0.01?
+
+```{r}
+pwr.p.test(h = ES.h(p1 = 0.5, p2 = 0.75), n = 30, sig.level = 0.01, alternative = "greater")
+```
+
+
+(3) What is the power of our experiment if we sample 50 people with a significance level of 0.01 and an assumed effect size of 65% - 50% = 15%?
+
+```{r}
+pwr.p.test(h = ES.h(p1 = 0.50, p2 = 0.65), n = 50, sig.level = 0.01, alternative = "greater")
+```
+
+
+## CODE ALONG 2
+
+
+What sample size do we need for each group if assume proportions to be 0.10 and 0.15? Again assume we desire power to be 0.90 and a significance level of 0.05.
+
+
+```{r}
+power.prop.test(p1 = 0.10, p2 = 0.15, power = 0.90, sig.level = 0.05)
+```
+
+
+## CODE ALONG 3
+
+
+How many students should we sample for a power of 0.99 and a significance level of 0.001?
+
+```{r}
+power.t.test(delta = 0.75, sd = 2.25, sig.level = 0.001, power = 0.99)
+```
+
+## CODE ALONG 4
+
+
+How many pairs do we need to sample to achieve at least 0.95 power with a significance level of 0.01, assuming our hypothesized effect size is correct?
+
+```{r}
+power.t.test(delta = 0.08, sd = 0.25, sig.level = 0.01, power = 0.95, 
+             type = "paired", alternative = "one.sided")
+```
+
+
+## CODE ALONG 5
+
+
+How many people do I need in each group if I believe two of the designs will take 60 seconds and one will take 45 seconds? Assume population standard deviation is 10 seconds and that I desire power and significance levels of 0.95 and 0.01, respectively.
+
+```{r}
+power.anova.test(groups = 3, between.var = var(c(60, 60, 45)), 
+                 within.var = 10^2, power = 0.95, sig.level = 0.01)
+```
