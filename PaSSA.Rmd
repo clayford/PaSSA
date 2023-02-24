@@ -344,11 +344,11 @@ This requires some knowledge of programming as well as statistics. Here's a quic
 power.t.test(delta = 0.75, sd = 2.25, sig.level = 0.05, n = 30)
 ```
 
-We can obtain a similar result using simulation. Let's simulate one data set and analysis. The delta is the difference in means (ie, 10.75 - 10 = 0.75). Notice also the constant standard deviation for the two populations.
+We can obtain a similar result using simulation. Let's simulate one data set and analysis. The delta is the difference in means (ie, 5.75 - 5 = 0.75). We can use any means, as long as they differ by 0.75. Notice also the constant standard deviation for the two populations.
 
 ```{r}
-x1 <- rnorm(n = 30, mean = 10.00, sd = 2.25)
-x2 <- rnorm(n = 30, mean = 10.75, sd = 2.25)
+x1 <- rnorm(n = 30, mean = 5.00, sd = 2.25)
+x2 <- rnorm(n = 30, mean = 5.75, sd = 2.25)
 t.test(x1, x2, var.equal = TRUE)
 # is it less than significance level?
 t.test(x1, x2, var.equal = TRUE)$p.value < 0.05
@@ -358,8 +358,8 @@ Now we repeat this 1000 times and see what proportion of times we get a p-value 
 
 ```{r}
 result <- replicate(n = 1000, expr = 
-                      {x1 <- rnorm(n = 30, mean = 10.00, sd = 2.25)
-                       x2 <- rnorm(n = 30, mean = 10.75, sd = 2.25)
+                      {x1 <- rnorm(n = 30, mean = 5.00, sd = 2.25)
+                       x2 <- rnorm(n = 30, mean = 5.75, sd = 2.25)
                        t.test(x1, x2, var.equal = TRUE)$p.value < 0.05})
 mean(result)
 ```
@@ -372,8 +372,8 @@ The power is quite low. We may want to try different sample sizes. With a little
 # n = sample size
 sim_ttest <- function(n){
   result <- replicate(n = 1000, expr = 
-            {x1 <- rnorm(n = n, mean = 10.00, sd = 2.25)
-             x2 <- rnorm(n = n, mean = 10.75, sd = 2.25)
+            {x1 <- rnorm(n = n, mean = 5.00, sd = 2.25)
+             x2 <- rnorm(n = n, mean = 5.75, sd = 2.25)
              t.test(x1, x2, var.equal = TRUE)$p.value < 0.05})
   mean(result)
   }
