@@ -65,13 +65,13 @@ One approach is to sample as many people as possible. But that can be expensive 
 
 ## Power and sample size analysis for our experiment
 
-Let's go ahead and calculate the sample size for our simple experiment. For this we'll use the {pwr} package. The `pwr.p.test` function can be used to calculate power or sample size for a one-sample proportion test.
+Let's go ahead and calculate the sample size for our simple experiment. For this we'll use the {pwr} package. The `pwr.p.test()` function can be used to calculate power or sample size for a one-sample proportion test.
 
 Notice we first have to calculate a _transformed effect size_ using the `ES.h()` function. The `p1` argument is the alternative proportion (0.75), the `p2` argument is the null proportion (0.50). The `h` notation is due to Cohen (1988). It represents effect sizes for proportions.
 
 The reason we have to transform the effect size for proportions is to distinguish between _absolute_ and _relative_ differences.
 
-Notice the _absolute differences_ in these proportions are equivalent:
+For example, the _absolute differences_ in these proportions are equivalent:
 
 0.75 - 0.50 = 0.25
 0.26 - 0.01 = 0.25
@@ -99,7 +99,7 @@ Our answer is the line that begins with "n". Our minimal sample size to have 80%
 - We haven't yet run the experiment. We're still in the planning stages.
 - We don't know if our hypothesized effect size is correct (0.75 - 0.50 = 0.25). We're just pretending it is. Hopefully we have good reason for proposing it.
 - A sample size of 23 does NOT guarantee we will "get a significant result"! It simply provides probability of 0.80 of rejecting the null based on our assumption that the effect size is 0.75 - 0.50 = 0.25.
-- We have probability of 0.2 of incorrectly failing to reject null, again based on our assumption that the effect size is 0.75 - 0.50 = 0.25.
+- We have probability of 0.2 of incorrectly failing to reject null (1 - 0.80), again based on our assumption that the effect size is 0.75 - 0.50 = 0.25.
 - Accept and embrace the uncertainty in this power and sample size "analysis". It truly is a thought experiment.
 
 ## CODE ALONG 1
@@ -146,7 +146,7 @@ Cohen defines "effect size" as "the degree to which the null hypothesis is false
 
 ## Two-sample proportion test
 
-Let's say I randomly sample male and female UVA undergrad students and ask them if they consume alcohol at least once a week. 
+Let's say I randomly survey male and female UVA undergrad students and ask them if they consume alcohol at least once a week. 
 
 - null hypothesis: no difference in the proportion that answer yes. 
 - alternative hypothesis: there is a difference
@@ -194,7 +194,7 @@ What sample size do we need for each group if assume proportions to be 0.10 and 
 
 I'm interested in learning if there is a difference in the mean price of what male and female students pay at the library coffee shop. Let's say I randomly observe 30 male and 30 female students check out from the coffee shop and note their total purchase price. How powerful is this experiment if I want to detect a difference of 75 cents in either direction?
 
-The base R `power.t.test()` function makes this fairly simple to answer. The effect size (75 cents) is specified as `delta`. We also need to specify a _hypothesized population standard deviation_ as `sd`. Imagine we have access to the population of all possible purchase prices ever observed and we calculate the standard deviation of those values. We'd like to do that, but can't. So we need to _estimate_ the standard deviation of that population. One rule of thumb to use if we have no subject matter expertise to guide us: 
+The base R `power.t.test()` function makes this fairly simple to answer. The effect size (75 cents) is specified as `delta`. We also need to specify a _hypothesized population standard deviation_ as `sd`. Imagine we have access to the population of all purchase prices ever observed and we calculate the standard deviation of those values. We'd like to do that, but can't. So we need to _estimate_ the standard deviation of that population. One rule of thumb to use if we have no subject matter expertise to guide us: 
 
 > take the difference between the maximum and minimum possible values and divide by 4 (or 6). 
 
@@ -235,19 +235,19 @@ How many students should we sample for a power of 0.99 and a significance level 
 ## Paired t-test
 
 
-24 high school boys are put on a ultraheavy rope-jumping program. Does this decrease their 40-yard dash time (ie, make them faster)? We'll measure their 40 time _before_ the program and _after_. We'll use a _paired t-test_ to see if the _difference_ in times is greater than 0 (before - after). These are not independent groups, so we can't use a 2-sample t-test. This also means we need to make an assumption about the _standard deviation of the differences_. Let's say it's about 0.25 seconds based on our rule of thumb above: (1 - 0)/4 = 0.25, where 1 second is the maximum difference in times and 0 is no difference in times. How powerful is the test to detect a difference of about 0.08 seconds with 0.05 significance?
+24 high school boys are put on a ultraheavy rope-jumping program. Does this decrease their 40-yard dash time (ie, make them faster)? We'll measure their 40 time _before_ the program and _after_. We'll use a _paired t-test_ to see if the _difference_ in times is less than 0 (after - before). These are not independent groups, so we can't use a 2-sample t-test. This also means we need to make an assumption about the _standard deviation of the differences_. Let's say it's about 0.25 seconds based on our rule of thumb above: (1 - 0)/4 = 0.25, where 1 means a full second faster and 0 means no change . How powerful is the test to detect a difference of about 0.1 seconds with 0.05 significance?
 
 Notice we need to specify `type = "paired"` and `alternative = "one.sided"`. Also notice the estimated standard deviation is on the differences, not the populations.
 
 ```{r}
-power.t.test(n = 24, delta = 0.08, sd = 0.25, sig.level = 0.05, 
+power.t.test(n = 24, delta = 0.1, sd = 0.25, sig.level = 0.05, 
              type = "paired", alternative = "one.sided")
 ```
 
 Using the `pwr.t.test()` function we have to specify `type = "paired"` and `alternative = "greater"`.
 
 ```{r}
-pwr.t.test(n = 24, d = 0.08/0.25, sig.level = 0.05, 
+pwr.t.test(n = 24, d = 0.1/0.25, sig.level = 0.05, 
            type = "paired", alternative = "greater")
 ```
 
@@ -311,7 +311,7 @@ How many people do I need in each group if I believe two of the designs will tak
 
 ## Conventional effect sizes
 
-Cohen proposed conventional effect sizes for each test called "small", "medium", and "large". These are controversial because they're vague. However, they may be worth calculating to give you a ballpark range of sample sizes.
+Cohen proposed conventional effect sizes for each test called "small", "medium", and "large". _These are controversial because they're vague_. However, they may be worth calculating to give you a ballpark range of sample sizes.
 
 The `cohen.ES` function returns an effect size for a given `test` and `size`.
 
@@ -344,7 +344,7 @@ This requires some knowledge of programming as well as statistics. Here's a quic
 power.t.test(delta = 0.75, sd = 2.25, sig.level = 0.05, n = 30)
 ```
 
-We can obtain a similar result using simulation. Let's simulate one data set and analysis. The delta is the difference in means (ie, 5.75 - 5 = 0.75). We can use any means, as long as they differ by 0.75. Notice also the constant standard deviation for the two populations.
+We can obtain a similar result using simulation. Let's simulate one data set and one analysis. The delta is the difference in means (ie, 5.75 - 5 = 0.75). We can use any means, as long as they differ by 0.75. Notice also the constant standard deviation for the two populations.
 
 ```{r}
 x1 <- rnorm(n = 30, mean = 5.00, sd = 2.25)
@@ -357,10 +357,10 @@ t.test(x1, x2, var.equal = TRUE)$p.value < 0.05
 Now we repeat this 1000 times and see what proportion of times we get a p-value below our significance level. We can do this with the `replicate()` function in base R. Notice we simply wrap our previous code in curly braces `{}` to create an _expression_. The result is a vector of TRUE/FALSE values. The mean of a TRUE/FALSE vector is the proportion of TRUEs.
 
 ```{r}
-result <- replicate(n = 1000, expr = 
-                      {x1 <- rnorm(n = 30, mean = 5.00, sd = 2.25)
-                       x2 <- rnorm(n = 30, mean = 5.75, sd = 2.25)
-                       t.test(x1, x2, var.equal = TRUE)$p.value < 0.05})
+result <- replicate(n = 1000, expr = {
+  x1 <- rnorm(n = 30, mean = 5.00, sd = 2.25)
+  x2 <- rnorm(n = 30, mean = 5.75, sd = 2.25)
+  t.test(x1, x2, var.equal = TRUE)$p.value < 0.05})
 mean(result)
 ```
 
@@ -391,7 +391,7 @@ Now "apply" the function to multiple sample sizes. The "s" in "sapply" means to 
 sapply(c(50, 75, 100, 150), sim_ttest)
 ```
 
-We could modify our sim_ttest to take different standard deviation values, different p-value cutoffs, and different means.
+We could modify our `sim_ttest()` function to take different standard deviation values, different p-value cutoffs, and different means.
 
 
 ## Simulate a 2-way ANOVA
@@ -403,7 +403,7 @@ To begin, let's just simulate one data set and one analysis.
 ```{r}
 n <- 10 # per group
 design <- rep(c("a","b"), each = n*2)
-weight <- rep(c("20 lb","28 lb"), times = n*2)
+weight <- rep(c("20","28"), times = n*2)
 table(design, weight)
 ```
 
@@ -421,11 +421,11 @@ The `rnorm()` function at the end adds "noise" to the distance and is analogous 
 ```{r}
 dist <- 72 +              
   (design == "b")*12 +    
-  (weight == "28 lb")*-4 +
+  (weight == "28")*-4 +
   rnorm(n*4, mean = 0, sd = 10)
 ```
 
-And finally run the analysis using the `lm` function.
+And finally run the analysis using the `lm()` function.
 
 ```{r}
 m <- lm(dist ~ design + weight)
@@ -442,8 +442,9 @@ Now repeat 1000 times:
 
 ```{r}
 results <- replicate(1000, expr = {
-  dist <- 72 + (design == "b")*12 + 
-    (weight == "28 lb")*-4 + 
+  dist <- 72 + 
+    (design == "b")*12 + 
+    (weight == "28")*-4 + 
     rnorm(n*4, mean = 0, sd = 10)
   m <- lm(dist ~ design + weight)
   coef(summary(m))['designb','Pr(>|t|)'] < 0.01
@@ -471,11 +472,11 @@ To specify the interaction in `lm` we use the `:` operator (design:weight)
 ```{r}
 dist <- 72 + 
   (design == "b")*12 + 
-  (weight == "28 lb")*-4 + 
-  (design == "b")*(weight == "28 lb")*6 +
+  (weight == "28")*-4 + 
+  (design == "b")*(weight == "28")*6 +
   rnorm(n*4, mean = 0, sd = 10)
 m <- lm(dist ~ design + weight + design:weight)
-coef(summary(m))['designb:weight28 lb','Pr(>|t|)'] < 0.01
+coef(summary(m))['designb:weight28','Pr(>|t|)'] < 0.01
 ```
 
 Let's run it 1000 times and see what proportion of times we _detect_ the interaction at the significance level 0.01:
@@ -483,11 +484,11 @@ Let's run it 1000 times and see what proportion of times we _detect_ the interac
 ```{r}
 results <- replicate(1000, expr = {
   dist <- 72 + (design == "b")*12 + 
-    (weight == "28 lb")*-4 +
-    (design == "b")*(weight == "28 lb")*6 +
+    (weight == "28")*-4 +
+    (design == "b")*(weight == "28")*6 +
     rnorm(n*4, mean = 0, sd = 10)
   m <- lm(dist ~ design + weight + design:weight)
-  coef(summary(m))['designb:weight28 lb','Pr(>|t|)'] < 0.01
+  coef(summary(m))['designb:weight28','Pr(>|t|)'] < 0.01
 })
 mean(results)
 ```
@@ -500,18 +501,19 @@ Let's turn this into a function so we can easily try different sample sizes.
 sim_model <- function(n){
   results <- replicate(n = 1000, expr = {
     design <- rep(c("a","b"), each = n*2)
-    weight <- rep(c("20 lb","28 lb"), times = n*2)
-    dist <- 72 + (design == "b")*12 + (weight == "28 lb")*-4 +
-      (design == "b")*(weight == "28 lb")*6 +
+    weight <- rep(c("20","28"), times = n*2)
+    dist <- 72 + 
+      (design == "b")*12 + 
+      (weight == "28")*-4 +
+      (design == "b")*(weight == "28")*6 +
       rnorm(n*4, mean = 0, sd = 10)
     m <- lm(dist ~ design + weight + design:weight)
-    coef(summary(m))['designb:weight28 lb','Pr(>|t|)'] < 0.01})
+    coef(summary(m))['designb:weight28','Pr(>|t|)'] < 0.01})
   mean(results)
 }
 
 # try samples sizes of 50, 100, 150
 sapply(c(50,100,150), sim_model)
-
 ```
 
 We need about 15 times the sample size (150 versus 10) to detect the interaction with decent power! Again, this is all one big thought experiment. We're making lots of assumptions. Hopefully they're reasonable and conservative assumptions.
@@ -564,8 +566,8 @@ We're mainly interested in the _Final_ sample size. At least 515. The four crite
 NOTES:  
 - This does NOT mean the final model will have 15 predictors. It may just have 3 or 4. The 15 number is the maximum number of parameters the model might have.
 - 15 predictor _parameters_ does NOT mean 15 predictors. For example, a categorical variable with 4 levels will have 3 parameters. That one predictor counts as 3 parameters.
-- This is a _minimum_ sample size. If you can get more subjects, by all means get more!
-- This assumes the sample is representative of the target population!
+- This is a _minimum_ sample size. If you can get more subjects, by all means get more.
+- This assumes the sample is representative of the target population.
 
 ### Logistic regression
 
@@ -597,7 +599,7 @@ Example: let's say we want to build a model to predict the probability a college
 ```{r}
 pmsampsize(type = "b", 
            parameters = 18, 
-           rsquared = 0.3, 
+           csrsquared = 0.3, 
            prevalence = 0.50)
 ```
 
@@ -616,10 +618,7 @@ If you would like to talk more about statistics or need statistical help with yo
 - Hoenig JM, Heisey DM. The abuse of power: the pervasive fallacy of power calculations for data analysis. Am Stat. 2001; 55:19-24.
 - Riley, RD, et al. Calculating the sample size required for developing a clinical prediction model. BMJ 2020;368:m441 
 https://doi.org/10.1136/bmj.m441 (Published 18 March 2020) 
-- Joie Ensor, Emma C. Martin and Richard D. Riley (2021). pmsampsize:
-  Calculates the Minimum Sample Size Required for Developing a
-  Multivariable Prediction Model. R package version 1.1.0.
-  https://CRAN.R-project.org/package=pmsampsize
+- Joie Ensor, Emma C. Martin and Richard D. Riley (2021). pmsampsize: Calculates the Minimum Sample Size Required for Developing a Multivariable Prediction Model. R package version 1.1.0. https://CRAN.R-project.org/package=pmsampsize
 - Hogg, R and Tanis, E. (2006). _Probability and Statistical Inference (7th ed.)_. Pearson. (Ch. 9) 
 - Dalgaard, P. (2008). _Introductory Statistics with R_. Springer.
 - Allison, p. (2013) What’s the Best R-Squared for Logistic Regression?. https://statisticalhorizons.com/r2logistic/ (Accessed 2023-02-10)

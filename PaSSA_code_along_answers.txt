@@ -50,7 +50,7 @@ power.t.test(delta = 0.75, sd = 2.25, sig.level = 0.001, power = 0.99)
 How many pairs do we need to sample to achieve at least 0.95 power with a significance level of 0.01, assuming our hypothesized effect size is correct?
 
 ```{r}
-power.t.test(delta = 0.08, sd = 0.25, sig.level = 0.01, power = 0.95, 
+power.t.test(delta = 0.1, sd = 0.25, sig.level = 0.01, power = 0.95, 
              type = "paired", alternative = "one.sided")
 ```
 
