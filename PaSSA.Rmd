@@ -23,6 +23,12 @@ You can also press *Ctrl+Enter* (Win/Linux) or *Cmd+Return* (Mac) to run one lin
 Add a new R code chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I* (Win/Linux) or *Cmd+Option+I* (Mac).  
 
 
+## CODE ALONG 0
+
+Insert a code chunk and run the code `sample(x = 1:6, size = 1)`
+
+
+
 ## Workshop agenda
 
 - What is power and how does it relate to sample size?
@@ -41,10 +47,10 @@ Add a new R code chunk by clicking the *Insert Chunk* button on the toolbar or b
 
 - Decision: reject the _null hypothesis_ of random chance if the p-value of the one-sample proportion test is below _0.05_.
 
-QUESTIONS:
+Two possible questions to consider before starting the study:
 
-- How many people should I sample? 
-- Or, I can only sample 30 people. Do I have sufficient _power_?
+1. What should our _sample size_ be if we want high probability of detecting the hypothesis assuming it's true?   
+2. Do we have high enough probability, or _power_, of detecting the hypothesis if our sample size is already determined?
 
 ## What is Power?
 
@@ -100,7 +106,19 @@ Our answer is the line that begins with "n". Our minimal sample size to have 80%
 - We don't know if our hypothesized effect size is correct (0.75 - 0.50 = 0.25). We're just pretending it is. Hopefully we have good reason for proposing it.
 - A sample size of 23 does NOT guarantee we will "get a significant result"! It simply provides probability of 0.80 of rejecting the null based on our assumption that the effect size is 0.75 - 0.50 = 0.25.
 - We have probability of 0.2 of incorrectly failing to reject null (1 - 0.80), again based on our assumption that the effect size is 0.75 - 0.50 = 0.25.
-- Accept and embrace the uncertainty in this power and sample size "analysis". It truly is a thought experiment.
+- Accept and embrace the uncertainty in this power and sample size "analysis". It's a thought experiment.
+
+## Analyzing the data
+
+The analysis of the data is not the topic of the workshop, but I thought it might help to see an example analysis for this toy example.
+
+Let's say we randomly sample 23 people and observe 18 put their name tag on the left side of their chest. Here's how we analyze the data using the `prop.test()` function. 
+
+```{r}
+prop.test(x = 18, n = 23, p = 0.5, alternative = "greater")
+```
+
+
 
 ## CODE ALONG 1
 
@@ -129,7 +147,7 @@ Add new R code chunks by pressing *Ctrl+Alt+I* (Win/Linux) or *Cmd+Option+I* (Ma
 
 If we conclude people prefer to put name tags on the left side of their chest when they actually don't we have made a _Type I error_. (Rejecting the null hypothesis in error) 
 
-Our tolerance for a Type I error is the significance level. Usually 0.05, 0.01 or lower.
+Our tolerance for a Type I error is the _significance level_. Usually 0.05, 0.01 or lower.
 
 If we conclude people have no preference for which side of the chest they place their name tag when they really do prefer left we have made a _Type II error_. (Failing to reject null hypothesis in error)
 
@@ -336,7 +354,7 @@ To detect a "small" effect in a one-way ANOVA with 3 groups, 0.90 power, and 0.0
 
 ## Using simulation to estimate power and sample size
 
-Research questions often require analyses more sophisticated than t-tests and one-way ANOVAs. It can be useful to simulate data with effects you want to detect and see how often you actually detect them in an analysis. Basically we generate the data and analysis many, many times and calculate the proportion of times we reject the null hypothesis.
+Research questions often require analyses more sophisticated than t-tests and one-way ANOVAs which don't have easy power and sample size formulas. It can be useful to simulate data with effects you want to detect and see how often you actually detect them in an analysis. Basically we generate the data and analysis many, many times and calculate the proportion of times we reject the null hypothesis.
 
 This requires some knowledge of programming as well as statistics. Here's a quick example for a two-sample t-test. Recall the previous code for estimating power for two groups of size 30:
 
@@ -518,7 +536,7 @@ sapply(c(50,100,150), sim_model)
 
 We need about 15 times the sample size (150 versus 10) to detect the interaction with decent power! Again, this is all one big thought experiment. We're making lots of assumptions. Hopefully they're reasonable and conservative assumptions.
 
-## Post-hoc power analysis: don't do it
+## Post-hoc power analysis: not useful
 
 Sometimes reviewers or editors will ask authors to perform a "post-hoc power calculation" if a study fails to produce statistically significant results. This means using the observed data and sample size to estimate power. The idea is to determine if the study sample size was too small to detect an effect. However, post-hoc power calculated using the study data is just the p-value reported a different way. It doesn't tell you anything new.
 
@@ -550,7 +568,7 @@ For a continuous outcome (ie, a number possibly with decimals that can be negati
 - anticipated mean outcome value in population (intercept)
 - anticipated standard deviation of outcome value in population (sd)
 
-Example: Let's say we plan on building a linear model to predict GPA at end of freshman year for a typical college student. Based on data we'll have access to, we plan to entertain 15 possible parameters (ie, coefficients in a model). We'd like a model with an R-squared of about 0.2. We have reason to believe the overall mean GPA of all college freshman is 3.0 with a standard deviation of 0.3. What minimum sample size do we need based on these assumptions?
+Example: Let's say we plan on building a linear model to predict GPA at end of freshman year for a typical college student. Based on data we'll have access to, we plan to entertain 15 possible parameters (ie, coefficients in a model). We'd like a model with an R-squared of about 0.2. We have reason to believe the overall mean GPA of all college freshman is 3.0 with a standard deviation of 0.2. What minimum sample size do we need based on these assumptions?
 
 ```{r}
 library(pmsampsize)
@@ -558,7 +576,7 @@ pmsampsize(type = "c",
            parameters = 15, 
            rsquared = 0.2, 
            intercept = 3.0, 
-           sd = 0.3)
+           sd = 0.2)
 ```
 
 We're mainly interested in the _Final_ sample size. At least 515. The four criteria are documented in the help page for `pmsampsize()`. The SPP is the estimated number of subjects we'll need per _predictor parameter_. A common rule of thumb has been 10 subjects per predictor parameter. We see here that rule of thumb is not very accurate.
