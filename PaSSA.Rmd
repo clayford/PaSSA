@@ -253,20 +253,20 @@ How many students should we sample for a power of 0.99 and a significance level 
 ## Paired t-test
 
 
-24 high school boys are put on a ultraheavy rope-jumping program. Does this decrease their 40-yard dash time (ie, make them faster)? We'll measure their 40 time _before_ the program and _after_. We'll use a _paired t-test_ to see if the _difference_ in times is less than 0 (after - before). These are not independent groups, so we can't use a 2-sample t-test. This also means we need to make an assumption about the _standard deviation of the differences_. Let's say it's about 0.25 seconds based on our rule of thumb above: (1 - 0)/4 = 0.25, where 1 means a full second faster and 0 means no change . How powerful is the test to detect a difference of about 0.1 seconds with 0.05 significance?
+24 high school boys are put on a ultraheavy rope-jumping program. Does this decrease their 40-yard dash time (ie, make them faster)? We'll measure their 40 time _before_ the program and _after_. We'll use a _paired t-test_ to see if the _difference_ in times is less than 0 (after - before). These are not independent groups, so we can't use a 2-sample t-test. This also means we need to make an assumption about the _standard deviation of the differences_. Let's say it's about 0.25 seconds based on our rule of thumb above: (1 - 0)/4 = 0.25, where 1 means a full second faster and 0 means no change . How powerful is the test to detect a difference of about -0.1 seconds with 0.05 significance?
 
-Notice we need to specify `type = "paired"` and `alternative = "one.sided"`. Also notice the estimated standard deviation is on the differences, not the populations.
+First we demonstrate using `power.t.test()`. We need to specify `type = "paired"` and `alternative = "one.sided"`, and provide the _absolute value_ of the effect size. Notice the estimated standard deviation is on the differences, not the populations.
 
 ```{r}
 power.t.test(n = 24, delta = 0.1, sd = 0.25, sig.level = 0.05, 
              type = "paired", alternative = "one.sided")
 ```
 
-Using the `pwr.t.test()` function we have to specify `type = "paired"` and `alternative = "greater"`.
+Using the `pwr.t.test()` function we have to specify `type = "paired"` and either `alternative = "greater"` or `alternative = "less"`, depending on how we state the effect size. Since we're interested in a _decrease_ in time, we can provide a negative `d` and specify `alternative = "less"`.
 
 ```{r}
-pwr.t.test(n = 24, d = 0.1/0.25, sig.level = 0.05, 
-           type = "paired", alternative = "greater")
+pwr.t.test(n = 24, d = -0.1/0.25, sig.level = 0.05, 
+           type = "paired", alternative = "less")
 ```
 
 
