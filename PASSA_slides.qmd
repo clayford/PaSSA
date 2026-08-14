@@ -1,0 +1,178 @@
+---
+title: "Power and Sample Size Analysis with R"
+author: "Clay Ford"
+date: "Fall 2026"
+format: 
+  revealjs:
+    embed-resources: true
+    smaller: true
+    scrollable: true
+    slide-number: true
+    incremental: true
+    theme: simple
+    include-in-header:
+      - text: |
+          <style>
+          #title-slide .title {
+          font-size: 3.5em; /* Adjust the size as needed */
+          }
+          </style>
+knitr:
+  opts_chunk: 
+    echo: true
+---
+
+## Workshop agenda
+
+::: {.nonincremental}
+- What is power and how does it relate to sample size?
+- When and why to calculate power and sample size for a study
+- How to do it for various statistical tests in R
+- Intro to using simulation for estimating power and sample size
+- Sample size estimation for building a predictive model
+:::
+
+
+## Hello, my name is...
+
+- I suspect people place sticky-back name tags on the left side of their chest about _75%_ of the time (probably because most people are right handed). I create an experiment to test this _hypothesis_. 
+
+- Experiment: randomly sample _n_ people and calculate the proportion _p_ of people who place a name tag on the left.
+
+- Analysis: conduct a _one-sample proportion test_ to see if the sample proportion is significantly greater than random chance (50%).
+
+- Decision: reject the _null hypothesis_ of random chance if the p-value of the one-sample proportion test is below _0.05_.
+
+- Two possible questions to consider **before** starting the study:
+    1. What should my _sample size_ be if I want high probability of rejecting the null hypothesis (50%) assuming my alternative hypothesis (75%) is true?   
+    2. Do I have high enough probability, or _power_, of rejecting the null hypothesis if my sample size is already determined, again assuming my alternative hypothesis is true?
+
+
+## Determining sample size and power
+
+::: {.nonincremental}
+A sufficient **sample size** for a statistical test is determined from:
+
+1. Power
+2. Effect size
+3. Significance level
+4. Alternative direction (_only for certain tests_)
+
+Determining the **power** of a statistical test is determined from:
+
+1. Sample Size
+2. Effect size
+3. Significance level
+4. Alternative direction (_only for certain tests_)
+:::
+
+
+## What is power?
+
+- Power is the probability of correctly rejecting a false null hypothesis.
+
+- In a hypothesis test, we assume two possible realities:
+    1. Null Hypothesis: No effect (eg, random chance, 0.50)
+    2. Alternative Hypothesis: _some_ effect (eg, 0.75)
+
+- At the conclusion, we decide whether to reject or fail to reject #1, usually based on a _p-value_ falling below a threshold such as 0.05.   
+
+- We would like to have a high probability (or high power) of rejecting #1 if #2 is true. The usual desired power is at least 0.80.
+
+
+## What is effect size?
+
+- One definition is "the degree to which the null hypothesis is false."
+
+- Estimating 90% of people place name tags on the left is much larger than estimating 55% put name tags on the left.
+
+- In the former scenario (90%), I don't have to sample that many people to confirm my suspicion. In the latter scenario (55%), I need to sample more people to get a proportion that is significantly different from random chance (50%)
+
+- In sample size and power analyses, we have to pick an effect size. This is often a clinically or biologically relevant effect you would regret missing. 
+
+- In my example experiment, the effect size is 0.75 - 0.50 = 0.25.
+
+## What is significance level?
+
+- This is the cut-off for determining whether or not our p-value is significant. 
+
+- Typical values are 0.05, 0.01 and 0.001. 
+
+- Recall, a p-value is the probability under the null hypothesis that a statistical summary of data would be equal to or more extreme than its observed value.
+
+
+## What is Alternative Direction?
+
+- This refers to how we think our alternative hypothesis differs from the null.
+
+- If I think the left preference is greater than (or less than) 50%, then I have a _one-sided_ alternative.
+
+- If I think the left preference is simply different from 50%, then I have a _two-sided_ alternative.
+
+- The one-sided alternative is a stronger assumption. Most power and sample size analyses will play it safe by assuming a two-sided alternative.
+
+- Some hypothesis tests only have a two-sided alternative, such as ANOVA and chi-square.
+
+
+## Type I and Type II errors
+
+- If I conclude people prefer left when they actually don't I have made a _Type I error_. (Rejecting the null hypothesis in error) 
+
+- If I conclude people have no preference when they really do prefer left I have made a _Type II error_. (Failing to reject null hypothesis in error)
+
+- We usually never know if we have made these errors.
+
+- Our tolerance for a Type I error is the significance level. Usually 0.05, 0.01 or lower.
+
+- Our tolerance for a Type II error is 1 - Power. Usually 0.20 or lower.
+
+## Calculating power and sample size
+
+- A power and sample size formula **corresponds to a planned statistical analysis**. You have to know what statistical test you're planning to use to analyze your data in order to calculate power and sample size.
+
+- Power and sample size is calculated for a _specific_ statistical test (eg, two-sample t-test, ANOVA, F test)
+
+- Power and/or sample size should be calculated **before** you run your experiment, not during or after. 
+
+
+## Sample size for precision
+
+- We can also calculate sample size based on how _precise_ we want to estimate something.
+
+- Example: I want to estimate the proportion of times people place a name tag on the left side with a 95% confidence interval that has a margin of error of 0.03. (eg, 0.72, 95% CI [0.69, 0.75]) 
+
+- Sample size based on power relates to _hypothesis testing_. Sample size based on precision relates to _confidence intervals_.
+
+- Bland (2009): Sample size calculations should be based on the width of a confidence interval, not power
+
+- Let's go to R!
+
+
+## Thanks for coming
+
+::: {.nonincremental}
+- For free statistical consulting, contact us: `statlab@virginia.edu`
+
+- Sign up for more workshops or see past workshops:\
+  <https://library.virginia.edu/data/training>
+
+- Register for the Research Data Services newsletter to be notified of new workshops:\
+  <https://library.virginia.edu/data/newsletters>
+:::
+
+## References
+
+::: {.nonincremental}
+::: {style="font-size: 60%;"}
+-  Bland J M. (2009). The tyranny of power: is there a better way to calculate sample size? BMJ 2009; 339 :b3985 doi:10.1136/bmj.b3985
+- Champely, S. (2020). pwr: Basic Functions for Power Analysis. R package version 1.3-0. https://CRAN.R-project.org/package=pwr
+- Cohen, J. (1988). _Statistical power analysis for the behavioral sciences (2nd ed.)_. Hillsdale, NJ: Lawrence Erlbaum.
+- Hoenig JM, Heisey DM. The abuse of power: the pervasive fallacy of power calculations for data analysis. Am Stat. 2001; 55:19-24.
+- Riley, RD, et al. Calculating the sample size required for developing a clinical prediction model. BMJ 2020;368:m441 
+https://doi.org/10.1136/bmj.m441 (Published 18 March 2020) 
+- Joie Ensor, Emma C. Martin and Richard D. Riley (2021). pmsampsize: Calculates the Minimum Sample Size Required for Developing a Multivariable Prediction Model. R package version 1.1.0. https://CRAN.R-project.org/package=pmsampsize
+- Hogg, R and Tanis, E. (2006). _Probability and Statistical Inference (7th ed.)_. Pearson. (Ch. 9) 
+- Dalgaard, P. (2008). _Introductory Statistics with R_. Springer.
+- Allison, p. (2013) What’s the Best R-Squared for Logistic Regression?. https://statisticalhorizons.com/r2logistic/ (Accessed 2023-02-10)
+:::
+:::

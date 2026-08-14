@@ -509,7 +509,7 @@ pwr.f2.test(u = 2, f2 = 0.3/(1 - 0.3), sig.level = 0.05, power = 0.8)
 # In this case, f2 = (0.35 - 0.30)/(1 - 0.35)
   
 # How many employees would we need to survey to identify the office contribution
-# to variance explained with 90% power and a signficance level of 0.05?
+# to variance explained with 90% power and a significance level of 0.05?
 
 # u = number of variables in set "A"
 # v = n - number of variables in sets "A" and "B" - 1

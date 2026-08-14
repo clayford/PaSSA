@@ -6,76 +6,25 @@ editor_options:
   chunk_output_type: inline
 ---
 
-## Quick Intro to R Notebooks and R Markdown
-
-This is an R Markdown Notebook. When you execute code within the notebook, the results appear beneath the code. This file was created in RStudio by going to File...New File...R Notebook.
-
-Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing  *Ctrl+Shift+Enter* (Win/Linux) or *Cmd+Shift+Return* (Mac).  
+Load the pwr package.
 
 ```{r}
-plot(cars)
+library(pwr)
+library(presize)
 ```
 
-To hide the output, click the Expand/Collapse output button. To clear results (or an error), click the "x". 
 
-You can also press *Ctrl+Enter* (Win/Linux) or *Cmd+Return* (Mac) to run one line of code at a time (instead of the entire chunk).
+# One-sample proportion test
 
-Add a new R code chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I* (Win/Linux) or *Cmd+Option+I* (Mac).  
-
-
-## CODE ALONG 0
-
-Insert a code chunk and run the code `sample(x = 1:6, size = 1)`
-
-
-
-## Workshop agenda
-
-- What is power and how does it relate to sample size?
-- When and why to calculate power and sample size for a study
-- How to do it for various statistical tests in R
-- Intro to using simulation for estimating power and sample size
-- Sample size estimation for multivariable prediction models
-
-## Hello, my name is...
-
-- I suspect people place sticky-back name tags on the left side of their chest about _75%_ of the time (probably because most people are right handed). I create an experiment to test this _hypothesis_. 
-
-- Experiment: randomly sample _n_ people and calculate the proportion _p_ of people who place a name tag on the left.
-
-- Analysis: conduct a _one-sample proportion test_ to see if the sample proportion is significantly greater than random chance (50%).
-
-- Decision: reject the _null hypothesis_ of random chance if the p-value of the one-sample proportion test is below _0.05_.
-
-Two possible questions to consider before starting the study:
-
-1. What should our _sample size_ be if we want high probability of detecting the hypothesis assuming it's true?   
-2. Do we have high enough probability, or _power_, of detecting the hypothesis if our sample size is already determined?
-
-## What is Power?
-
-Power is a _probability_. It ranges from [0, 1]. Power is the probability of correctly rejecting a false null hypothesis.
-
-Returning to our example, we have two possibilities, or _hypotheses_:
-
-1. Percentage of people who place name tags on the left side of their chest is random (50%), the _null hypothesis_
-2. Percentage of people who place name tags on the left side of their chest is greater than 50%, the _alternative hypothesis_
-
-Let's assume the alternative hypothesis is _correct_. 
-
-Further, let's assume at least 75% of people place name tags on the left side of their chest. This means we estimate an _effect size_ of 0.75 - 0.50 = 0.25.
-
-If our assumptions are true we would like our hypothesis test to have a _high probability_, or _high power_, of returning the correct result (ie, a p-value below 0.05). To ensure high power we need a sufficiently large sample size. High power is usually considered to be at least _0.80_, if not higher.
-
-One approach is to sample as many people as possible. But that can be expensive and time-consuming. So we usually want to _find the smallest sample size that provides the power we desire_. 
-
-## Power and sample size analysis for our experiment
-
-Let's go ahead and calculate the sample size for our simple experiment. For this we'll use the {pwr} package. The `pwr.p.test()` function can be used to calculate power or sample size for a one-sample proportion test.
+Let's calculate the sample size for our simple experiment. For this we'll use the {pwr} package. The `pwr.p.test()` function can be used to calculate power or sample size for a one-sample proportion test.
 
 Notice we first have to calculate a _transformed effect size_ using the `ES.h()` function. The `p1` argument is the alternative proportion (0.75), the `p2` argument is the null proportion (0.50). The `h` notation is due to Cohen (1988). It represents effect sizes for proportions.
 
-The reason we have to transform the effect size for proportions is to distinguish between _absolute_ and _relative_ differences.
+The `ES.h()` function transforms the absolute difference into an effect size that takes the _relative_ difference into account. The reason we have to transform the effect size for proportions is to distinguish between _absolute_ and _relative_ differences.
+
+```{r}
+ES.h(p1 = 0.75, p2 = 0.50)
+```
 
 For example, the _absolute differences_ in these proportions are equivalent:
 
@@ -87,14 +36,18 @@ But notice the _relative differences_ are very different:
 0.75/0.50 = 1.5  (ie, 0.75 is 1.5 times greater than 0.50)
 0.26/0.01 = 26   (ie, 0.26 is 26 times greater than 0.01)
 
-The `ES.h()` function transforms the absolute difference into an effect size that takes the relative difference into account.
+This means the effect sizes are very different.
+
+```{r}
+c(ES.h(p1 = 0.75, p2 = 0.50),
+  ES.h(p1 = 0.26, p2 = 0.01))
+```
 
 Since we want sample size, we _leave it out of the function_. We specify our desired power (0.80); our significance level (0.05) which is the threshold we cross for "rejecting" the null; and the alternative ("greater") which says we think the alternative hypothesis is _greater than that null_.
 
 ```{r}
-library(pwr) # do this once per session
 h <- ES.h(p1 = 0.75, p2 = 0.50)
-pwr.p.test(h = h, sig.level = 0.05, power = 0.80, 
+pwr.p.test(h = h, power = 0.80, sig.level = 0.05, 
            alternative = "greater")
 ```
 
@@ -108,15 +61,46 @@ Our answer is the line that begins with "n". Our minimal sample size to have 80%
 - We have probability of 0.2 of incorrectly failing to reject null (1 - 0.80), again based on our assumption that the effect size is 0.75 - 0.50 = 0.25.
 - Accept and embrace the uncertainty in this power and sample size "analysis". It's a thought experiment.
 
-## Analyzing the data
+### Analyzing the data
 
 The analysis of the data is not the topic of the workshop, but I thought it might help to see an example analysis for this toy example.
 
 Let's say we randomly sample 23 people and observe 18 put their name tag on the left side of their chest. Here's how we analyze the data using the `prop.test()` function. 
 
 ```{r}
-prop.test(x = 18, n = 23, p = 0.5, alternative = "greater")
+prop.test(x = 18, n = 23, p = 0.5, alternative = "greater", correct = FALSE)
 ```
+
+Reject the null, but notice the wide 95% confidence interval.
+
+## Sample size for precision
+
+We can also estimate sample size based on a desired precision. Say we hypothesize the proportion of people who place a name tag on the left is 0.75, and we want to estimate that within 0.03 margin of error. That corresponds to a width of 0.06. We can use the `prec_prop()` function from the presize package to estimate the sample size.
+
+
+```{r}
+prec_prop(p = 0.75, conf.width = 0.06)
+```
+
+798. Notice how much bigger this sample size is! Precision requires a much larger sample size than simply reject a null hypothesis.
+
+To avoid the warning. specify a method. The wilson method is suggested for small n (< 40), and the agresti-coull method is suggested for larger n (see reference).
+
+```{r}
+prec_prop(p = 0.75, conf.width = 0.06, method = "wilson")
+```
+
+```{r}
+prec_prop(p = 0.75, conf.width = 0.06, method = "agresti")
+```
+
+If you have no idea of a hypothesized proportion, you can specify 0.5. That's the most conservative.
+
+```{r}
+prec_prop(p = 0.5, conf.width = 0.06, method = "agresti")
+```
+
+Most election polling samples are based on this calculation.
 
 
 
@@ -135,38 +119,23 @@ Add new R code chunks by pressing *Ctrl+Alt+I* (Win/Linux) or *Cmd+Option+I* (Ma
 (3) What is the power of our experiment if we sample 50 people with a significance level of 0.01 and an assumed effect size of 65% - 50% = 15%?
 
 
+(4) How large a sample do we need to estimate a 95% confidence interval within a margin of 0.05 if we hypothesize the true proportion to be 0.75?
+
+
 
 ## Remember
 
 - Detecting smaller effects requires larger sample sizes
 - Using lower significance levels requires larger sample sizes
 - Higher power requires larger sample sizes
+- High precision requires even larger sample sizes
 
 
-## Type I and Type II errors
+# Two-sample proportion test
 
-If we conclude people prefer to put name tags on the left side of their chest when they actually don't we have made a _Type I error_. (Rejecting the null hypothesis in error) 
+Let's say I plan to randomly survey male and female UVA undergrad students and ask them if they consume alcohol at least once a week. 
 
-Our tolerance for a Type I error is the _significance level_. Usually 0.05, 0.01 or lower.
-
-If we conclude people have no preference for which side of the chest they place their name tag when they really do prefer left we have made a _Type II error_. (Failing to reject null hypothesis in error)
-
-Our tolerance for a Type II error is 1 - Power. 
-
-We rarely know if we have made these errors.
-
-
-## Picking an effect size
-
-Hypothesizing realistic and meaningful effect sizes is the most important part of power and sample size analysis. This requires subject matter expertise. A rule of thumb is to pick the _smallest effect you don't want to miss_. Or stated another way, pick the smallest effect that would be worth reporting or that would "make news".
-
-Cohen defines "effect size" as "the degree to which the null hypothesis is false." Example: If our null is 0.50, and the alternative 0.75, the absolute effect size is 0.25. 
-
-## Two-sample proportion test
-
-Let's say I randomly survey male and female UVA undergrad students and ask them if they consume alcohol at least once a week. 
-
-- null hypothesis: no difference in the proportion that answer yes. 
+- null hypothesis: no difference between males and females that answer yes. 
 - alternative hypothesis: there is a difference
 
 This is "two-sided" alternative; one sex has higher proportion, I don't know which.
@@ -178,39 +147,85 @@ How many students do I need to sample in _each group_ if we want 0.90 power and 
 We can either use the `pwr.2p.test()` function from the {pwr} package or use the base R `power.prop.test()` function. Notice we have to specify proportions that differ by 5%, and that the required sample size _changes dramatically_ based on where these two proportions fall in the range from 0 to 1.
 
 ```{r}
-pwr.2p.test(h = ES.h(p1 = 0.20, p2 = 0.25), sig.level = 0.05, power = 0.90)
+pwr.2p.test(h = ES.h(p1 = 0.20, p2 = 0.25), 
+            sig.level = 0.05, power = 0.90)
 ```
 
-Notice that n is the number in each group! 
+Notice that n is the number in _each group_! 
 
 The base R function does not require us to use a separate effect size function.
 
 ```{r}
-power.prop.test(p1 = 0.20, p2 = 0.25, sig.level = 0.05, power = 0.90)
+power.prop.test(p1 = 0.20, p2 = 0.25, 
+                sig.level = 0.05, power = 0.90)
 ```
 
 When we consider proportions closer to 0 or 1, the sample size required decreases because the relative difference in proportions is bigger.
 
 ```{r}
-pwr.2p.test(h = ES.h(p1 = 0.05, p2 = 0.10), sig.level = 0.05, power = 0.90)
+pwr.2p.test(h = ES.h(p1 = 0.05, p2 = 0.10), 
+            sig.level = 0.05, power = 0.90)
 ```
+
+Again using base R.
 
 ```{r}
-power.prop.test(p1 = 0.05, p2 = 0.10, sig.level = 0.05, power = 0.90)
+power.prop.test(p1 = 0.05, p2 = 0.10, 
+                sig.level = 0.05, power = 0.90)
 ```
 
+The nice thing about the pwr function is that it has a plot method.
+
+```{r}
+res <- pwr.2p.test(h = ES.h(p1 = 0.05, p2 = 0.10), 
+            sig.level = 0.05, power = 0.90)
+plot(res)
+```
+
+
+### Analyzing the data
+
+Let's say we sample 585 males and 567 females. 307 and 287 answer "yes", respectively, to consuming alcohol once a week.
+
+The analysis:
+
+```{r}
+prop.test(x = c(307, 287), n = c(585, 567), correct = FALSE)
+```
+
+We fail to reject the null of no difference.
+
+## Sample size for precision
+
+We can also estimate sample size based on a desired precision. Say we hypothesize the difference in proportions between males and females is 0.05 and we want to estimate a 95% confidence interval within 0.03 margin of error. Further assume one group is 0.50 and the other 0.55. That corresponds to a width of 0.06. We can use the `prec_riskdiff()` function from the presize package to estimate the sample size.
+
+```{r}
+prec_riskdiff(p1 = 0.50, p2 = 0.55, conf.width = 0.06)
+```
+
+Need about 2120 _per group_.
 
 ## CODE ALONG 2
 
 Add new R code chunks by pressing *Ctrl+Alt+I* (Win/Linux) or *Cmd+Option+I* (Mac). 
 
-What sample size do we need for each group if assume proportions to be 0.10 and 0.15? Again assume we desire power to be 0.90 and a significance level of 0.05.
+1) What sample size do we need for each group if assume proportions to be 0.50 and 0.55? Again assume we desire power to be 0.90 and a significance level of 0.05.
+
+```{r}
+power.prop.test(p1 = 0.5, p2 = 0.55, power = 0.9)
+```
+
+2) How large a sample do we need to estimate a 95% confidence interval on the difference of proportions within a margin of error 0.06 if we hypothesize the true proportions to be 0.45 and 0.55?
+
+```{r}
+prec_riskdiff(p1 = 0.45, p2 = 0.55, conf.width = 0.12, method = "agresti")
+```
 
 
 
-## Two-sample t-test
+# Two-sample t-test
 
-I'm interested in learning if there is a difference in the mean price of what male and female students pay at the library coffee shop. Let's say I randomly observe 30 male and 30 female students check out from the coffee shop and note their total purchase price. How powerful is this experiment if I want to detect a difference of 75 cents in either direction?
+I'm interested in learning if there is a difference in the mean price of what male and female students pay at the library coffee shop. Let's say I plan to randomly observe 30 male and 30 female students check out from the coffee shop and note their total purchase price. How powerful is this experiment if I want to detect a difference of 75 cents in either direction?
 
 The base R `power.t.test()` function makes this fairly simple to answer. The effect size (75 cents) is specified as `delta`. We also need to specify a _hypothesized population standard deviation_ as `sd`. Imagine we have access to the population of all purchase prices ever observed and we calculate the standard deviation of those values. We'd like to do that, but can't. So we need to _estimate_ the standard deviation of that population. One rule of thumb to use if we have no subject matter expertise to guide us: 
 
@@ -240,17 +255,49 @@ The {pwr} package provides the `pwr.t.test()` function. It's a little more diffi
 pwr.t.test(d = 0.75/2.25, sig.level = 0.05, power = 0.90)
 ```
 
+`pwr.t.test()` function also has a plot method.
+
+
+```{r}
+res <- pwr.t.test(d = 0.75/2.25, sig.level = 0.05, power = 0.90)
+plot(res)
+```
+
+
+## Sample size for precision
+
+We can also estimate sample size based on a desired precision. Let's say we want to estimate the _difference in means_ using a 95% confidence interval with a margin of error of 50 cents. Again assume the true difference is 75 cents and the population standard deviation is 2.25. We can use the `prec_meandiff()` function. Notice we specify `variance = "equal"` since were assuming the standard deviation is the same for males and females.
+
+```{r}
+prec_meandiff(delta = 0.75, sd1 = 2.25, conf.width = 1, variance = "equal")
+```
+
+If we like we can assume different standard deviations.
+
+```{r}
+prec_meandiff(delta = 0.75, sd1 = 2.25, sd2 = 3, conf.width = 1, 
+              variance = "unequal")
+
+```
+
+
 
 ## CODE ALONG 3
 
 Add new R code chunks by pressing *Ctrl+Alt+I* (Win/Linux) or *Cmd+Option+I* (Mac). 
 
-How many students should we sample for a power of 0.99 and a significance level of 0.001?
+1) How many students should we sample for a power of 0.99 and a significance level of 0.001?
+
+
+2) How large a sample do we need to estimate a 95% confidence interval on the difference of means within a margin of 50 cents if we hypothesize the true difference in means to be 1 dollar? Assume a standard deviation of 2.25.
+
+```{r}
+prec_meandiff(delta = 0.5, sd1 = 2.25, conf.width = 1)
+```
 
 
 
-
-## Paired t-test
+# Paired t-test
 
 
 24 high school boys are put on a ultraheavy rope-jumping program. Does this decrease their 40-yard dash time (ie, make them faster)? We'll measure their 40 time _before_ the program and _after_. We'll use a _paired t-test_ to see if the _difference_ in times is less than 0 (after - before). These are not independent groups, so we can't use a 2-sample t-test. This also means we need to make an assumption about the _standard deviation of the differences_. Let's say it's about 0.25 seconds based on our rule of thumb above: (1 - 0)/4 = 0.25, where 1 means a full second faster and 0 means no change . How powerful is the test to detect a difference of about -0.1 seconds with 0.05 significance?
@@ -270,13 +317,29 @@ pwr.t.test(n = 24, d = -0.1/0.25, sig.level = 0.05,
 ```
 
 
+## Sample size for precision
+
+To estimate a sample size for desired precision we need to focus on the difference in paired means. This reduces to a single value per subject. Say we want to estimate the difference in paired means with a 95% confidence interval with margin of error of 0.05. We can use the `prec_mean()` function. Assume the true difference in paired means is about -0.1 and that the standard deviation of the differences is 0.25. 
+
+```{r}
+prec_mean(mean = -0.1, sd = 0.25, conf.width = 0.10)
+```
+
+Notice there's no specifying "direction" when it comes to estimating sample size for precision.
+
+
 ## CODE ALONG 4
 
 Add new R code chunks by pressing *Ctrl+Alt+I* (Win/Linux) or *Cmd+Option+I* (Mac). 
 
-How many pairs do we need to sample to achieve at least 0.95 power with a significance level of 0.01, assuming our hypothesized effect size is correct?
+1) How many pairs do we need to sample to achieve at least 0.95 power with a significance level of 0.01, assuming our hypothesized effect size is correct? Assume a difference of -0.1 and a standard deviation of 0.25.
 
 
+2) How large a sample do we need to estimate a 95% confidence interval on the difference of paired means within a margin of 0.1 seconds if we hypothesize the true difference in paired means to be -0.1? Assume a standard deviation of 0.25.
+
+```{r}
+prec_mean(mean = -0.1, sd = 0.25, conf.width = 0.2)
+```
 
 
 
@@ -284,13 +347,13 @@ How many pairs do we need to sample to achieve at least 0.95 power with a signif
 
 To test if more than two means are different we can use a one-way _ANOVA_. The null hypothesis is none of the means are different. The alternative is at least one is different. By itself the ANOVA is not a very interesting statistical test. Rejecting the null should be followed by comparisons to see where and how big the differences are.
 
-I'm a web developer and I'm interested in 3 web site designs for a client. I'd like to know which design helps users find information fastest. I design an experiment where I have 3 groups of randomly selected people use one of the designs to find some piece of information and I record how long it takes. (All groups look for the same information.) How many people do I need in each group if I believe two of the designs will take 30 seconds and one will take 25 seconds? Assume population standard deviation is 5 seconds and that I desire power and significance levels of 0.90 and 0.05, respectively.
+I'm a web developer and I'm interested in 3 web site designs for a client. I'd like to know which design helps users find information fastest. I design an experiment where I will have 3 groups of randomly selected people use one of the designs to find some piece of information and I record how long it takes. (All groups look for the same information.) How many people do I need in each group if I believe two of the designs will take 30 seconds and one will take 25 seconds? Assume population standard deviation is 5 seconds and that I desire power and significance levels of 0.90 and 0.05, respectively.
 
 The base R `power.anova.test()` function requires you to specify...
 
 - the number of `groups` you plan to compare
 - the hypothesized between-group variance (`between.var`)
-- the hypothesized within-group variance (`within.var`), which we assume is the same for all groups. (pretty strong assumption!)
+- the hypothesized within-group variance (`within.var`), which we assume is the same for all groups.
 
 Notice we need to specify _variance_, not standard deviation. We use the `var()` function to calculate the between-group variances and square 5 to get the within-group variance.
 
@@ -312,12 +375,26 @@ pwr.anova.test(k = 3, f = sd_means*sqrt(2/3)/sd_pop,
 While the `pwr.anova.test()` function is a little more difficult to use because of the `f` argument, we might want to use it for the {pwr} package's plot method. Simply save the result and use it with `plot()`.
 
 ```{r}
-pout <- pwr.anova.test(k = 3, f = sd_means*sqrt(2/3)/sd_pop, 
+res <- pwr.anova.test(k = 3, f = sd_means*sqrt(2/3)/sd_pop, 
                sig.level = 0.05, power = 0.90)
-plot(pout)
+plot(res)
 ```
 
 We can see that once the group size is larger than 30, there is little reason to make the sample bigger. AGAIN, assuming our estimated effect sizes are true.
+
+## Sample size for precision
+
+One effect size measure for a one-way ANOVA is _eta-squared_. This measure represents an estimate of how much variance in the response variables is accounted for by the explanatory variable. We can estimate sample size based on the desired precision of eta-squared using the `size.ci.etasqr()` function from the {statpsych} package. 
+
+"Set the planning value of eta-squared to about 1/3 for a conservatively large sample size." (from the help page) In other words, assume the explanatory variable explains about a 1/3 of the variation.
+
+For 95% confidence interval set `alpha = 0.05`. Set `w` to desired CI width. Say we want to estimate eta-squared within 0.1 margin of error and we assume eta-squared is 1/3.
+
+```{r}
+statpsych::size.ci.etasqr(alpha = 0.05, etasqr = 1/3, groups = 3, w = 0.2)
+```
+
+Drawback of eta-squared: doesn't tell you how or which means differ. 
 
 ## CODE ALONG 5
 
@@ -325,6 +402,54 @@ Add new R code chunks by pressing *Ctrl+Alt+I* (Win/Linux) or *Cmd+Option+I* (Ma
 
 How many people do I need in each group if I believe two of the designs will take 60 seconds and one will take 45 seconds? Assume population standard deviation is 10 seconds and that I desire power and significance levels of 0.95 and 0.01, respectively.
 
+
+## Linear model/multiple regression: The F test
+
+The one-way ANOVA is a special case of a linear model. In a linear model we estimate the mean of an outcome _conditional on multiple variables_.
+
+Let's say I'm hired to survey a company's workforce about job satisfaction. I ask employees to rate their satisfaction on a scale from 1 (hating life) to 10 (loving life). I know there will be variability in the answers, but I think two variables that will explain this variability are salary and age. I could analyze this using a linear model/multiple regression. I would regress satisfaction on salary and age. 
+
+The hypothesis test associated with multiple regression is the F test. Tests that the proportion of variance explained by the model predictors is 0. Equivalently, it tests whether all the model coefficients (except the intercept) are 0. (This test is reported at the bottom of the summary output for an `lm` object.)
+
+The pwr function for this is `pwr.f2.test()`
+
+A little tricky to use because not only do we have to supply an "effect size" (`f2`), we also have to supply numerator (`u`) and denominator (`v`) degrees of freedom instead of sample size. 
+
+- The `f2` effect size is $R^2 / (1 - R^2)$, where $R^2$ is the coefficient of determination, aka the "proportion of variance explained".
+
+- To determine effect size you hypothesize the proportion of variance your model explains, or the $R^2$. For example, 0.45. This leads to an effect size of 0.45/(1 - 0.45 = 0.81. We can also reverse this. Given an effect size, we can determine $R^2$:  $ES / (1 + ES)$. For example, 0.81/(1 + 0.81) = 0.45
+
+- The numerator degrees of freedom, `u` is the number of coefficients you'll have in your model (minus the intercept).
+
+- The denominator degrees of freedom `v` is the number of error degrees of freedom. This is basically your sample size minus the number of coefficients in your model, including the intercept: v = n - u - 1.
+
+- if we want to determine sample size for a given power and effect size, we have to find `v`, which we then use to solve n = v + u + 1. There is no `n` argument!
+
+Let's say I think my proposed model will explain at least 30% (R2 = .30) of the variation in job satisfaction. How powerful is my study if I randomly recruit 40 employees and accept a 0.05 significance level for the F test?
+
+- u is number of predictors: 2
+- v is number of subjects minus model parameters: 40 - 3 = 37 (age, salary, intercept)
+- f2 is the effect size, R2/(1 - R2): 0.3/(1 - 0.3)
+
+```{r}
+pwr.f2.test(u = 2, v = 37, f2 = 0.3/(1 - 0.3), sig.level = 0.05)
+```
+
+40 subjects provides high power assuming the model really will explain 30% of the variation in job satisfaction.
+
+How many employees do I need to survey if I want to be able to detect at least 30% explained variance (R^2 = .30) with 80% power and the usual 0.05 significance level? We have to find v and then derive n.
+
+```{r}
+pwr.f2.test(u = 2, f2 = 0.3/(1 - 0.3), sig.level = 0.05, power = 0.8)
+```
+
+Round up v to 23. Now solve n, which is n = v + u + 1
+
+```{r}
+23 + 2 + 1
+```
+
+It's important to note that the alternative hypothesis here is that at least one of the coefficients in my model is not 0. This doesn't mean we need at least 26 subjects to have all coefficients significant. It just means 26 subjects gives us 80% chance of correctly detecting the effect of _at least one_ of our predictors, provided one or more truly affect our response.
 
 
 ## Conventional effect sizes
@@ -497,7 +622,7 @@ m <- lm(dist ~ design + weight + design:weight)
 coef(summary(m))['designb:weight28','Pr(>|t|)'] < 0.01
 ```
 
-Let's run it 1000 times and see what proportion of times we _detect_ the interaction at the significance level 0.01:
+Let's run it 1000 times and see what proportion of times we _detect_ the interaction at the significance level 0.01. Recall our sample size is 10 per group (or 40 overall).
 
 ```{r}
 results <- replicate(1000, expr = {
@@ -545,12 +670,12 @@ https://data.library.virginia.edu/post-hoc-power-calculations-are-not-useful/
 
 See also:
 The Abuse of Power: The Pervasive Fallacy of Power Calculations for Data Analysis (Hoenig and Heisey, 2001)
-https://www.vims.edu/people/hoenig_jm/pubs/hoenig2.pdf
+https://www.jstor.org/stable/pdf/2685525
 
 
-## Minimum sample size required for developing a multivariable prediction model
+## Minimum sample size required for building a predictive model
 
-A recent publication in the BMJ provides "guidance on how to calculate the sample size required to develop a clinical prediction model." The focus of the paper is on medical applications but the methods are applicable to any statistical analysis involving the _development_ of a linear model. That is, you intend to model an outcome as a function of various candidate predictor variables, only some of which you may end up using.
+A recent publication in the BMJ provides "guidance on how to calculate the sample size required to develop a _clinical prediction model_." The focus of the paper is on medical applications but the methods are applicable to any statistical analysis that involves _building_ a linear model. That is, you intend to model an outcome as a function of various _candidate predictor variables_, only some of which you may end up using.
 
 The article:
 Riley, RD, et al. Calculating the sample size required for developing a clinical prediction model. BMJ 2020;368:m441 
@@ -596,7 +721,7 @@ For a binary outcome (eg, 1/0, yes/no, success/failure, etc), we need to specify
 - anticipated number of model parameters _under consideration_ (parameters)
 - anticipated proportion of "successes" in population (prevalence)
 
-Cox-Snell R-squared is a "generalized" R-squared measure of model performance. Unfortunately, unlike the traditional R-squared often used with linear models, the Cox-Snell R-squared can have an upper bound _less than 1_. The maximum value is dictated by the overall outcome proportion in the observed data. The following table provides some common outcome proportions and associated maximum Cox-Snell R-squared values:
+Cox-Snell R-squared is a "generalized" R-squared measure of model performance. Unfortunately, unlike the traditional R-squared often used with linear models, the Cox-Snell R-squared can have an upper bound _less than 1_. The maximum value is dictated by the _overall outcome proportion_ in the observed data. The following table provides some common outcome proportions and associated maximum Cox-Snell R-squared values:
 
 ```
 outcome       maximum
