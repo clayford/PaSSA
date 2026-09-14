@@ -24,35 +24,61 @@ pwr.p.test(h = ES.h(p1 = 0.50, p2 = 0.65), n = 50, sig.level = 0.01, alternative
 ```
 
 
+(4) How large a sample do we need to estimate a 95% confidence interval within a margin of 0.05 if we hypothesize the true proportion to be 0.75?
+
+```{r}
+prec_prop(p = 0.75, conf.width = 0.1, method = "agresti")
+```
+
 ## CODE ALONG 2
 
 
-What sample size do we need for each group if assume proportions to be 0.10 and 0.15? Again assume we desire power to be 0.90 and a significance level of 0.05.
-
+1) What sample size do we need for each group if assume proportions to be 0.50 and 0.55? Again assume we desire power to be 0.90 and a significance level of 0.05.
 
 ```{r}
-power.prop.test(p1 = 0.10, p2 = 0.15, power = 0.90, sig.level = 0.05)
+power.prop.test(p1 = 0.5, p2 = 0.55, power = 0.9)
+```
+
+2) How large a sample do we need to estimate a 95% confidence interval on the difference of proportions within a margin of error 0.06 if we hypothesize the true proportions to be 0.45 and 0.55?
+
+```{r}
+prec_riskdiff(p1 = 0.45, p2 = 0.55, conf.width = 0.12, method = "agresti")
 ```
 
 
 ## CODE ALONG 3
 
 
-How many students should we sample for a power of 0.99 and a significance level of 0.001?
+1) How many students should we sample for a power of 0.99 and a significance level of 0.001?
 
 ```{r}
 power.t.test(delta = 0.75, sd = 2.25, sig.level = 0.001, power = 0.99)
 ```
 
+2) How large a sample do we need to estimate a 95% confidence interval on the difference of means within a margin of 50 cents if we hypothesize the true difference in means to be 1 dollar? Assume a standard deviation of 2.25.
+
+```{r}
+prec_meandiff(delta = 1, sd1 = 2.25, conf.width = 1)
+```
+
+
+
 ## CODE ALONG 4
 
 
-How many pairs do we need to sample to achieve at least 0.95 power with a significance level of 0.01, assuming our hypothesized effect size is correct?
+1) How many pairs do we need to sample to achieve at least 0.95 power with a significance level of 0.01, assuming our hypothesized effect size is correct? Assume a difference of -0.1 and a standard deviation of 0.25.
 
 ```{r}
 power.t.test(delta = 0.1, sd = 0.25, sig.level = 0.01, power = 0.95, 
              type = "paired", alternative = "one.sided")
 ```
+
+2) How large a sample do we need to estimate a 95% confidence interval on the difference of paired means within a margin of 0.1 seconds if we hypothesize the true difference in paired means to be -0.1? Assume a standard deviation of 0.25.
+
+```{r}
+prec_mean(mean = -0.1, sd = 0.25, conf.width = 0.2)
+```
+
 
 
 ## CODE ALONG 5
